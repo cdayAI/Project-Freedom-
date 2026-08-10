@@ -75,7 +75,9 @@ HOLDOUT_FRACTION = 0.15
 # v2: signal-day features (v1 had a one-day lookahead via entry-day join),
 # label-matured direction cutoffs, block-capped trades, fully-OOS PBO matrix
 # v3: feature set extended with ex-ante EDGAR catalyst features
-EVENT_STRATEGY_ID = "evt_fp5x_v3"
+# v4: episode-level matched groups + gap-above-target intrabar ordering
+#     (adversarial review round 2)
+EVENT_STRATEGY_ID = "evt_fp5x_v4"
 EVENT_CLASS = 5  # pre-registered primary class: 5x paths (largest sample)
 # The night gates at most this many candidates; each permutation p-value is
 # Bonferroni-corrected against the whole family, not tested alone.
@@ -639,8 +641,9 @@ def main() -> int:
     )
 
     _log("confluence v2: time-matched identifiability (supersedes v1)")
-    groups_by_class = build_matched_groups(features, hits_research, seed=17) \
-        if isinstance(hits_research, pl.DataFrame) and hits_research.height else {}
+    groups_by_class = build_matched_groups(
+        features, hits_research, seed=17, max_date=boundary_date
+    ) if isinstance(hits_research, pl.DataFrame) and hits_research.height else {}
     confluence = run_confluence_v2(
         features, hits_research, ledger, data_vintage, groups_by_class=groups_by_class
     )

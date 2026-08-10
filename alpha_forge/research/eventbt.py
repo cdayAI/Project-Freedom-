@@ -257,15 +257,18 @@ def simulate_trade(
         if tau == last and tau > e:
             exit_day, exit_raw, reason = tau, o, "time"  # sell at the open
             break
-        # stop first (conservative intrabar ordering), then target
+        # OPEN-based exits first — the open happens before any intraday path,
+        # so a bar that gaps through the target fills the resting limit at
+        # the open even if it later collapses through the stop. Then intraday:
+        # stop (low) before target (high), conservatively.
         if stop_frac is not None and o <= stop_px:
             exit_day, exit_raw, reason = tau, o, "stop_gap"
             break
-        if stop_frac is not None and np.isfinite(l) and l <= stop_px:
-            exit_day, exit_raw, reason = tau, stop_px, "stop"
-            break
         if tau > e and o >= target_px:
             exit_day, exit_raw, reason = tau, o, "target_gap"
+            break
+        if stop_frac is not None and np.isfinite(l) and l <= stop_px:
+            exit_day, exit_raw, reason = tau, stop_px, "stop"
             break
         # entry-bar intrabar target touches are NOT filled: a resting limit's
         # queue position on the very bar we market-bought is unknowable, and

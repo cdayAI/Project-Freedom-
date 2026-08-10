@@ -1,46 +1,26 @@
 <!doctype html>
 <html lang="en">
   <head><script>window.__DATA__ = {
- "generated_utc": "2026-08-10T17:07:40.602525+00:00",
+ "generated_utc": "2026-08-10T17:40:49.809553+00:00",
  "ledger": {
-  "entries": 344,
-  "cumulative_trials": 311
+  "entries": 429,
+  "cumulative_trials": 392
  },
  "replacement_rate": {
   "by_month": {
    "2026-08": {
     "graduated": 0,
-    "killed": 11
+    "killed": 12
    }
   },
   "trailing_3m_graduated": 0,
-  "trailing_3m_killed": 11,
+  "trailing_3m_killed": 12,
   "trailing_3m_rate": 0.0,
   "healthy": false,
   "note": "rate is graduations/deaths; None = no deaths yet AND no graduations"
  },
  "book": [],
  "gate_reports": [
-  {
-   "strategy_id": "gen_vol_20d_ann_desc_v1",
-   "verdict": "KILL",
-   "reasons": [
-    "gate2: permutation p=0.8689 not significant after multiple-testing correction",
-    "gate3: DSR probability 0.0804 < 0.95 at N=49 ledgered trials",
-    "gate4: PBO 0.646 > 0.5",
-    "gate9: net metric -1.1395 does not beat null 95th percentile 0.8305",
-    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
-   ],
-   "net_vs_gross": {
-    "gross_total_return": 0.4272543498013075,
-    "net_total_return": -0.6800165968295592
-   },
-   "dsr": {
-    "dsr_probability": 0.08037323825409293,
-    "n_trials": 49
-   },
-   "pbo": 0.6455322455322455
-  },
   {
    "strategy_id": "gen_dist_from_252d_high_asc_v1",
    "verdict": "KILL",
@@ -220,6 +200,28 @@
     "n_trials": 311
    },
    "pbo": 0.6613053613053613
+  },
+  {
+   "strategy_id": "evt_fp5x_v4",
+   "verdict": "KILL",
+   "reasons": [
+    "gate2: permutation p=1 not significant after multiple-testing correction",
+    "gate3: DSR probability 0.0000 < 0.95 at N=392 ledgered trials",
+    "gate4: PBO 0.810 > 0.5",
+    "gate9: net metric -20.0390 does not beat null 95th percentile 3.9044",
+    "gate10: stressed net log -20.9684 no longer beats the null p95 3.9044 \u2014 the edge is a clean-fill artifact",
+    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
+   ],
+   "net_vs_gross": {
+    "basis": "compounded per-trade OOS returns (raw fills vs full costs)",
+    "gross_total_return": -0.9999999717684932,
+    "net_total_return": -0.9999999980177703
+   },
+   "dsr": {
+    "dsr_probability": 3.314577390015528e-12,
+    "n_trials": 392
+   },
+   "pbo": 0.8104118104118104
   }
  ],
  "path_catalog": [
@@ -248,376 +250,322 @@
   {
    "n_multiple": 5,
    "feature": "ret_21d",
-   "n_groups": 632,
-   "auc": 0.3594936708860759,
-   "mean_u": 0.3829113924050632,
+   "n_groups": 189,
+   "auc": 0.23492063492063492,
+   "mean_u": 0.2791005291005291,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 5,
    "feature": "ret_63d",
-   "n_groups": 632,
-   "auc": 0.33686708860759496,
-   "mean_u": 0.36405590717299574,
+   "n_groups": 189,
+   "auc": 0.22857142857142856,
+   "mean_u": 0.27380952380952384,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 5,
    "feature": "ret_126d",
-   "n_groups": 632,
-   "auc": 0.3514240506329114,
-   "mean_u": 0.3761867088607595,
+   "n_groups": 189,
+   "auc": 0.2687830687830688,
+   "mean_u": 0.3073192239858906,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 5,
    "feature": "ret_252d",
-   "n_groups": 632,
-   "auc": 0.26582278481012656,
-   "mean_u": 0.30485232067510554,
+   "n_groups": 189,
+   "auc": 0.23597883597883598,
+   "mean_u": 0.27998236331569665,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 5,
    "feature": "vol_20d_ann",
-   "n_groups": 632,
-   "auc": 0.8118670886075949,
-   "mean_u": 0.7598892405063291,
+   "n_groups": 189,
+   "auc": 0.8095238095238095,
+   "mean_u": 0.7579365079365079,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 5,
    "feature": "volume_z_20v126",
-   "n_groups": 591,
-   "auc": 0.5527297388945405,
-   "mean_u": 0.5439650310208686,
-   "p_value": 0.000199990000499975,
-   "verdict": "IDENTIFIABLE"
+   "n_groups": 179,
+   "auc": 0.5432098765432098,
+   "mean_u": 0.5352886405959032,
+   "p_value": 0.09779511024448778,
+   "verdict": "NOT_SIGNIFICANT"
   },
   {
    "n_multiple": 5,
    "feature": "dollar_vol_med_20d",
-   "n_groups": 632,
-   "auc": 0.2102848101265823,
-   "mean_u": 0.25857067510548526,
+   "n_groups": 189,
+   "auc": 0.19417989417989417,
+   "mean_u": 0.24514991181657847,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 5,
    "feature": "dist_from_252d_high",
-   "n_groups": 632,
-   "auc": 0.17120253164556962,
-   "mean_u": 0.22600210970464132,
+   "n_groups": 189,
+   "auc": 0.14603174603174604,
+   "mean_u": 0.20502645502645503,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 5,
    "feature": "price",
-   "n_groups": 632,
-   "auc": 0.3560126582278481,
-   "mean_u": 0.38001054852320676,
+   "n_groups": 189,
+   "auc": 0.3502645502645503,
+   "mean_u": 0.3752204585537918,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 5,
    "feature": "cs_spread_est",
-   "n_groups": 632,
-   "auc": 0.6574367088607594,
-   "mean_u": 0.6311972573839664,
+   "n_groups": 189,
+   "auc": 0.6201058201058202,
+   "mean_u": 0.6000881834215168,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 5,
    "feature": "days_since_earnings_8k",
-   "n_groups": 347,
-   "auc": 0.4925864909390445,
-   "mean_u": 0.5031940441882805,
-   "p_value": 0.8335083245837708,
+   "n_groups": 101,
+   "auc": 0.5109289617486339,
+   "mean_u": 0.5123762376237625,
+   "p_value": 0.6549672516374181,
    "verdict": "NOT_SIGNIFICANT"
   },
   {
    "n_multiple": 5,
    "feature": "days_since_any_8k",
-   "n_groups": 440,
-   "auc": 0.469886702444842,
-   "mean_u": 0.4795075757575758,
-   "p_value": 0.12774361281935903,
+   "n_groups": 130,
+   "auc": 0.5207509881422925,
+   "mean_u": 0.5113461538461538,
+   "p_value": 0.6494175291235438,
    "verdict": "NOT_SIGNIFICANT"
   },
   {
    "n_multiple": 10,
    "feature": "ret_21d",
-   "n_groups": 183,
-   "auc": 0.35737704918032787,
-   "mean_u": 0.38114754098360654,
+   "n_groups": 56,
+   "auc": 0.20714285714285716,
+   "mean_u": 0.25595238095238093,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 10,
    "feature": "ret_63d",
-   "n_groups": 183,
-   "auc": 0.3366120218579235,
-   "mean_u": 0.3638433515482696,
-   "p_value": 4.999750012499375e-05,
+   "n_groups": 56,
+   "auc": 0.36428571428571427,
+   "mean_u": 0.38690476190476186,
+   "p_value": 0.002849857507124644,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 10,
    "feature": "ret_126d",
-   "n_groups": 183,
-   "auc": 0.380327868852459,
-   "mean_u": 0.4002732240437158,
-   "p_value": 9.99950002499875e-05,
+   "n_groups": 56,
+   "auc": 0.36428571428571427,
+   "mean_u": 0.38690476190476186,
+   "p_value": 0.0038498075096245186,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 10,
    "feature": "ret_252d",
-   "n_groups": 183,
-   "auc": 0.3180327868852459,
-   "mean_u": 0.34836065573770486,
+   "n_groups": 56,
+   "auc": 0.29285714285714287,
+   "mean_u": 0.32738095238095244,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 10,
    "feature": "vol_20d_ann",
-   "n_groups": 183,
-   "auc": 0.7306010928961748,
-   "mean_u": 0.6921675774134791,
+   "n_groups": 56,
+   "auc": 0.7714285714285715,
+   "mean_u": 0.7261904761904763,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 10,
-   "feature": "volume_z_20v126",
-   "n_groups": 164,
-   "auc": 0.5409035409035409,
-   "mean_u": 0.5336382113821139,
-   "p_value": 0.13219339033048347,
-   "verdict": "NOT_SIGNIFICANT"
-  },
-  {
-   "n_multiple": 10,
-   "feature": "dollar_vol_med_20d",
-   "n_groups": 183,
-   "auc": 0.173224043715847,
-   "mean_u": 0.22768670309653918,
-   "p_value": 4.999750012499375e-05,
-   "verdict": "IDENTIFIABLE"
-  },
-  {
-   "n_multiple": 10,
-   "feature": "dist_from_252d_high",
-   "n_groups": 183,
-   "auc": 0.2262295081967213,
-   "mean_u": 0.2718579234972678,
-   "p_value": 4.999750012499375e-05,
-   "verdict": "IDENTIFIABLE"
-  },
-  {
-   "n_multiple": 10,
-   "feature": "price",
-   "n_groups": 183,
-   "auc": 0.3540983606557377,
-   "mean_u": 0.37841530054644806,
-   "p_value": 4.999750012499375e-05,
-   "verdict": "IDENTIFIABLE"
-  },
-  {
-   "n_multiple": 10,
-   "feature": "cs_spread_est",
-   "n_groups": 183,
-   "auc": 0.6333333333333333,
-   "mean_u": 0.6111111111111112,
-   "p_value": 4.999750012499375e-05,
-   "verdict": "IDENTIFIABLE"
-  },
-  {
-   "n_multiple": 10,
-   "feature": "days_since_earnings_8k",
-   "n_groups": 95,
-   "auc": 0.47754491017964074,
-   "mean_u": 0.48807017543859643,
-   "p_value": 0.6790660466976651,
-   "verdict": "NOT_SIGNIFICANT"
-  },
-  {
-   "n_multiple": 10,
-   "feature": "days_since_any_8k",
-   "n_groups": 120,
-   "auc": 0.4934782608695652,
-   "mean_u": 0.48944444444444446,
-   "p_value": 0.6882155892205389,
-   "verdict": "NOT_SIGNIFICANT"
-  },
-  {
-   "n_multiple": 20,
-   "feature": "ret_21d",
-   "n_groups": 69,
-   "auc": 0.42028985507246375,
-   "mean_u": 0.4335748792270532,
-   "p_value": 0.0535973201339933,
-   "verdict": "NOT_SIGNIFICANT"
-  },
-  {
-   "n_multiple": 20,
-   "feature": "ret_63d",
-   "n_groups": 69,
-   "auc": 0.3739130434782609,
-   "mean_u": 0.3949275362318841,
-   "p_value": 0.00199990000499975,
-   "verdict": "IDENTIFIABLE"
-  },
-  {
-   "n_multiple": 20,
-   "feature": "ret_126d",
-   "n_groups": 69,
-   "auc": 0.4144927536231884,
-   "mean_u": 0.4287439613526569,
-   "p_value": 0.04039798010099495,
-   "verdict": "NOT_SIGNIFICANT"
-  },
-  {
-   "n_multiple": 20,
-   "feature": "ret_252d",
-   "n_groups": 69,
-   "auc": 0.4028985507246377,
-   "mean_u": 0.41908212560386465,
-   "p_value": 0.0199990000499975,
-   "verdict": "IDENTIFIABLE"
-  },
-  {
-   "n_multiple": 20,
-   "feature": "vol_20d_ann",
-   "n_groups": 69,
-   "auc": 0.6260869565217392,
-   "mean_u": 0.6050724637681159,
-   "p_value": 0.0028998550072496373,
-   "verdict": "IDENTIFIABLE"
-  },
-  {
-   "n_multiple": 20,
    "feature": "volume_z_20v126",
    "n_groups": 53,
-   "auc": 0.5358490566037736,
-   "mean_u": 0.529874213836478,
-   "p_value": 0.4727263636818159,
+   "auc": 0.5551330798479087,
+   "mean_u": 0.5449685534591195,
+   "p_value": 0.2549372531373431,
+   "verdict": "NOT_SIGNIFICANT"
+  },
+  {
+   "n_multiple": 10,
+   "feature": "dollar_vol_med_20d",
+   "n_groups": 56,
+   "auc": 0.2,
+   "mean_u": 0.25,
+   "p_value": 4.999750012499375e-05,
+   "verdict": "IDENTIFIABLE"
+  },
+  {
+   "n_multiple": 10,
+   "feature": "dist_from_252d_high",
+   "n_groups": 56,
+   "auc": 0.18571428571428572,
+   "mean_u": 0.2380952380952381,
+   "p_value": 4.999750012499375e-05,
+   "verdict": "IDENTIFIABLE"
+  },
+  {
+   "n_multiple": 10,
+   "feature": "price",
+   "n_groups": 56,
+   "auc": 0.38571428571428573,
+   "mean_u": 0.40476190476190477,
+   "p_value": 0.012999350032498375,
+   "verdict": "IDENTIFIABLE"
+  },
+  {
+   "n_multiple": 10,
+   "feature": "cs_spread_est",
+   "n_groups": 56,
+   "auc": 0.6214285714285714,
+   "mean_u": 0.6011904761904762,
+   "p_value": 0.0073996300184990755,
+   "verdict": "IDENTIFIABLE"
+  },
+  {
+   "n_multiple": 10,
+   "feature": "days_since_earnings_8k",
+   "n_groups": 27,
+   "auc": 0.5561224489795918,
+   "mean_u": 0.5425925925925925,
+   "p_value": 0.423928803559822,
+   "verdict": "NOT_SIGNIFICANT"
+  },
+  {
+   "n_multiple": 10,
+   "feature": "days_since_any_8k",
+   "n_groups": 37,
+   "auc": 0.4929078014184397,
+   "mean_u": 0.48941441441441447,
+   "p_value": 0.8199090045497726,
    "verdict": "NOT_SIGNIFICANT"
   },
   {
    "n_multiple": 20,
+   "feature": "ret_21d",
+   "n_groups": 20,
+   "auc": 0.31,
+   "mean_u": 0.3416666666666666,
+   "p_value": 0.014749262536873156,
+   "verdict": "IDENTIFIABLE"
+  },
+  {
+   "n_multiple": 20,
+   "feature": "ret_63d",
+   "n_groups": 20,
+   "auc": 0.35,
+   "mean_u": 0.37499999999999994,
+   "p_value": 0.056447177641117945,
+   "verdict": "NOT_SIGNIFICANT"
+  },
+  {
+   "n_multiple": 20,
+   "feature": "ret_126d",
+   "n_groups": 20,
+   "auc": 0.38,
+   "mean_u": 0.4,
+   "p_value": 0.13249337533123343,
+   "verdict": "NOT_SIGNIFICANT"
+  },
+  {
+   "n_multiple": 20,
+   "feature": "ret_252d",
+   "n_groups": 20,
+   "auc": 0.36,
+   "mean_u": 0.3833333333333333,
+   "p_value": 0.08204589770511475,
+   "verdict": "NOT_SIGNIFICANT"
+  },
+  {
+   "n_multiple": 20,
+   "feature": "vol_20d_ann",
+   "n_groups": 20,
+   "auc": 0.51,
+   "mean_u": 0.5083333333333333,
+   "p_value": 0.9502524873756312,
+   "verdict": "NOT_SIGNIFICANT"
+  },
+  {
+   "n_multiple": 20,
+   "feature": "volume_z_20v126",
+   "n_groups": 17,
+   "auc": null,
+   "mean_u": null,
+   "p_value": null,
+   "verdict": "UNDERPOWERED"
+  },
+  {
+   "n_multiple": 20,
    "feature": "dollar_vol_med_20d",
-   "n_groups": 69,
-   "auc": 0.08985507246376812,
-   "mean_u": 0.1582125603864734,
+   "n_groups": 20,
+   "auc": 0.075,
+   "mean_u": 0.14583333333333331,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 20,
    "feature": "dist_from_252d_high",
-   "n_groups": 69,
-   "auc": 0.35507246376811596,
-   "mean_u": 0.3792270531400965,
-   "p_value": 0.0002999850007499625,
+   "n_groups": 20,
+   "auc": 0.32,
+   "mean_u": 0.35,
+   "p_value": 0.020448977551122443,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 20,
    "feature": "price",
-   "n_groups": 69,
-   "auc": 0.3652173913043478,
-   "mean_u": 0.3876811594202898,
-   "p_value": 0.0010499475026248687,
-   "verdict": "IDENTIFIABLE"
+   "n_groups": 20,
+   "auc": 0.4,
+   "mean_u": 0.4166666666666667,
+   "p_value": 0.21223938803059847,
+   "verdict": "NOT_SIGNIFICANT"
   },
   {
    "n_multiple": 20,
    "feature": "cs_spread_est",
-   "n_groups": 69,
-   "auc": 0.4753623188405797,
-   "mean_u": 0.47946859903381633,
-   "p_value": 0.575371231438428,
+   "n_groups": 20,
+   "auc": 0.465,
+   "mean_u": 0.4708333333333333,
+   "p_value": 0.6544672766361682,
    "verdict": "NOT_SIGNIFICANT"
   },
   {
    "n_multiple": 20,
    "feature": "days_since_earnings_8k",
-   "n_groups": 28,
-   "auc": 0.6435643564356436,
-   "mean_u": 0.6211309523809522,
-   "p_value": 0.0231988400579971,
-   "verdict": "IDENTIFIABLE"
+   "n_groups": 8,
+   "auc": null,
+   "mean_u": null,
+   "p_value": null,
+   "verdict": "UNDERPOWERED"
   },
   {
    "n_multiple": 20,
    "feature": "days_since_any_8k",
-   "n_groups": 42,
-   "auc": 0.5569620253164557,
-   "mean_u": 0.5388888888888889,
-   "p_value": 0.3832308384580771,
-   "verdict": "NOT_SIGNIFICANT"
-  },
-  {
-   "n_multiple": 50,
-   "feature": "ret_21d",
-   "n_groups": 21,
-   "auc": 0.3380952380952381,
-   "mean_u": 0.3650793650793651,
-   "p_value": 0.029498525073746312,
-   "verdict": "IDENTIFIABLE"
-  },
-  {
-   "n_multiple": 50,
-   "feature": "ret_63d",
-   "n_groups": 21,
-   "auc": 0.2904761904761905,
-   "mean_u": 0.3253968253968254,
-   "p_value": 0.003949802509874506,
-   "verdict": "IDENTIFIABLE"
-  },
-  {
-   "n_multiple": 50,
-   "feature": "ret_126d",
-   "n_groups": 21,
-   "auc": 0.26666666666666666,
-   "mean_u": 0.30555555555555547,
-   "p_value": 0.002199890005499725,
-   "verdict": "IDENTIFIABLE"
-  },
-  {
-   "n_multiple": 50,
-   "feature": "ret_252d",
-   "n_groups": 21,
-   "auc": 0.26666666666666666,
-   "mean_u": 0.3055555555555555,
-   "p_value": 0.00199990000499975,
-   "verdict": "IDENTIFIABLE"
-  },
-  {
-   "n_multiple": 50,
-   "feature": "vol_20d_ann",
-   "n_groups": 21,
-   "auc": 0.5476190476190477,
-   "mean_u": 0.5396825396825397,
-   "p_value": 0.5290735463226839,
-   "verdict": "NOT_SIGNIFICANT"
-  },
-  {
-   "n_multiple": 50,
-   "feature": "volume_z_20v126",
-   "n_groups": 15,
+   "n_groups": 11,
    "auc": null,
    "mean_u": null,
    "p_value": null,
@@ -625,43 +573,52 @@
   },
   {
    "n_multiple": 50,
-   "feature": "dollar_vol_med_20d",
-   "n_groups": 21,
-   "auc": 0.14761904761904762,
-   "mean_u": 0.20634920634920628,
-   "p_value": 4.999750012499375e-05,
-   "verdict": "IDENTIFIABLE"
+   "feature": "ret_21d",
+   "n_groups": 7,
+   "auc": null,
+   "mean_u": null,
+   "p_value": null,
+   "verdict": "UNDERPOWERED"
   },
   {
    "n_multiple": 50,
-   "feature": "dist_from_252d_high",
-   "n_groups": 21,
-   "auc": 0.35714285714285715,
-   "mean_u": 0.38095238095238093,
-   "p_value": 0.055347232638368084,
-   "verdict": "NOT_SIGNIFICANT"
+   "feature": "ret_63d",
+   "n_groups": 7,
+   "auc": null,
+   "mean_u": null,
+   "p_value": null,
+   "verdict": "UNDERPOWERED"
   },
   {
    "n_multiple": 50,
-   "feature": "price",
-   "n_groups": 21,
-   "auc": 0.41904761904761906,
-   "mean_u": 0.4325396825396825,
-   "p_value": 0.31243437828108594,
-   "verdict": "NOT_SIGNIFICANT"
+   "feature": "ret_126d",
+   "n_groups": 7,
+   "auc": null,
+   "mean_u": null,
+   "p_value": null,
+   "verdict": "UNDERPOWERED"
   },
   {
    "n_multiple": 50,
-   "feature": "cs_spread_est",
-   "n_groups": 21,
-   "auc": 0.49523809523809526,
-   "mean_u": 0.49603174603174593,
-   "p_value": 1.0,
-   "verdict": "NOT_SIGNIFICANT"
+   "feature": "ret_252d",
+   "n_groups": 7,
+   "auc": null,
+   "mean_u": null,
+   "p_value": null,
+   "verdict": "UNDERPOWERED"
   },
   {
    "n_multiple": 50,
-   "feature": "days_since_earnings_8k",
+   "feature": "vol_20d_ann",
+   "n_groups": 7,
+   "auc": null,
+   "mean_u": null,
+   "p_value": null,
+   "verdict": "UNDERPOWERED"
+  },
+  {
+   "n_multiple": 50,
+   "feature": "volume_z_20v126",
    "n_groups": 6,
    "auc": null,
    "mean_u": null,
@@ -670,8 +627,53 @@
   },
   {
    "n_multiple": 50,
+   "feature": "dollar_vol_med_20d",
+   "n_groups": 7,
+   "auc": null,
+   "mean_u": null,
+   "p_value": null,
+   "verdict": "UNDERPOWERED"
+  },
+  {
+   "n_multiple": 50,
+   "feature": "dist_from_252d_high",
+   "n_groups": 7,
+   "auc": null,
+   "mean_u": null,
+   "p_value": null,
+   "verdict": "UNDERPOWERED"
+  },
+  {
+   "n_multiple": 50,
+   "feature": "price",
+   "n_groups": 7,
+   "auc": null,
+   "mean_u": null,
+   "p_value": null,
+   "verdict": "UNDERPOWERED"
+  },
+  {
+   "n_multiple": 50,
+   "feature": "cs_spread_est",
+   "n_groups": 7,
+   "auc": null,
+   "mean_u": null,
+   "p_value": null,
+   "verdict": "UNDERPOWERED"
+  },
+  {
+   "n_multiple": 50,
+   "feature": "days_since_earnings_8k",
+   "n_groups": 1,
+   "auc": null,
+   "mean_u": null,
+   "p_value": null,
+   "verdict": "UNDERPOWERED"
+  },
+  {
+   "n_multiple": 50,
    "feature": "days_since_any_8k",
-   "n_groups": 12,
+   "n_groups": 2,
    "auc": null,
    "mean_u": null,
    "p_value": null,

@@ -75,6 +75,22 @@ class TestSimulateTrade:
         tr = simulate_trade(ep, 0, 8, 5.0, 0.5)
         assert tr is not None  # survives the halt, exits later
 
+    def test_gap_above_target_fills_at_open_not_stop(self):
+        # bar opens ABOVE target then collapses through the stop intraday:
+        # the resting limit filled at the open, chronologically before any
+        # intraday decline — must be target_gap at the open, never a stop
+        D = 30
+        C = np.full((D, 1), 10.0)
+        C[6:, 0] = 4.0
+        O = np.vstack([C[:1], C[:-1]])
+        O[6, 0] = 55.0  # gap far above the 2x target (~20)
+        ep = _panel(C, O)
+        ep.low[6, 0] = 4.0  # collapses through the 50% stop (~5) intraday
+        tr = simulate_trade(ep, 0, 2, 2.0, 0.5)
+        assert tr is not None
+        assert tr.exit_reason == "target_gap"
+        assert tr.exit_px > 50.0 * 0.99  # filled at the gapped open
+
     def test_costs_always_reduce_exit(self):
         D = 40
         C = np.full((D, 1), 10.0)

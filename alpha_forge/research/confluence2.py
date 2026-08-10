@@ -37,8 +37,10 @@ CONFLUENCE2_PATH = STORE_DIR / "confluence_v2_results.parquet"
 #   v2    time-matched controls (superseded: entry-day join leaked one day)
 #   v2_1  signal-day join
 #   v3    feature set extended with ex-ante catalyst features
-#         (days_since_earnings_8k / days_since_any_8k from EDGAR 8-K)
-FAMILY = "confluence_identifiability_v3_catalyst"
+#   v3_1  EPISODE-level hits (adversarial review: 21-day window stride
+#         pseudo-replicated each runup ~6x, inflating permutation z ~2.2x)
+#         + control pool bounded by the holdout boundary
+FAMILY = "confluence_identifiability_v3_1_episodes"
 
 
 def last_family_vintage(ledger: Ledger) -> str | None:
@@ -66,20 +68,50 @@ def should_retest(ledger: Ledger, features: pl.DataFrame, data_vintage: str,
     return int((dates > last_d).sum()) >= retest_days
 
 
+EPISODE_GAP_DAYS = 183  # ~126 trading days: hits closer than this in the
+                        # same symbol are one price EPISODE, not independent
+                        # evidence — the 21-day window stride re-reports the
+                        # same runup ~6 times, and dedup on entry_date alone
+                        # pseudo-replicates it, understating Var(mean_u)
+
+
+def episode_dedup(dedup: pl.DataFrame) -> pl.DataFrame:
+    """One hit per (symbol, class, episode): keep the EARLIEST entry of each
+    episode; later re-reports of the same runup are dropped."""
+    keep_rows = []
+    for (_sym, _nx), g in dedup.group_by(["symbol", "n_multiple"]):
+        g = g.sort("entry_dt")
+        last_kept = None
+        for row in g.iter_rows(named=True):
+            d = row["entry_dt"]
+            if last_kept is None or (d - last_kept).days >= EPISODE_GAP_DAYS:
+                keep_rows.append(row)
+                last_kept = d
+    return pl.DataFrame(keep_rows) if keep_rows else dedup.head(0)
+
+
 def build_matched_groups(
     features: pl.DataFrame,
     hits: pl.DataFrame,
     seed: int,
+    max_date=None,
 ) -> dict[int, list[np.ndarray]]:
     """class -> list of groups; each group is a (K+1, n_features) float
     matrix with the HIT in row 0 and its controls below. Fully numpy-indexed:
     the pool is sorted by trading-date position once, and each hit's control
-    window is a binary-searched slice."""
+    window is a binary-searched slice.
+
+    max_date (the holdout boundary) bounds the CONTROL POOL as well as the
+    hits: without it, controls near the boundary are drawn from holdout-era
+    rows and their contamination labels resolve inside the holdout."""
     rng = np.random.default_rng(seed)
     feat_cols = feature_columns(features)
+    if max_date is not None:
+        features = features.filter(pl.col("date") < max_date)
     dedup = hits.unique(subset=["symbol", "entry_date", "n_multiple"]).with_columns(
         pl.col("entry_date").str.slice(0, 10).str.to_date().alias("entry_dt")
     )
+    dedup = episode_dedup(dedup)
 
     all_dates_series = features.get_column("date").unique().sort()
     all_dates_list = all_dates_series.to_list()
