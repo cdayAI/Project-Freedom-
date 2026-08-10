@@ -417,13 +417,15 @@ def gate_event_candidate(
     hits: pl.DataFrame,
     groups_by_class: dict,
     data_vintage: str,
+    strategy_id: str = EVENT_STRATEGY_ID,
+    signal_mode: str = "directions",
 ) -> dict | None:
     """The system's primary thesis, trained on past data: fingerprint-scored
     entries toward 5x paths, walk-forward-trained, all twelve configs
     ledgered, gates 1-11 applied to the OOS record."""
-    existing = _already_gated(ledger, EVENT_STRATEGY_ID, data_vintage)
+    existing = _already_gated(ledger, strategy_id, data_vintage)
     if existing:
-        _log(f"gates: {EVENT_STRATEGY_ID} already gated on vintage {data_vintage} (skip)")
+        _log(f"gates: {strategy_id} already gated on vintage {data_vintage} (skip)")
         return existing
 
     reg_id = ledger.preregister(
@@ -436,6 +438,7 @@ def gate_event_candidate(
         "BIASED); holdout = final 15% of trading days, untouched",
         parameters={
             "generator": "event_fingerprint_v1",
+            "signal_mode": signal_mode,
             "class": EVENT_CLASS,
             "config_grid": EVENT_CONFIG_GRID,
             "max_concurrent": 10,
@@ -455,7 +458,8 @@ def gate_event_candidate(
     research_end = int(ep.dates.size * (1 - HOLDOUT_FRACTION))
 
     _log("event: walk-forward training")
-    wf = walk_forward_train(ep, groups_by_class, EVENT_CLASS, research_end)
+    wf = walk_forward_train(ep, groups_by_class, EVENT_CLASS, research_end,
+                            signal_mode=signal_mode)
     # EVERY (fold, config) evaluation is a trial; the recorded statistic is
     # the config's OOS daily Sharpe on that fold's test block (a genuine
     # per-period Sharpe, comparable across trials; None when degenerate)
@@ -471,7 +475,7 @@ def gate_event_candidate(
          f"{sum(1 for f in wf['fold_summaries'] if 'skipped' not in f)} live folds")
     if len(oos_trades) < 10 or oos_daily.size < 100 or wf["final_spec"] is None:
         result = {
-            "strategy_id": EVENT_STRATEGY_ID,
+            "strategy_id": strategy_id,
             "verdict": "KILL",
             "reasons": [f"insufficient OOS record: {len(oos_trades)} trades"],
             "checks": {"data_vintage": data_vintage,
@@ -489,7 +493,7 @@ def gate_event_candidate(
 
     if oos_daily.std() == 0:
         result = {
-            "strategy_id": EVENT_STRATEGY_ID,
+            "strategy_id": strategy_id,
             "verdict": "KILL",
             "reasons": ["degenerate OOS daily series (zero variance) — nothing "
                         "statistically evaluable was traded"],
@@ -543,7 +547,7 @@ def gate_event_candidate(
     }
 
     report = run_gates(
-        strategy_id=EVENT_STRATEGY_ID,
+        strategy_id=strategy_id,
         reg_id=reg_id,
         ledger=ledger,
         net_returns=oos_daily,
@@ -725,6 +729,15 @@ def main() -> int:
     )
     if event_report:
         gate_reports.append(event_report)
+
+    # v6: same mechanics, TRAINED signal — per-fold ridge-logistic weights on
+    # matched groups instead of equal-vote directions; its own preregistration
+    event_v6 = gate_event_candidate(
+        ledger, panel, features, hits_research, groups_by_class, data_vintage,
+        strategy_id="evt_fp5x_logit_v6", signal_mode="logistic",
+    )
+    if event_v6:
+        gate_reports.append(event_v6)
 
     demo = gate_demo_hypothesis(ledger, panel, data_vintage)
     if demo:

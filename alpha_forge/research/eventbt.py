@@ -189,6 +189,83 @@ def fold_directions(
     return out
 
 
+def ridge_logistic(X: np.ndarray, y: np.ndarray, lam: float = 1.0, iters: int = 30) -> np.ndarray:
+    """IRLS ridge logistic. X: (n, p) centered inputs; returns (p+1,) with
+    intercept last. lam is fixed (structural) — no tuning inside folds."""
+    n, p = X.shape
+    Xb = np.hstack([X, np.ones((n, 1))])
+    w = np.zeros(p + 1)
+    for _ in range(iters):
+        z = Xb @ w
+        mu = 1.0 / (1.0 + np.exp(-np.clip(z, -30, 30)))
+        s = np.maximum(mu * (1 - mu), 1e-6)
+        # ridge on feature weights only, not the intercept
+        reg = lam * np.eye(p + 1)
+        reg[p, p] = 0.0
+        H = Xb.T @ (Xb * s[:, None]) + reg
+        g = Xb.T @ (y - mu) - reg @ w
+        try:
+            step = np.linalg.solve(H, g)
+        except np.linalg.LinAlgError:
+            break
+        w = w + step
+        if float(np.abs(step).max()) < 1e-10:
+            break
+    return w
+
+
+def fold_weights(
+    groups_with_dates: dict[int, list[tuple[object, np.ndarray]]],
+    n_class: int,
+    cutoff_date,
+    feat_cols: list[str] | None = None,
+    lam: float = 1.0,
+) -> dict[str, float]:
+    """v6 signal: per-feature WEIGHTS learned by ridge logistic on matured
+    matched groups (hit=1 vs controls=0), inputs = within-group normalized
+    ranks centered at 0 (scale-free, NaN -> neutral 0). Same maturation rule
+    as fold_directions; same 20-group floor. A feature that separates at
+    matched-AUC 0.9 now outvotes one at 0.6 instead of tying it."""
+    feat_cols = feat_cols or list(FEATURE_NAMES)
+    groups = [g for d, g in groups_with_dates.get(n_class, []) if d < cutoff_date]
+    if len(groups) < 20:
+        return {}
+    rows, ys = [], []
+    for g in groups:
+        m, p = g.shape
+        ranks = np.full((m, p), 0.0)
+        for fi in range(p):
+            col = g[:, fi]
+            ok = ~np.isnan(col)
+            if ok.sum() >= 2:
+                order = col[ok].argsort(kind="mergesort").argsort().astype(float)
+                ranks[ok, fi] = (order + 0.5) / ok.sum() - 0.5  # centered (−.5,.5)
+        rows.append(ranks)
+        ys.append(np.concatenate([[1.0], np.zeros(m - 1)]))
+    X = np.vstack(rows)
+    y = np.concatenate(ys)
+    w = ridge_logistic(X, y, lam=lam)
+    return {f: float(w[i]) for i, f in enumerate(feat_cols) if abs(w[i]) > 1e-9}
+
+
+def composite_score_weighted(ep: EventPanel, weights: dict[str, float]) -> np.ndarray:
+    """(D, S) weighted sum of centered cross-sectional percentiles — the
+    logit of the trained model up to the intercept, monotone in P(hit)."""
+    if not weights:
+        return np.full(ep.close.shape, np.nan, dtype=np.float32)
+    acc = np.zeros(ep.close.shape, dtype=np.float32)
+    seen = np.zeros(ep.close.shape, dtype=bool)
+    for feat, w in weights.items():
+        p = ep.feat_pctl.get(feat)
+        if p is None:
+            continue
+        v = (p - 0.5) * np.float32(w)
+        ok = ~np.isnan(v)
+        acc[ok] += v[ok]
+        seen |= ok
+    return np.where(seen, acc, np.nan)
+
+
 def composite_score(ep: EventPanel, directions: dict[str, float]) -> np.ndarray:
     """(D, S) mean directional percentile over the admitted features."""
     if not directions:
@@ -439,6 +516,7 @@ def walk_forward_train(
     research_end: int,
     n_folds: int = 4,
     min_train_trades: int = 20,
+    signal_mode: str = "directions",
 ) -> dict:
     """Expanding-window training on [0, research_end).
 
@@ -474,13 +552,20 @@ def walk_forward_train(
         # label-maturation cutoff: hits must have fully resolved pre-cutoff
         matured_idx = max(0, train_end - purge)
         cutoff = ep.dates[matured_idx]
-        dirs = fold_directions(groups_with_dates, n_class, cutoff, ep.feat_cols)
+        if signal_mode == "logistic":
+            dirs = fold_weights(groups_with_dates, n_class, cutoff, ep.feat_cols)
+        else:
+            dirs = fold_directions(groups_with_dates, n_class, cutoff, ep.feat_cols)
         if not dirs:
-            fold_summaries.append({"fold": k, "skipped": "no matured directions pre-cutoff"})
+            fold_summaries.append({"fold": k, "skipped": "no matured signal pre-cutoff"})
             for c in CONFIG_GRID:
                 config_oos_cols[json_key(c)].append(np.zeros(test_end - test_start))
             continue
-        score = composite_score(ep, dirs)
+        score = (
+            composite_score_weighted(ep, dirs)
+            if signal_mode == "logistic"
+            else composite_score(ep, dirs)
+        )
         best, best_cfg = None, None
         fold_tests = {}
         for cfg in CONFIG_GRID:
