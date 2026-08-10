@@ -16,12 +16,26 @@ for the system map, `SOURCES.md` for where every number comes from, and
 ## Run it
 
 ```bash
-make setup      # venv + deps + editable install
-make daily      # full nightly loop, end to end
-make test       # reference test suite (91 tests incl. golden values for DSR/PBO)
-make dashboard  # build TS/React dashboard + single-file HTML snapshot
+make setup           # venv + deps + editable install
+make daily           # full nightly loop, end to end
+make test            # reference test suite (101 tests incl. golden values for DSR/PBO)
+make dashboard       # build TS/React dashboard + single-file HTML snapshot
+make command-center  # local server: dashboard + live paper-account state
 make verify-ledger
 ```
+
+## Command center
+
+`make command-center` serves the dashboard at http://127.0.0.1:8321 with live
+data: sanitized Alpaca PAPER account state (equity, buying power, positions,
+open orders, PDT counter), loop status, and a run-now button for the nightly
+loop. Credentials live in `.env` (gitignored, see `.env.example`) and never
+reach the browser — the server proxies sanitized snapshots only.
+
+Paper only, by construction: the client refuses the live endpoint outside
+`place_order`'s human double-lock, the test suite strips broker credentials
+and fails any test that attempts a broker API call, and live order flow
+additionally requires a human-set env flag plus a ledgered HUMAN_DECISION.
 
 No cloud dependencies. Real data (NASDAQ Trader + Stooq) is pulled on first
 run; everything lands in `data/` (Parquet + DuckDB) with a manifest.

@@ -34,13 +34,17 @@ def test_ledger_decision_alone_insufficient(tmp_path, monkeypatch):
     assert not live_trading_enabled(ledger)
 
 
-def test_both_required_then_design_mode_surfaces(tmp_path, monkeypatch):
+def test_both_required_then_credentials_gate(tmp_path, monkeypatch):
     monkeypatch.setenv(LIVE_FLAG_ENV, LIVE_FLAG_VALUE)
     ledger = Ledger(path=tmp_path / "l.jsonl")
     ledger.append("HUMAN_DECISION", {"action": "enable_live_trading"})
     assert live_trading_enabled(ledger)
-    # even fully enabled, the adapter is DESIGN mode without API keys
-    with pytest.raises(NotImplementedError):
+    # even fully enabled, no API credentials (conftest strips them) means no
+    # order can be constructed — and the conftest network guard would fail
+    # the test loudly if an HTTP call were ever attempted here
+    from alpha_forge.execution.alpaca import AlpacaCredentialsMissing
+
+    with pytest.raises(AlpacaCredentialsMissing):
         AlpacaAdapter().place_order(ORDER, ledger)
 
 

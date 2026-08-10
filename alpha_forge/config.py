@@ -12,6 +12,24 @@ from pathlib import Path
 
 REPO_ROOT = Path(os.environ.get("ALPHA_FORGE_ROOT", Path(__file__).resolve().parent.parent))
 
+
+def _load_dotenv(path: Path) -> None:
+    """Minimal .env loader: KEY=VALUE lines, '#' comments, no expansion.
+    Existing environment variables always win over the file."""
+    if not path.exists():
+        return
+    for line in path.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key, value = key.strip(), value.strip().strip("'\"")
+        if key and key not in os.environ:
+            os.environ[key] = value
+
+
+_load_dotenv(REPO_ROOT / ".env")
+
 DATA_DIR = REPO_ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"                 # vendor pulls, gitignored, refetchable
 STORE_DIR = DATA_DIR / "store"             # parquet datasets + duckdb pattern store

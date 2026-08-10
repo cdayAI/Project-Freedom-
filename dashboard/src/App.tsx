@@ -4,6 +4,21 @@ import { useEffect, useState } from "react";
 // window.__DATA__; in dev/build it is fetched from public/data.json.
 // The dashboard displays research output; it never computes research numbers.
 
+type Account = {
+  mode: string;
+  status: string;
+  equity: number;
+  cash: number;
+  buying_power: number;
+  pattern_day_trader: boolean;
+  daytrade_count: number;
+  market_open: boolean;
+  next_open: string | null;
+  positions: { symbol: string; qty: number; avg_entry_price: number; market_value: number; unrealized_pl: number }[];
+  open_orders: { symbol: string; side: string; qty: string; type: string; status: string }[];
+  error?: string;
+};
+
 type Data = {
   generated_utc: string;
   ledger: { entries: number; cumulative_trials: number };
@@ -36,6 +51,7 @@ type Data = {
       historical_analogs: { symbol: string; entry_date: string }[];
     }[];
   } | null;
+  account?: Account | null;
 };
 
 declare global {
@@ -82,6 +98,86 @@ function verdictStyle(v: string) {
   return v === "PASS" ? css.pass : v === "KILL" ? css.kill : css.flag;
 }
 
+function AccountCard({ initial }: { initial: Account | null | undefined }) {
+  const [acct, setAcct] = useState<Account | null>(initial ?? null);
+  const [live, setLive] = useState(false);
+  const [running, setRunning] = useState(false);
+  useEffect(() => {
+    // command-center mode: live endpoint refresh; static snapshot falls back
+    const refresh = () =>
+      fetch("/api/account")
+        .then((r) => r.json())
+        .then((a: Account) => {
+          if (!a.error) {
+            setAcct(a);
+            setLive(true);
+          }
+        })
+        .catch(() => {});
+    refresh();
+    const t = setInterval(refresh, 30_000);
+    return () => clearInterval(t);
+  }, []);
+  const runDaily = () => {
+    setRunning(true);
+    fetch("/api/run-daily", { method: "POST" }).finally(() =>
+      setTimeout(() => setRunning(false), 5000)
+    );
+  };
+  if (!acct)
+    return (
+      <div style={css.card}>
+        <div style={css.h2}>Broker account</div>
+        <div style={css.dim}>no Alpaca credentials configured (.env) — see .env.example</div>
+      </div>
+    );
+  return (
+    <div style={css.card}>
+      <div style={css.h2}>
+        Broker account — <span style={acct.mode === "PAPER" ? css.flag : css.kill}>{acct.mode}</span>
+        {live && <span style={{ ...css.pass, marginLeft: 8 }}>● live</span>}
+      </div>
+      <div style={css.big}>${acct.equity.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+      <div style={css.dim}>
+        cash ${acct.cash.toLocaleString()} · buying power ${acct.buying_power.toLocaleString()} ·{" "}
+        market {acct.market_open ? "OPEN" : "closed"}
+        <br />
+        day trades (5d): {acct.daytrade_count} · PDT flag: {acct.pattern_day_trader ? "YES" : "no"}
+      </div>
+      {acct.positions.length > 0 && (
+        <table style={{ ...css.table, marginTop: 8 }}>
+          <thead><tr><th style={css.th}>pos</th><th style={css.th}>qty</th><th style={css.th}>value</th><th style={css.th}>uP/L</th></tr></thead>
+          <tbody>
+            {acct.positions.map((p) => (
+              <tr key={p.symbol}>
+                <td style={css.td}>{p.symbol}</td>
+                <td style={css.td}>{p.qty}</td>
+                <td style={css.td}>${p.market_value.toFixed(0)}</td>
+                <td style={{ ...css.td, ...(p.unrealized_pl >= 0 ? css.pass : css.kill) }}>${p.unrealized_pl.toFixed(0)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      {acct.positions.length === 0 && <div style={{ ...css.dim, marginTop: 8 }}>no open positions</div>}
+      {acct.open_orders.length > 0 && (
+        <div style={{ ...css.dim, marginTop: 6 }}>
+          open orders: {acct.open_orders.map((o) => `${o.side} ${o.qty} ${o.symbol}`).join(", ")}
+        </div>
+      )}
+      {live && (
+        <button
+          onClick={runDaily}
+          disabled={running}
+          style={{ marginTop: 10, background: "#21262d", color: "#c9d1d9", border: "1px solid #30363d", borderRadius: 6, padding: "6px 12px", cursor: "pointer", fontFamily: "inherit" }}
+        >
+          {running ? "starting…" : "run nightly loop now"}
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const [data, setData] = useState<Data | null>(window.__DATA__ ?? null);
   const [err, setErr] = useState<string | null>(null);
@@ -104,6 +200,7 @@ export default function App() {
         <b>cumulative trials {data.ledger.cumulative_trials}</b>
       </div>
       <div style={css.grid}>
+        <AccountCard initial={data.account} />
         <div style={css.card}>
           <div style={css.h2}>Replacement rate (north star)</div>
           <div style={css.big}>{rrText}</div>
