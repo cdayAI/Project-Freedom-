@@ -112,8 +112,14 @@ def _log(msg: str) -> None:
 def ingest_equities(force: bool = False) -> dict:
     marker = RAW_DIR / f"ingest_{date.today().isoformat()}.json"
     if marker.exists() and not force and (STORE_DIR / "equities_daily.parquet").exists():
-        _log("ingest: today's pull already on disk (idempotent skip)")
-        return json.loads(marker.read_text())
+        prior = json.loads(marker.read_text())
+        # the marker must key on WHAT was pulled, not just when: a run after a
+        # sample-size increase must not silently reuse the smaller panel
+        if prior.get("sample_size", 0) >= SAMPLE_SIZE:
+            _log("ingest: today's pull already on disk (idempotent skip)")
+            return prior
+        _log(f"ingest: sample grew {prior.get('sample_size', 0)} -> {SAMPLE_SIZE}; "
+             "re-ingesting (resume reuses today's per-symbol pulls)")
 
     _log("ingest: fetching NASDAQ Trader symbol directory")
     directory = fetch_symbol_directory()
