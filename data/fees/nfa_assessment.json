@@ -1,0 +1,32 @@
+{
+  "fee": "nfa_assessment",
+  "unit": "usd_per_side_futures_contract",
+  "generated_utc": "2026-08-10T00:00:00+00:00",
+  "entries": [
+    {
+      "effective_date": "2018-01-01",
+      "rate": 0.02,
+      "verified": false,
+      "source_url": "https://www.nfa.futures.org/rulebooksql/rules.aspx?Section=3&RuleID=BYLAW+1301",
+      "source_title": "NFA Bylaw 1301 (historical $0.02/side rate widely reported eff. 2018-01-01; primary-source effective-date fetch pending)",
+      "note": "UNVERIFIED effective date: blocks futures backtests before 2026-07-01 until sourced"
+    },
+    {
+      "effective_date": "2026-07-01",
+      "rate": 0.01,
+      "verified": true,
+      "source_url": "https://www.nfa.futures.org/rulebooksql/rules.aspx?Section=3&RuleID=BYLAW+1301",
+      "source_title": "NFA Bylaw 1301, Schedule of Dues and Assessments: $.01 per side futures, as of July 1, 2026; corroborated by NFA Assessment Fees FAQs"
+    },
+    {
+      "effective_date": "2027-07-01",
+      "rate": 0.02,
+      "verified": true,
+      "source_url": "https://www.nfa.futures.org/rulebooksql/rules.aspx?Section=3&RuleID=BYLAW+1301",
+      "source_title": "NFA Bylaw 1301: $.02 per side futures ($.04 round-turn) effective July 1, 2027"
+    }
+  ],
+  "notes": [
+    "Futures agents are in DESIGN mode; any historical futures backtest touching the unverified 2018 entry raises UnverifiedFeeError by construction."
+  ]
+}

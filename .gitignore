@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+# refetchable/regenerable data stays out of git; provenance (data/fees/,
+# data/manifest.jsonl) and the ledger are committed
+data/raw/
+data/store/
