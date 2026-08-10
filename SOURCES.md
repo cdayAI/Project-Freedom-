@@ -82,6 +82,10 @@ fees per product (member/non-member). Any code path touching these raises.
 - Isotonic score calibration: Zadrozny & Elkan (2002), "Transforming
   classifier scores into accurate multiclass probability estimates", KDD;
   pool-adjacent-violators per Ayer et al. (1955), Ann. Math. Statist. 26(4).
+- Stationary bootstrap (serial-dependence-preserving paths): Politis &
+  Romano (1994), "The Stationary Bootstrap", JASA 89(428).
+- Bayesian bootstrap (parameter-uncertainty paths, Kelly posterior):
+  Rubin (1981), "The Bayesian Bootstrap", Annals of Statistics 9(1).
 - Permutation p-value add-one estimator: Phipson & Smyth (2010), Statistical
   Applications in Genetics and Molecular Biology 9(1), Article 39.
 - Demo hypothesis (cross-sectional momentum): Jegadeesh & Titman (1993),
