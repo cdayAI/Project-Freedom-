@@ -1,0 +1,70 @@
+{
+  "fee": "orf_by_exchange",
+  "unit": "usd_per_contract_side_customer_range",
+  "generated_utc": "2026-08-10T00:00:00+00:00",
+  "model_note": "Industry-wide ORF model change effective 2026-07-01: ORF is assessed only on customer-range transactions EXECUTED on the assessing exchange (previously on cleared customer volume regardless of venue). Rates before and after 2026-07-01 are not comparable; no pre-change history is encoded, so earlier dates raise.",
+  "exchanges": {
+    "CBOE": [
+      {"effective_date": "2026-08-10", "rate": 0.01248, "verified": true, "as_of_anchor": true, "source_url": "https://cdn.cboe.com/resources/membership/Cboe_FeeSchedule.pdf", "source_title": "Cboe Exchange, Inc. Fees Schedule - August 7, 2026 (ORF effective date not stated in schedule; rate anchored as-of fetch date)"}
+    ],
+    "CBOE_C2": [
+      {"effective_date": "2026-08-10", "rate": 0.01417, "verified": true, "as_of_anchor": true, "source_url": "https://www.cboe.com/us/options/membership/fee_schedule/ctwo/", "source_title": "Cboe C2 Options Exchange Fee Schedule (effective August 7, 2026)"}
+    ],
+    "CBOE_BZX": [
+      {"effective_date": "2026-08-10", "rate": 0.00476, "verified": true, "as_of_anchor": true, "source_url": "https://www.cboe.com/us/options/membership/fee_schedule/bzx/", "source_title": "Cboe BZX Options Exchange Fee Schedule (effective August 7, 2026)"}
+    ],
+    "CBOE_EDGX": [
+      {"effective_date": "2026-08-10", "rate": 0.00286, "verified": true, "as_of_anchor": true, "source_url": "https://www.cboe.com/us/options/membership/fee_schedule/edgx/", "source_title": "Cboe EDGX Options Exchange Fee Schedule (effective August 7, 2026)"}
+    ],
+    "NYSE_AMERICAN": [
+      {"effective_date": "2026-08-10", "rate": 0.016, "verified": true, "as_of_anchor": true, "source_url": "https://www.nyse.com/publicdocs/nyse/markets/american-options/NYSE_American_Options_Fee_Schedule.pdf", "source_title": "NYSE American Options Fee Schedule, Effective as of August 3, 2026 (Section VII.A; stated effective through August 31, 2026)"},
+      {"effective_date": "2026-09-01", "rate": 0.005, "verified": true, "source_url": "https://www.nyse.com/publicdocs/nyse/markets/american-options/NYSE_American_Options_Fee_Schedule.pdf", "source_title": "NYSE American Options Fee Schedule: 'Effective September 1, 2026: Rate Per Contract $0.0050'"}
+    ],
+    "NYSE_ARCA": [
+      {"effective_date": "2026-08-10", "rate": 0.012, "verified": true, "as_of_anchor": true, "source_url": "https://www.nyse.com/publicdocs/nyse/markets/arca-options/NYSE_Arca_Options_Fee_Schedule.pdf", "source_title": "NYSE Arca Options Fees and Charges, Effective Date: August 3, 2026 (stated effective through August 31, 2026)"},
+      {"effective_date": "2026-09-01", "rate": 0.008, "verified": true, "source_url": "https://www.nyse.com/publicdocs/nyse/markets/arca-options/NYSE_Arca_Options_Fee_Schedule.pdf", "source_title": "NYSE Arca Options Fees and Charges: 'Effective September 1, 2026: $0.0080'"}
+    ],
+    "NASDAQ_NOM": [
+      {"effective_date": "2026-07-01", "rate": 0.02, "verified": true, "source_url": "https://www.sec.gov/files/rules/sro/nasdaq/2026/34-105690.pdf", "source_title": "SEC Release 34-105690 (SR-NASDAQ-2026-052): ORF $0.0200 per contract side effective July 1, 2026"}
+    ],
+    "NASDAQ_PHLX": [
+      {"effective_date": "2026-07-01", "rate": 0.008, "verified": true, "source_url": "https://www.sec.gov/files/rules/sro/phlx/2026/34-105691-ex5.pdf", "source_title": "SR-Phlx-2026-38 Exhibit 5, Options 7 Section 6.D: ORF $0.0080 per contract side effective July 1, 2026"}
+    ],
+    "NASDAQ_ISE": [
+      {"effective_date": "2026-07-01", "rate": 0.008, "verified": true, "source_url": "https://www.sec.gov/files/rules/sro/ise/2026/34-105689.pdf", "source_title": "SEC Release 34-105689 (SR-ISE-2026-36): ORF $0.0092 -> $0.0080 per contract side, July 1, 2026"}
+    ],
+    "NASDAQ_GEMX": [
+      {"effective_date": "2026-07-01", "rate": 0.01, "verified": true, "source_url": "https://www.sec.gov/files/rules/sro/gemx/2026/34-105687.pdf", "source_title": "SEC Release 34-105687 (SR-GEMX-2026-25): ORF $0.0116 -> $0.0100 per contract side, July 1, 2026"}
+    ],
+    "NASDAQ_MRX": [
+      {"effective_date": "2026-07-01", "rate": 0.008, "verified": true, "source_url": "https://www.sec.gov/files/rules/sro/mrx/2026/34-105688.pdf", "source_title": "SEC Release 34-105688 (SR-MRX-2026-27): ORF $0.0116 -> $0.0080 per contract side, July 1, 2026"}
+    ],
+    "NASDAQ_BX": [
+      {"effective_date": "2026-07-01", "rate": 0.0198, "verified": true, "source_url": "https://www.nasdaqtrader.com/MicroNews.aspx?id=OTA2025-33", "source_title": "Nasdaq Options Trader Alert #2025-33 ($0.0198 under new ORF model; implementation delayed to July 1, 2026 per SR-BX-2025-035). Caveat: no June 2026 BX refiling located; small residual risk of a later change."}
+    ],
+    "MIAX": [
+      {"effective_date": "2026-08-10", "rate": 0.017, "verified": true, "as_of_anchor": true, "source_url": "https://www.miaxglobal.com/sites/default/files/fee_schedule-files/MIAX_Options_Fee_Schedule_08012026.pdf", "source_title": "MIAX Options Exchange Fee Schedule, As of August 1, 2026 (ORF per contract side, all classes)"}
+    ],
+    "MIAX_PEARL": [
+      {"effective_date": "2026-08-10", "rate": 0.024, "verified": true, "as_of_anchor": true, "source_url": "https://www.miaxglobal.com/sites/default/files/fee_schedule-files/MIAX_Pearl_Options_Fee_Schedule_08012026.pdf", "source_title": "MIAX Pearl Options Fee Schedule, As of August 1, 2026"}
+    ],
+    "MIAX_EMERALD": [
+      {"effective_date": "2026-08-10", "rate": 0.022, "verified": true, "as_of_anchor": true, "source_url": "https://www.miaxglobal.com/sites/default/files/fee_schedule-files/MIAX__Emerald__Fee__Schedule__08012026.pdf", "source_title": "MIAX Emerald Fee Schedule, As of August 1, 2026"}
+    ],
+    "MIAX_SAPPHIRE": [
+      {"effective_date": "2026-08-10", "rate": 0.022, "verified": true, "as_of_anchor": true, "source_url": "https://www.miaxglobal.com/sites/default/files/fee_schedule-files/MIAX_Sapphire_Fee_Schedule_08012026.pdf", "source_title": "MIAX Sapphire Options Exchange Fee Schedule, As of August 1, 2026"}
+    ],
+    "BOX": [
+      {"effective_date": "2026-07-01", "rate": 0.022, "verified": true, "source_url": "https://boxoptions.com/assets/BOX-Fee-Schedule-as-of-July-2-2026.pdf", "source_title": "BOX Fee Schedule, As of July 2, 2026 (Section II.C: effective July 1, 2026, $0.0220 per contract side)"}
+    ],
+    "MEMX": [
+      {"effective_date": "2026-07-01", "rate": 0.02, "verified": true, "source_url": "https://info.memxtrading.com/us-options-trading-resources/us-options-fee-schedule/", "source_title": "MEMX Options Fee Schedule: effective July 1, 2026, ORF $0.0200 per contract side"}
+    ]
+  },
+  "notes": [
+    "Entries flagged as_of_anchor=true carry the rate verified as of 2026-08-10 where the schedule states no ORF-specific effective date; dates before the anchor raise (no verified history).",
+    "SEC Section 31 on options (17 CFR 240.31, eCFR current through 2026-08-06): OCC-issued equity option sales are covered sales, fee on the premium; INDEX option sales are exempt (240.31(a)(11)(vi)); physical-delivery exercise creates a covered sale of the underlying at exercise date.",
+    "FINRA TAF options ($0.00279/contract through 2025-12-31, $0.00329 from 2026-01-01): NO per-trade cap (the $8.30 cap is equities-only); conventional and index options are TAF-exempt (FINRA By-Laws Schedule A Section 1).",
+    "All entries compiled 2026-08-10 from the cited primary sources."
+  ]
+}
