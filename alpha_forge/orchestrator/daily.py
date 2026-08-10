@@ -83,7 +83,9 @@ HOLDOUT_FRACTION = 0.15
 #     (adversarial review round 2)
 # v5: spread cost model upgraded to conservative max(Corwin-Schultz,
 #     Abdi-Ranaldo)/2 per side — all net numbers shift, so the id bumps
-EVENT_STRATEGY_ID = "evt_fp5x_v5"
+# v*_1: tradability floor (roundtrip spread <= 10% at entry) applies to every
+#     candidate — untradeable names cannot pay their own toll; ids bump again
+EVENT_STRATEGY_ID = "evt_fp5x_v5_1"
 EVENT_CLASS = 5  # pre-registered primary class: 5x paths (largest sample)
 # The night gates at most this many candidates; each permutation p-value is
 # Bonferroni-corrected against the whole family, not tested alone.
@@ -740,10 +742,19 @@ def main() -> int:
     # matched groups instead of equal-vote directions; its own preregistration
     event_v6 = gate_event_candidate(
         ledger, panel, features, hits_research, groups_by_class, data_vintage,
-        strategy_id="evt_fp5x_logit_v6", signal_mode="logistic",
+        strategy_id="evt_fp5x_logit_v6_1", signal_mode="logistic",
     )
     if event_v6:
         gate_reports.append(event_v6)
+
+    # v7: pooled 3x+5x training classes (many more episodes), adaptive
+    # regularization, tradability floor — the full "make it better" package
+    event_v7 = gate_event_candidate(
+        ledger, panel, features, hits_research, groups_by_class, data_vintage,
+        strategy_id="evt_fp5x_pooled_v7", signal_mode="logistic_pooled",
+    )
+    if event_v7:
+        gate_reports.append(event_v7)
 
     demo = gate_demo_hypothesis(ledger, panel, data_vintage)
     if demo:

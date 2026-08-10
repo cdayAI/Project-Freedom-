@@ -214,6 +214,43 @@ def ridge_logistic(X: np.ndarray, y: np.ndarray, lam: float = 1.0, iters: int = 
     return w
 
 
+TRAIN_CLASSES_POOLED = (3, 5)   # v7: auxiliary 3x episodes pool with 5x —
+                                # same phenomenon family, ~5-10x the examples
+MAX_ROUNDTRIP_SPREAD = 0.10     # v7 tradability floor: skip entries whose
+                                # measured roundtrip spread exceeds 10% —
+                                # tonight's kill showed spread, not selection,
+                                # was the cause of death (structural constant,
+                                # pre-registered with the candidate)
+
+
+def _adaptive_lam(n_groups: int, n_features: int) -> float:
+    """Pre-registered regularization formula — NEVER hand-tuned: shrink
+    harder when groups are scarce relative to features. lam = max(1, 25p/G):
+    at 300 groups x 15 features -> lam ~ 1.25; at 60 groups -> lam ~ 6."""
+    return max(1.0, 25.0 * n_features / max(n_groups, 1))
+
+
+def fold_weights_pooled(
+    groups_with_dates: dict[int, list[tuple[object, np.ndarray]]],
+    classes: tuple[int, ...],
+    cutoff_date,
+    feat_cols: list[str] | None = None,
+) -> dict[str, float]:
+    """v7 signal: pool matured groups across the training classes, then fit
+    with the adaptive lambda. Pooling note (honest dilution): controls are
+    contamination-filtered against 5x starts; a 3x-group control may itself
+    start a 3x, which DILUTES the 3x signal toward zero — conservative, never
+    inflationary."""
+    feat_cols = feat_cols or list(FEATURE_NAMES)
+    merged: list[tuple[object, np.ndarray]] = []
+    for c in classes:
+        merged.extend(groups_with_dates.get(c, []))
+    pooled = {0: merged}
+    matured = [g for d, g in merged if d < cutoff_date]
+    lam = _adaptive_lam(len(matured), len(feat_cols))
+    return fold_weights(pooled, 0, cutoff_date, feat_cols, lam=lam)
+
+
 def fold_weights(
     groups_with_dates: dict[int, list[tuple[object, np.ndarray]]],
     n_class: int,
@@ -405,7 +442,11 @@ def run_event_strategy(
         held = np.zeros(len(ep.symbols), dtype=bool)
         if open_positions:
             held[list(open_positions.keys())] = True
-        elig = ep.eligible[d] & ~np.isnan(row) & ~held
+        # v7 tradability floor: a name whose roundtrip spread exceeds the cap
+        # cannot pay its own toll — no signal strength overrides this
+        hs_row = ep.half_spread[d]
+        tradable = np.isfinite(hs_row) & (2.0 * hs_row <= MAX_ROUNDTRIP_SPREAD)
+        elig = ep.eligible[d] & ~np.isnan(row) & ~held & tradable
         if not elig.any():
             continue
         vals = row[elig]
@@ -554,6 +595,10 @@ def walk_forward_train(
         cutoff = ep.dates[matured_idx]
         if signal_mode == "logistic":
             dirs = fold_weights(groups_with_dates, n_class, cutoff, ep.feat_cols)
+        elif signal_mode == "logistic_pooled":
+            dirs = fold_weights_pooled(
+                groups_with_dates, TRAIN_CLASSES_POOLED, cutoff, ep.feat_cols
+            )
         else:
             dirs = fold_directions(groups_with_dates, n_class, cutoff, ep.feat_cols)
         if not dirs:
@@ -563,7 +608,7 @@ def walk_forward_train(
             continue
         score = (
             composite_score_weighted(ep, dirs)
-            if signal_mode == "logistic"
+            if signal_mode in ("logistic", "logistic_pooled")
             else composite_score(ep, dirs)
         )
         best, best_cfg = None, None
