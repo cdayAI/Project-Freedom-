@@ -23,6 +23,19 @@ one it moves:
 | OCC/ORF options fee tables | D | Sourced from primary schedules (see data/fees/); completes the options cost model to the same date-aware, verified-or-raise standard as equities. |
 | Sizing engine v2: the i.i.d. Monte Carlo is demoted to a measured baseline | S | v1 resampled trades independently — no loss clustering, no regimes, no parameter uncertainty; every assumption biased risk DOWN. v2 sizes under the WORST of: stationary block bootstrap (Politis-Romano 1994, preserves serial dependence), Bayesian bootstrap (Rubin 1981, propagates parameter uncertainty; yields a derived Kelly posterior whose 5th percentile replaces hand-waved fractional Kelly), and a regime-conditional transition chain when per-trade regime labels exist. Gate 11 now uses it; the i.i.d. number is reported beside the honest ones so the understatement is measured, never assumed. Verified on constructed clustered data: i.i.d. understates 50%-drawdown probability measurably. ≥20k paths per generator. |
 
+## Implemented in the follow-up "go get the data" change
+
+| Item | Type | What it adds |
+|---|---|---|
+| FINRA Reg SHO daily short-sale volume feed | D | CAUSE-side data OHLCV cannot see: per-symbol daily short-sale pressure (12k+ symbols/day, free, primary). Features `short_ratio_5d` / `short_ratio_z`, lagged one session by construction (files publish after the close). Resumable backfill toward ~8y of files, extended nightly. |
+| Full EDGAR filing-type catalog | D | The submissions responses already fetched for 8-Ks also carry Form 4 (insider transactions), S-1/S-3/F-1/F-3/424B (dilution pipeline). New ex-ante features: `days_since_form4`, `n_form4_90d`, `days_since_dilution_filing`. |
+| Forward earnings clock | D | `days_until_expected_earnings` from each symbol's OWN filing cadence (median inter-earnings gap, ≥4 past reports) — the forward-looking half of catalyst timing, no calendar purchase needed. Negative = overdue. |
+
+All three flow through the features panel automatically (the feature list is
+data, not configuration), so the next confluence family measures their
+identifiability under the same BH discipline, and the generator can screen
+on any that survive twice.
+
 ## Specced, next in line (no purchases needed)
 
 1. **Weighted multivariate signal** [S]: replace the equal-weight directional
