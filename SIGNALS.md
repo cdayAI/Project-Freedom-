@@ -1,5 +1,13 @@
 # SIGNALS & INPUTS — the complete inventory
 
+> Update (cycle 3): the universe is now a 1,500-name uniform sample (1,308
+> ingested), the confluence layer uses TIME-MATCHED controls (36 identifiable
+> feature x class cells survive era-matching), and the event-driven engine
+> trains walk-forward on past data with gates 10-11 (stress fills + ruin-
+> constrained sizing) formalized. First trained candidate was killed by the
+> matched null: the fingerprint identifies volatility, not direction —
+> catalyst data and survivorship-free history remain the binding inputs.
+
 Every input the system consumes now, and every input it still needs, with
 source, status, and what it unlocks. LIVE = flowing tonight. DESIGN = adapter
 built, waiting on a key/purchase. MISSING = not yet built. This file is the

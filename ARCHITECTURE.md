@@ -135,6 +135,35 @@ Yahoo daily OHLCV ──► validation (rows/continuity/OHLC/split) ─┤ quara
   attempts a broker HTTP call — a guard added after a legacy test placed a
   real paper order (caught same-session, position closed, cost $0.13).
 
+## Cycle-3 design decisions (training on past data)
+
+- **The event-driven backtester is the thesis vehicle.** Enter at the next
+  open when the fingerprint composite is in the cross-sectional extreme;
+  exit at target multiple / stop / 126-bar time limit; 10 slots of 1/10th
+  capital; stop and target fills are gap-aware; sells pay date-aware fees.
+  The monthly top-k lab remains only as a pipeline regression exercise.
+- **Training is walk-forward, and the SIGNAL is trained, not just tuned:**
+  feature directions are re-derived per fold from matched confluence groups
+  whose hits predate the fold's cutoff; the config grid is scored on train
+  only; folds are purged by the full holding period; the last 15% of trading
+  days is holdout that no stage (confluence groups, scanner, training) may
+  read — holdout-era hits are filtered out before anything sees them.
+- **Confluence v2 replaces v1**: matched groups (one hit + 5 same-era
+  controls within ±10 trading days) with a within-group rank statistic, so
+  era confounds cancel by construction. v1's unmatched AUCs are superseded
+  and not to be quoted.
+- **Gates 10-11 are now formal**: 10 = stressed fills (worst-tail overnight
+  gap injection) must still beat the null p95, and the trade plan must be
+  feasible in cash or margin at the target equity; 11 = a ruin-constrained
+  bet size must exist AND grow wealth (median terminal > 1 at the best
+  P(-90%)<5% fraction). Both run inside the gatekeeper for any candidate
+  with a real trade ledger.
+- **Position sizes are outputs, not choices**: every surviving candidate
+  carries its constrained Kelly fraction, the unconstrained optimum beside
+  it, and the $2k integer-lot feasibility from the trap detector.
+- **The vectorized features panel** is bound to `fingerprint_at` by a
+  1e-9 equivalence test — two implementations, one definition.
+
 ## Roadmap (activation conditions, in order)
 
 1. **Catalyst data** (earnings calendar, FINRA short interest, halts) — every

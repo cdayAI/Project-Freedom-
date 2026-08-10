@@ -55,6 +55,8 @@ def run_gates(
     survivorship_free: bool,
     walkforward_summary: dict,
     extra_checks: dict | None = None,
+    stress_sizing_inputs: dict | None = None,
+    net_vs_gross_override: dict | None = None,
 ) -> GateReport:
     """Evaluate gates 1-9. Writes the full report to the ledger.
 
@@ -117,10 +119,16 @@ def run_gates(
     if not walkforward_summary.get("all_folds_evaluated", False):
         kill.append("gate5: walk-forward incomplete")
 
-    # Gate 6 — net-of-cost display: report both, always.
-    gross_total = float(np.prod(1 + np.asarray(gross_returns)) - 1)
-    net_total = float(np.prod(1 + np.asarray(net_returns)) - 1)
-    report.checks["net_vs_gross"] = {"gross_total_return": gross_total, "net_total_return": net_total}
+    # Gate 6 — net-of-cost display: report both, always. Event candidates
+    # pass per-trade totals via the override (their daily series is net-only).
+    if net_vs_gross_override is not None:
+        report.checks["net_vs_gross"] = net_vs_gross_override
+    else:
+        gross_total = float(np.prod(1 + np.asarray(gross_returns)) - 1)
+        net_total = float(np.prod(1 + np.asarray(net_returns)) - 1)
+        report.checks["net_vs_gross"] = {
+            "gross_total_return": gross_total, "net_total_return": net_total,
+        }
 
     # Gate 7 — survivorship disclosure.
     report.checks["survivorship_free_universe"] = survivorship_free
@@ -145,6 +153,14 @@ def run_gates(
             f"null 95th percentile {nb['null_p95']:.4f}"
         )
 
+    # Gates 10-11 — stress fills + account mechanics, then sizing. Only
+    # meaningful for candidates with a real trade ledger (event strategies);
+    # portfolio-style candidates pass stress inputs when they graduate to one.
+    if stress_sizing_inputs is not None:
+        k10, k11 = _gates_10_11(report, stress_sizing_inputs)
+        kill.extend(k10)
+        kill.extend(k11)
+
     if kill:
         report.verdict = "KILL"
     elif flag:
@@ -155,3 +171,84 @@ def run_gates(
 
     ledger.append("GATE_REPORT", report.to_payload())
     return report
+
+
+def _gates_10_11(report: GateReport, inputs: dict) -> tuple[list[str], list[str]]:
+    """Gate 10: performance under stress fills + account-mechanics
+    feasibility. Gate 11: a ruin-constrained position size must exist.
+
+    inputs:
+      trade_net_returns  simple returns per trade (OOS)
+      trade_entry_days / trade_exit_days  business-day indices
+      overnight_gaps     pooled panel gap distribution for tail injection
+      null_p95_total_log gate-9 threshold the STRESSED strategy must still beat
+      account_equity, per_trade_notional
+    """
+    from alpha_forge.research.sizing import sizing_frontier
+    from alpha_forge.research.traps import Trade, run_account_mechanics, stress_overnight_gaps
+
+    kill10: list[str] = []
+    kill11: list[str] = []
+    r = np.asarray(inputs["trade_net_returns"], dtype=float)
+
+    # ---- gate 10a: worst-tail overnight gaps injected into the trade sample
+    stressed = stress_overnight_gaps(
+        r, np.asarray(inputs["overnight_gaps"], dtype=float), seed=7
+    )
+    stressed_total_log = float(np.sum(np.log1p(np.maximum(stressed, -0.9999))))
+    report.checks["stress_fills"] = {
+        "clean_total_log": float(np.sum(np.log1p(np.maximum(r, -0.9999)))),
+        "stressed_total_log": stressed_total_log,
+        "null_p95_total_log": inputs["null_p95_total_log"],
+    }
+    if stressed_total_log <= inputs["null_p95_total_log"]:
+        kill10.append(
+            f"gate10: stressed net log {stressed_total_log:.4f} no longer beats "
+            f"the null p95 {inputs['null_p95_total_log']:.4f} — the edge is a "
+            "clean-fill artifact"
+        )
+
+    # ---- gate 10b: account mechanics at the target equity
+    trades = [
+        Trade(entry_day=int(e), exit_day=int(x), notional=float(inputs["per_trade_notional"]))
+        for e, x in zip(inputs["trade_entry_days"], inputs["trade_exit_days"])
+    ]
+    cash = run_account_mechanics(trades, "cash", inputs["account_equity"])
+    margin = run_account_mechanics(trades, "margin", inputs["account_equity"])
+    report.checks["account_mechanics"] = {
+        "cash_feasible": cash.feasible,
+        "cash_violations": cash.violations[:3],
+        "margin_feasible": margin.feasible,
+        "margin_violations": margin.violations[:3],
+    }
+    if not cash.feasible and not margin.feasible:
+        kill10.append(
+            "gate10: trade plan infeasible in BOTH cash (settlement/GFV) and "
+            "margin (PDT) accounts at this equity — killed regardless of backtest"
+        )
+
+    # ---- gate 11: ruin-constrained sizing must exist
+    if r.size >= 30:
+        frontier = sizing_frontier(r, n_trades_per_path=max(50, r.size), seed=11)
+        c = frontier["constrained_optimum"]
+        report.checks["sizing"] = {
+            "kelly_fraction": frontier["kelly_fraction"],
+            "constrained_optimum": c,
+            "unconstrained_optimum": frontier["unconstrained_optimum"],
+            "constraint": frontier["constraint"],
+        }
+        if c is None:
+            kill11.append(
+                "gate11: no bet fraction satisfies P(losing 90%) < 5% — the "
+                "edge is unsizeable as measured"
+            )
+        elif c["median_terminal_wealth"] <= 1.0:
+            kill11.append(
+                f"gate11: the best ruin-safe fraction ({c['fraction']:.2f}) still "
+                f"has median terminal wealth {c['median_terminal_wealth']:.3f} <= 1 "
+                "— no sizing grows this edge inside the ruin constraint"
+            )
+    else:
+        kill11.append(f"gate11: {r.size} OOS trades < 30 — cannot size")
+
+    return kill10, kill11

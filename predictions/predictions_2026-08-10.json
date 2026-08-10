@@ -1,0 +1,979 @@
+{
+  "data_vintage": "2026-08-10",
+  "generated_utc": "2026-08-10T15:59:55.654940+00:00",
+  "universe_scanned": 837,
+  "surviving_features": [
+    "cs_spread_est",
+    "dist_from_252d_high",
+    "dollar_vol_med_20d",
+    "price",
+    "ret_126d",
+    "ret_21d",
+    "ret_252d",
+    "ret_63d",
+    "vol_20d_ann",
+    "volume_z_20v126"
+  ],
+  "predictions": [
+    {
+      "instrument": "DFNS",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.998805256869773,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 2.3238981479185337,
+      "last_close": 37.95000076293945,
+      "features": {
+        "ret_21d": 257.16327070554365,
+        "ret_63d": 84.28090196160898,
+        "ret_126d": 18.973684862710112,
+        "ret_252d": 5.788908716821859,
+        "vol_20d_ann": 18.10023927611497,
+        "volume_z_20v126": 0.2524444673442713,
+        "dollar_vol_med_20d": 38675477.77805328,
+        "dist_from_252d_high": -0.5534243438007221,
+        "price": 37.95000076293945,
+        "cs_spread_est": 0.03415505955879869
+      },
+      "historical_analogs": [
+        {
+          "symbol": "BNTX",
+          "entry_date": "2019-10-11"
+        },
+        {
+          "symbol": "ATRA",
+          "entry_date": "2014-10-17"
+        },
+        {
+          "symbol": "GNLX",
+          "entry_date": "2023-01-27"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "FBRX",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.997610513739546,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 2.2866388284323125,
+      "last_close": 76.80999755859375,
+      "features": {
+        "ret_21d": 0.7488615838081729,
+        "ret_63d": 2.197751710856752,
+        "ret_126d": 1.783979598905117,
+        "ret_252d": 6.457281178274781,
+        "vol_20d_ann": 1.3220202181979765,
+        "volume_z_20v126": 0.842572115589963,
+        "dollar_vol_med_20d": 48416626.48601532,
+        "dist_from_252d_high": -0.0022084410356748574,
+        "price": 76.80999755859375,
+        "cs_spread_est": 0.001069753516123765
+      },
+      "historical_analogs": [
+        {
+          "symbol": "FCEL",
+          "entry_date": "2020-07-17"
+        },
+        {
+          "symbol": "FUTU",
+          "entry_date": "2020-11-05"
+        },
+        {
+          "symbol": "MTDR",
+          "entry_date": "2020-03-11"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "FTK",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.996415770609319,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 2.2270381475409167,
+      "last_close": 37.532100677490234,
+      "features": {
+        "ret_21d": 0.46839207596620525,
+        "ret_63d": 1.3501628083862904,
+        "ret_126d": 1.1657299966948829,
+        "ret_252d": 1.9552835622965228,
+        "vol_20d_ann": 1.1760569139408916,
+        "volume_z_20v126": 0.7790317356198149,
+        "dollar_vol_med_20d": 8841851.805782318,
+        "dist_from_252d_high": 0.0,
+        "price": 37.532100677490234,
+        "cs_spread_est": 0.015205480464090102
+      },
+      "historical_analogs": [
+        {
+          "symbol": "AMRN",
+          "entry_date": "2018-09-12"
+        },
+        {
+          "symbol": "GRWG",
+          "entry_date": "2020-08-11"
+        },
+        {
+          "symbol": "IZEA",
+          "entry_date": "2020-08-19"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "SLN",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.995221027479092,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 2.1270190350742086,
+      "last_close": 16.149999618530273,
+      "features": {
+        "ret_21d": 0.7766775959769843,
+        "ret_63d": 1.31707318574915,
+        "ret_126d": 2.399999919690584,
+        "ret_252d": 2.0018586013001523,
+        "vol_20d_ann": 1.274211847040547,
+        "volume_z_20v126": 0.5860797409737926,
+        "dollar_vol_med_20d": 5762359.101676941,
+        "dist_from_252d_high": 0.0,
+        "price": 16.149999618530273,
+        "cs_spread_est": 0.012523329760980367
+      },
+      "historical_analogs": [
+        {
+          "symbol": "POLA",
+          "entry_date": "2020-12-10"
+        },
+        {
+          "symbol": "GRWG",
+          "entry_date": "2020-07-13"
+        },
+        {
+          "symbol": "BEAM",
+          "entry_date": "2020-08-13"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "HBB",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.994026284348865,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 1.9867396356526075,
+      "last_close": 31.024999618530273,
+      "features": {
+        "ret_21d": 0.4497663631575819,
+        "ret_63d": 0.4922191662140143,
+        "ret_126d": 0.6126909762172712,
+        "ret_252d": 1.175403681220192,
+        "vol_20d_ann": 0.813152767412147,
+        "volume_z_20v126": 0.9257817802257257,
+        "dollar_vol_med_20d": 746969.498538971,
+        "dist_from_252d_high": -0.012571624977865459,
+        "price": 31.024999618530273,
+        "cs_spread_est": 0.017250408117003423
+      },
+      "historical_analogs": [
+        {
+          "symbol": "ROOT",
+          "entry_date": "2024-01-03"
+        },
+        {
+          "symbol": "INO",
+          "entry_date": "2013-03-07"
+        },
+        {
+          "symbol": "ARCT",
+          "entry_date": "2019-12-30"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "AEHR",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.992831541218638,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 1.983263700296146,
+      "last_close": 103.4800033569336,
+      "features": {
+        "ret_21d": 0.42534442881317625,
+        "ret_63d": 0.06428056962063566,
+        "ret_126d": 2.921182483904261,
+        "ret_252d": 4.501329414936761,
+        "vol_20d_ann": 1.7632671870565373,
+        "volume_z_20v126": 0.4233463987102707,
+        "dollar_vol_med_20d": 204308687.58392334,
+        "dist_from_252d_high": -0.1123691736864556,
+        "price": 103.4800033569336,
+        "cs_spread_est": 0.022011357579509734
+      },
+      "historical_analogs": [
+        {
+          "symbol": "W",
+          "entry_date": "2020-03-13"
+        },
+        {
+          "symbol": "W",
+          "entry_date": "2020-03-12"
+        },
+        {
+          "symbol": "W",
+          "entry_date": "2020-03-09"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "MAAS",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.991636798088411,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 1.9467403846304847,
+      "last_close": 19.31999969482422,
+      "features": {
+        "ret_21d": 0.24967656191156795,
+        "ret_63d": 1.0209203814657197,
+        "ret_126d": 2.3138936445376053,
+        "ret_252d": 4.488636306679446,
+        "vol_20d_ann": 1.4344619758300208,
+        "volume_z_20v126": -0.10495801308118603,
+        "dollar_vol_med_20d": 1072428.9855957031,
+        "dist_from_252d_high": -0.09039548479208237,
+        "price": 19.31999969482422,
+        "cs_spread_est": 0.04109484709990791
+      },
+      "historical_analogs": [
+        {
+          "symbol": "SEZL",
+          "entry_date": "2024-01-16"
+        },
+        {
+          "symbol": "KOPN",
+          "entry_date": "2020-12-15"
+        },
+        {
+          "symbol": "EOLS",
+          "entry_date": "2018-04-09"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "MCS",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.9904420549581839,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 1.938772932642085,
+      "last_close": 29.899999618530273,
+      "features": {
+        "ret_21d": 0.37344965502135574,
+        "ret_63d": 0.6709533568751673,
+        "ret_126d": 0.9321907069730981,
+        "ret_252d": 1.0196411191387345,
+        "vol_20d_ann": 0.6602648270406227,
+        "volume_z_20v126": 0.7741397847695506,
+        "dollar_vol_med_20d": 6261006.970119476,
+        "dist_from_252d_high": -0.03920312300136741,
+        "price": 29.899999618530273,
+        "cs_spread_est": 0.008480046178447179
+      },
+      "historical_analogs": [
+        {
+          "symbol": "GRWG",
+          "entry_date": "2020-07-13"
+        },
+        {
+          "symbol": "AMRN",
+          "entry_date": "2018-07-13"
+        },
+        {
+          "symbol": "VERA",
+          "entry_date": "2023-10-20"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "XNCR",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.989247311827957,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 1.8702960999900646,
+      "last_close": 21.2007999420166,
+      "features": {
+        "ret_21d": 0.3375898695120858,
+        "ret_63d": 0.6485847984458224,
+        "ret_126d": 0.8260810136909358,
+        "ret_252d": 1.8962840771634548,
+        "vol_20d_ann": 0.8237315450848314,
+        "volume_z_20v126": 0.5159999101424632,
+        "dollar_vol_med_20d": 17803350.49715042,
+        "dist_from_252d_high": -0.013457414247637023,
+        "price": 21.2007999420166,
+        "cs_spread_est": 0.022611950582571275
+      },
+      "historical_analogs": [
+        {
+          "symbol": "SOUN",
+          "entry_date": "2024-01-12"
+        },
+        {
+          "symbol": "RIG",
+          "entry_date": "2020-10-15"
+        },
+        {
+          "symbol": "ASAN",
+          "entry_date": "2021-05-11"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "SMTI",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.98805256869773,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 1.8597375886743404,
+      "last_close": 34.18000030517578,
+      "features": {
+        "ret_21d": 0.43492866259786966,
+        "ret_63d": 0.8576087507498524,
+        "ret_126d": 0.6887352120403456,
+        "ret_252d": 0.4031198460090062,
+        "vol_20d_ann": 0.6677431368697702,
+        "volume_z_20v126": 0.7860503386718801,
+        "dollar_vol_med_20d": 3369275.0,
+        "dist_from_252d_high": -0.04391607537969844,
+        "price": 34.18000030517578,
+        "cs_spread_est": 0.003412243243632264
+      },
+      "historical_analogs": [
+        {
+          "symbol": "INO",
+          "entry_date": "2020-01-16"
+        },
+        {
+          "symbol": "POLA",
+          "entry_date": "2020-10-22"
+        },
+        {
+          "symbol": "POLA",
+          "entry_date": "2020-10-12"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "RNG",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.986857825567503,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 1.8515218600405787,
+      "last_close": 64.56999969482422,
+      "features": {
+        "ret_21d": 0.5489956890382532,
+        "ret_63d": 0.4201299312018876,
+        "ret_126d": 1.4016424651591581,
+        "ret_252d": 1.2292719665260945,
+        "vol_20d_ann": 0.9864784727464531,
+        "volume_z_20v126": 0.1649620198924084,
+        "dollar_vol_med_20d": 110966430.92651367,
+        "dist_from_252d_high": 0.0,
+        "price": 64.56999969482422,
+        "cs_spread_est": 0.0
+      },
+      "historical_analogs": [
+        {
+          "symbol": "CAR",
+          "entry_date": "2021-07-19"
+        },
+        {
+          "symbol": "CAR",
+          "entry_date": "2021-07-15"
+        },
+        {
+          "symbol": "BBBY",
+          "entry_date": "2020-05-18"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "ETON",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.985663082437276,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 1.8121840723416724,
+      "last_close": 43.54999923706055,
+      "features": {
+        "ret_21d": 0.189565651762013,
+        "ret_63d": 0.46880269131076924,
+        "ret_126d": 1.9505419079766328,
+        "ret_252d": 1.8538662243684407,
+        "vol_20d_ann": 0.7203639416561732,
+        "volume_z_20v126": 0.5697927242065132,
+        "dollar_vol_med_20d": 22944657.556152344,
+        "dist_from_252d_high": -0.11176829856561776,
+        "price": 43.54999923706055,
+        "cs_spread_est": 0.01040427279456184
+      },
+      "historical_analogs": [
+        {
+          "symbol": "FCEL",
+          "entry_date": "2020-11-13"
+        },
+        {
+          "symbol": "RIG",
+          "entry_date": "2020-09-24"
+        },
+        {
+          "symbol": "ASAN",
+          "entry_date": "2021-05-11"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "AXTI",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.984468339307049,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 1.7852111209853774,
+      "last_close": 77.08989715576172,
+      "features": {
+        "ret_21d": 0.3474899211575877,
+        "ret_63d": -0.33748799629257065,
+        "ret_126d": 2.2040689470872463,
+        "ret_252d": 36.42228121217564,
+        "vol_20d_ann": 2.036446572912652,
+        "volume_z_20v126": 0.1314828268221688,
+        "dollar_vol_med_20d": 473216443.2657242,
+        "dist_from_252d_high": -0.45260316584926374,
+        "price": 77.08989715576172,
+        "cs_spread_est": 0.0423901000155413
+      },
+      "historical_analogs": [
+        {
+          "symbol": "W",
+          "entry_date": "2020-03-13"
+        },
+        {
+          "symbol": "W",
+          "entry_date": "2020-03-12"
+        },
+        {
+          "symbol": "W",
+          "entry_date": "2020-03-09"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "AIRJ",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.983273596176822,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 1.7648163233219585,
+      "last_close": 5.84499979019165,
+      "features": {
+        "ret_21d": 0.3593022164942623,
+        "ret_63d": 0.6464788362540506,
+        "ret_126d": 0.8095974475778076,
+        "ret_252d": 0.29600875688664896,
+        "vol_20d_ann": 1.2751749314059606,
+        "volume_z_20v126": 0.7968690127225255,
+        "dollar_vol_med_20d": 6596668.306722641,
+        "dist_from_252d_high": -0.11305012824676175,
+        "price": 5.84499979019165,
+        "cs_spread_est": 0.0442862773890173
+      },
+      "historical_analogs": [
+        {
+          "symbol": "GRWG",
+          "entry_date": "2020-07-13"
+        },
+        {
+          "symbol": "CDE",
+          "entry_date": "2016-02-16"
+        },
+        {
+          "symbol": "CLOV",
+          "entry_date": "2024-04-15"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "AGL",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.982078853046595,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 1.7606468928788934,
+      "last_close": 96.77999877929688,
+      "features": {
+        "ret_21d": -0.15733565463560628,
+        "ret_63d": 0.7846210510092488,
+        "ret_126d": 4.97407371737286,
+        "ret_252d": 3.424228515625,
+        "vol_20d_ann": 1.3117109796127253,
+        "volume_z_20v126": 0.08084007472823447,
+        "dollar_vol_med_20d": 40176310.00595093,
+        "dist_from_252d_high": -0.25462106046706656,
+        "price": 96.77999877929688,
+        "cs_spread_est": 0.0337339125102626
+      },
+      "historical_analogs": [
+        {
+          "symbol": "FCEL",
+          "entry_date": "2020-10-15"
+        },
+        {
+          "symbol": "BNTX",
+          "entry_date": "2019-10-11"
+        },
+        {
+          "symbol": "COSM",
+          "entry_date": "2022-12-15"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "ATAI",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.980884109916368,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 1.7534838371098824,
+      "last_close": 7.243100166320801,
+      "features": {
+        "ret_21d": 0.40098647184410363,
+        "ret_63d": 0.7972952330603609,
+        "ret_126d": 0.9212467381871814,
+        "ret_252d": 0.7453253011743637,
+        "vol_20d_ann": 1.133296265042879,
+        "volume_z_20v126": 0.7198096684646778,
+        "dollar_vol_med_20d": 69002967.86570549,
+        "dist_from_252d_high": -0.0009517011971309497,
+        "price": 7.243100166320801,
+        "cs_spread_est": 0.003517817614760763
+      },
+      "historical_analogs": [
+        {
+          "symbol": "BBBY",
+          "entry_date": "2020-05-18"
+        },
+        {
+          "symbol": "BBBY",
+          "entry_date": "2020-06-17"
+        },
+        {
+          "symbol": "RUN",
+          "entry_date": "2020-03-16"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "ATKR",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.9796893667861409,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 1.7528661861939792,
+      "last_close": 93.76000213623047,
+      "features": {
+        "ret_21d": 0.29789597049882865,
+        "ret_63d": 0.2676955829214811,
+        "ret_126d": 0.39760258483405875,
+        "ret_252d": 0.7398748366652248,
+        "vol_20d_ann": 0.9664462716124138,
+        "volume_z_20v126": 0.7754345411434604,
+        "dollar_vol_med_20d": 36953274.80278015,
+        "dist_from_252d_high": 0.0,
+        "price": 93.76000213623047,
+        "cs_spread_est": 0.007379688382915477
+      },
+      "historical_analogs": [
+        {
+          "symbol": "COSM",
+          "entry_date": "2022-12-15"
+        },
+        {
+          "symbol": "BNTX",
+          "entry_date": "2019-10-11"
+        },
+        {
+          "symbol": "RUN",
+          "entry_date": "2020-04-08"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "AGEN",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.978494623655914,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 1.7483284909756462,
+      "last_close": 6.909999847412109,
+      "features": {
+        "ret_21d": 1.0626865803358898,
+        "ret_63d": 0.8089005152275515,
+        "ret_126d": 1.350340038409719,
+        "ret_252d": 0.4516805704094107,
+        "vol_20d_ann": 1.2512870676201817,
+        "volume_z_20v126": 0.005618817573927598,
+        "dollar_vol_med_20d": 12624931.248259544,
+        "dist_from_252d_high": -0.16746991703378344,
+        "price": 6.909999847412109,
+        "cs_spread_est": 0.035764979262603545
+      },
+      "historical_analogs": [
+        {
+          "symbol": "SOUN",
+          "entry_date": "2024-02-01"
+        },
+        {
+          "symbol": "BBBY",
+          "entry_date": "2020-02-18"
+        },
+        {
+          "symbol": "BBBY",
+          "entry_date": "2020-03-11"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "AEVA",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.977299880525687,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 1.718319067972746,
+      "last_close": 23.81999969482422,
+      "features": {
+        "ret_21d": 0.13482610550573138,
+        "ret_63d": 0.7553426846361306,
+        "ret_126d": 0.9209677764205864,
+        "ret_252d": 0.918646779542069,
+        "vol_20d_ann": 1.5101890413410846,
+        "volume_z_20v126": -0.12020608774164843,
+        "dollar_vol_med_20d": 24174235.86578369,
+        "dist_from_252d_high": -0.18675319391346767,
+        "price": 23.81999969482422,
+        "cs_spread_est": 0.021270058266351918
+      },
+      "historical_analogs": [
+        {
+          "symbol": "RIG",
+          "entry_date": "2020-09-24"
+        },
+        {
+          "symbol": "FCEL",
+          "entry_date": "2020-11-13"
+        },
+        {
+          "symbol": "FUTU",
+          "entry_date": "2020-10-07"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    },
+    {
+      "instrument": "ZYBT",
+      "direction": "LONG",
+      "entry": "next_session_open",
+      "target_multiple": 5.0,
+      "horizon_bars": 126,
+      "stop": null,
+      "size_usd": 0.0,
+      "executable": false,
+      "confidence": {
+        "value": 0.97610513739546,
+        "status": "UNCALIBRATED",
+        "note": "similarity percentile; becomes a probability only after reconciler calibration"
+      },
+      "score": 1.6283949422027781,
+      "last_close": 1.8789000511169434,
+      "features": {
+        "ret_21d": 1.4088463077366526,
+        "ret_63d": 0.9777895523095075,
+        "ret_126d": 1.236785844974984,
+        "ret_252d": -0.6697890980277462,
+        "vol_20d_ann": 10.322459294271908,
+        "volume_z_20v126": 0.8142600119330737,
+        "dollar_vol_med_20d": 500841.3039712906,
+        "dist_from_252d_high": -0.8516462647630328,
+        "price": 1.8789000511169434,
+        "cs_spread_est": 0.01831022562840668
+      },
+      "historical_analogs": [
+        {
+          "symbol": "GORO",
+          "entry_date": "2020-06-18"
+        },
+        {
+          "symbol": "SEZL",
+          "entry_date": "2023-09-18"
+        },
+        {
+          "symbol": "GORO",
+          "entry_date": "2020-04-20"
+        }
+      ],
+      "regime": {
+        "trend": "BULL",
+        "vol_state": "LOW",
+        "chop": "CHOPPY"
+      }
+    }
+  ]
+}

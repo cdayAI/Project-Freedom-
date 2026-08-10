@@ -89,6 +89,86 @@ def generate_hypotheses(confluence: pl.DataFrame | None, ledger: Ledger) -> list
     return out
 
 
+def generate_hypotheses_from_calibration(
+    grades: pl.DataFrame | None,
+    predictions_dir,
+    horizon: int = 21,
+    min_graded: int = 30,
+    auc_margin: float = 0.15,
+) -> list[dict]:
+    """Mission 5.2 — learn from being wrong: among GRADED predictions, which
+    feature best separates the winners from the losers? A separating feature
+    the scanner is not already exploiting becomes the next pre-registrable
+    hypothesis. Activates automatically once enough grades exist; returns []
+    until then (never fabricates a learning signal).
+    """
+    import json as _json
+
+    from alpha_forge.research.confluence import _auc  # rank-based, reused
+
+    if grades is None or grades.height == 0:
+        return []
+    g = grades.filter(pl.col("horizon") == horizon)
+    if g.height < min_graded:
+        return []
+
+    # join each graded row to the features recorded in its immutable file
+    feat_rows = []
+    import pathlib
+
+    for path in sorted(pathlib.Path(predictions_dir).glob("predictions_*.json")):
+        doc = _json.loads(path.read_text())
+        for p in doc.get("predictions", []):
+            feat_rows.append(
+                {"file": path.name, "symbol": p["instrument"], **{
+                    f"feat_{k}": v for k, v in (p.get("features") or {}).items()
+                }}
+            )
+    if not feat_rows:
+        return []
+    feats = pl.DataFrame(feat_rows)
+    joined = g.join(feats, on=["file", "symbol"], how="inner")
+    if joined.height < min_graded:
+        return []
+
+    win = joined.filter(pl.col("fwd_return") > 0)
+    loss = joined.filter(pl.col("fwd_return") <= 0)
+    if min(win.height, loss.height) < 10:
+        return []
+
+    import numpy as np
+
+    best = None
+    for col in [c for c in joined.columns if c.startswith("feat_")]:
+        w = win[col].drop_nulls().to_numpy().astype(float)
+        l = loss[col].drop_nulls().to_numpy().astype(float)
+        if w.size < 10 or l.size < 10:
+            continue
+        auc = _auc(w, l)
+        if best is None or abs(auc - 0.5) > abs(best[1] - 0.5):
+            best = (col.removeprefix("feat_"), auc)
+    if best is None or abs(best[1] - 0.5) < auc_margin:
+        return []
+    feature, auc = best
+    direction = "desc" if auc > 0.5 else "asc"
+    return [
+        {
+            "generator": "calibration_error_v2",
+            "feature": feature,
+            "auc_win_vs_loss": auc,
+            "rank_direction": direction,
+            "horizon": horizon,
+            "n_graded": joined.height,
+            "hypothesis": (
+                f"Among graded predictions at the {horizon}-bar horizon, "
+                f"{feature} separates winners from losers (AUC {auc:.3f}, "
+                f"n={joined.height}). Adding it ({direction}) to the entry "
+                "score improves the event strategy net of costs."
+            ),
+        }
+    ]
+
+
 def generator_hit_rate(ledger: Ledger) -> dict:
     """Meta-learning: survivor rate of generated hypotheses, per generator.
     If it is not improving, the loop must change generation strategy and log

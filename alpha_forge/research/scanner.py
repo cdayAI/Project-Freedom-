@@ -51,7 +51,20 @@ def scan(
     """Rank live names by similarity to identifiable hit fingerprints."""
     out_path = PREDICTIONS_DIR / f"predictions_{data_vintage}.json"
     if out_path.exists():
-        return json.loads(out_path.read_text())  # immutable: never regenerated
+        # immutable: never regenerated — but a crash between file write and
+        # ledger append would leave it unledgered and therefore ungradeable;
+        # heal the ledger entry on cache hit if it is missing
+        doc = json.loads(out_path.read_text())
+        if not any(
+            e["kind"] == "PREDICTION" and e["payload"].get("file") == out_path.name
+            for e in ledger.entries()
+        ):
+            ledger.append(
+                "PREDICTION",
+                {"file": out_path.name, "sha256": _sha(out_path),
+                 "n": len(doc.get("predictions", []))},
+            )
+        return doc
 
     if confluence is None or hits is None or hits.height == 0:
         return None
