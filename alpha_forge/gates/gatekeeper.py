@@ -184,7 +184,7 @@ def _gates_10_11(report: GateReport, inputs: dict) -> tuple[list[str], list[str]
       null_p95_total_log gate-9 threshold the STRESSED strategy must still beat
       account_equity, per_trade_notional
     """
-    from alpha_forge.research.sizing import sizing_frontier
+    from alpha_forge.research.sizing2 import sizing_frontier_v2
     from alpha_forge.research.traps import Trade, run_account_mechanics, stress_overnight_gaps
 
     kill10: list[str] = []
@@ -227,26 +227,36 @@ def _gates_10_11(report: GateReport, inputs: dict) -> tuple[list[str], list[str]
             "margin (PDT) accounts at this equity — killed regardless of backtest"
         )
 
-    # ---- gate 11: ruin-constrained sizing must exist
+    # ---- gate 11: ruin-constrained sizing must exist under the WORST of the
+    # v2 path generators (stationary blocks / Bayesian bootstrap / regime
+    # chain when labels exist); the iid number rides along as the baseline
+    # it is — measured, never voting
     if r.size >= 30:
-        frontier = sizing_frontier(r, n_trades_per_path=max(50, r.size), seed=11)
+        frontier = sizing_frontier_v2(
+            r,
+            regime_labels=inputs.get("trade_regime_labels"),
+            n_trades_per_path=max(50, r.size),
+            seed=11,
+        )
         c = frontier["constrained_optimum"]
         report.checks["sizing"] = {
-            "kelly_fraction": frontier["kelly_fraction"],
+            "kelly": frontier["kelly"],
+            "generators_used": frontier["generators_used"],
             "constrained_optimum": c,
             "unconstrained_optimum": frontier["unconstrained_optimum"],
             "constraint": frontier["constraint"],
         }
         if c is None:
             kill11.append(
-                "gate11: no bet fraction satisfies P(losing 90%) < 5% — the "
-                "edge is unsizeable as measured"
+                "gate11: no bet fraction satisfies P(losing 90%) < 5% under the "
+                f"worst path model ({frontier['generators_used']}) — unsizeable"
             )
-        elif c["median_terminal_wealth"] <= 1.0:
+        elif c["median_terminal_wealth_bayes"] <= 1.0:
             kill11.append(
                 f"gate11: the best ruin-safe fraction ({c['fraction']:.2f}) still "
-                f"has median terminal wealth {c['median_terminal_wealth']:.3f} <= 1 "
-                "— no sizing grows this edge inside the ruin constraint"
+                f"has median terminal wealth {c['median_terminal_wealth_bayes']:.3f} "
+                "<= 1 under parameter uncertainty — no sizing grows this edge "
+                "inside the ruin constraint"
             )
     else:
         kill11.append(f"gate11: {r.size} OOS trades < 30 — cannot size")
