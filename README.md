@@ -24,13 +24,25 @@ make command-center  # local server: dashboard + live paper-account state
 make verify-ledger
 ```
 
-## Command center
+## Command center / terminal
 
-`make command-center` serves the dashboard at http://127.0.0.1:8321 with live
-data: sanitized Alpaca PAPER account state (equity, buying power, positions,
-open orders, PDT counter), loop status, and a run-now button for the nightly
-loop. Credentials live in `.env` (gitignored, see `.env.example`) and never
-reach the browser — the server proxies sanitized snapshots only.
+`make command-center` serves the full trading terminal at
+http://127.0.0.1:8321 (run it on YOUR machine — 127.0.0.1 is wherever the
+server runs):
+
+- **Terminal tab**: liquid-glass UI; canvas candlestick charts (wheel zoom,
+  drag pan, crosshair OHLCV) with 1m/5m/15m/1h intraday (Alpaca IEX feed)
+  and 15-year daily history from our own store; live quote stream (SSE,
+  server-multiplexed); watchlist seeded from positions + predictions; paper
+  order ticket (market/limit — PAPER endpoint only, journaled).
+- **Research tab**: replacement rate, gate outcomes, path catalog,
+  confluence, prediction feed, calibration.
+- Top strip: live equity, buying power, PDT day-trade counter, market clock.
+
+Credentials live in `.env` (gitignored, see `.env.example`) and never reach
+the browser — the server proxies sanitized data only. See `SIGNALS.md` for
+the full inventory of inputs the system uses and still needs, including the
+honest latency budget (free tier = IEX feed; SIP is a paid upgrade).
 
 Paper only, by construction: the client refuses the live endpoint outside
 `place_order`'s human double-lock, the test suite strips broker credentials
