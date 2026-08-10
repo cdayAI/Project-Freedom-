@@ -1,0 +1,115 @@
+{
+  "fee": "sec_section31",
+  "unit": "usd_per_million_usd_covered_sales",
+  "generated_utc": "2026-08-10T02:19:52.967350+00:00",
+  "entries": [
+    {
+      "effective_date": "2013-05-25",
+      "rate": 17.4,
+      "verified": true,
+      "source_url": "https://www.sec.gov/news/press/2013/2013-74.htm",
+      "source_title": "Fee Rate Advisory #3 for Fiscal Year 2013 (April 25, 2013)"
+    },
+    {
+      "effective_date": "2014-03-18",
+      "rate": 22.1,
+      "verified": true,
+      "source_url": "https://www.sec.gov/News/PressRelease/Detail/PressRelease/1370540783933",
+      "source_title": "Fee Rate Advisory #3 for Fiscal Year 2014 (February 12, 2014)"
+    },
+    {
+      "effective_date": "2015-02-14",
+      "rate": 18.4,
+      "verified": true,
+      "source_url": "https://www.sec.gov/news/pressrelease/2015-8.html",
+      "source_title": "Fee Rate Advisory #3 for Fiscal Year 2015 (January 15, 2015)"
+    },
+    {
+      "effective_date": "2016-02-16",
+      "rate": 21.8,
+      "verified": true,
+      "source_url": "https://www.sec.gov/news/pressrelease/2016-2.html",
+      "source_title": "Fee Rate Advisory #3 for Fiscal Year 2016 (January 7, 2016)"
+    },
+    {
+      "effective_date": "2017-07-04",
+      "rate": 23.1,
+      "verified": true,
+      "source_url": "https://www.sec.gov/news/press-release/2017-111",
+      "source_title": "Fee Rate Advisory #3 for Fiscal Year 2017 (May 31, 2017)"
+    },
+    {
+      "effective_date": "2018-05-22",
+      "rate": 13.0,
+      "verified": true,
+      "source_url": "https://www.sec.gov/news/press-release/2018-67",
+      "source_title": "Fee Rate Advisory #3 for Fiscal Year 2018 (April 17, 2018)"
+    },
+    {
+      "effective_date": "2019-04-16",
+      "rate": 20.7,
+      "verified": true,
+      "source_url": "https://www.sec.gov/news/press-release/2019-30",
+      "source_title": "Fee Rate Advisory #2 for Fiscal Year 2019 (March 12, 2019)"
+    },
+    {
+      "effective_date": "2020-02-18",
+      "rate": 22.1,
+      "verified": true,
+      "source_url": "https://www.sec.gov/news/press-release/2020-7",
+      "source_title": "Fee Rate Advisory #2 for Fiscal Year 2020 (January 9, 2020)"
+    },
+    {
+      "effective_date": "2021-02-25",
+      "rate": 5.1,
+      "verified": true,
+      "source_url": "https://www.sec.gov/news/press-release/2021-8",
+      "source_title": "Fee Rate Advisory #2 for Fiscal Year 2021 (January 15, 2021)"
+    },
+    {
+      "effective_date": "2022-05-14",
+      "rate": 22.9,
+      "verified": true,
+      "source_url": "https://www.sec.gov/news/press-release/2022-60",
+      "source_title": "Fee Rate Advisory #2 for Fiscal Year 2022 (April 8, 2022)"
+    },
+    {
+      "effective_date": "2023-02-27",
+      "rate": 8.0,
+      "verified": true,
+      "source_url": "https://www.sec.gov/newsroom/press-releases/2023-15",
+      "source_title": "Fee Rate Advisory #2 for Fiscal Year 2023 (January 23, 2023)"
+    },
+    {
+      "effective_date": "2024-05-22",
+      "rate": 27.8,
+      "verified": true,
+      "source_url": "https://www.sec.gov/rules-regulations/fee-rate-advisories/2024-2",
+      "source_title": "Fee Rate Advisory #2 for Fiscal Year 2024"
+    },
+    {
+      "effective_date": "2025-05-14",
+      "rate": 0.0,
+      "verified": true,
+      "source_url": "https://www.sec.gov/rules-regulations/fee-rate-advisories/2025-2",
+      "source_title": "Section 31 Transaction Fee Rate Advisory for Fiscal Year 2025 (April 8, 2025)"
+    },
+    {
+      "effective_date": "2026-04-04",
+      "rate": 20.6,
+      "verified": true,
+      "source_url": "https://www.sec.gov/rules-regulations/fee-rate-advisories/2026-2",
+      "source_title": "Section 31 Transaction Fee Rate Advisory for Fiscal Year 2026 (February 27, 2026); annual adjustment order Rel. 34-104909"
+    }
+  ],
+  "notes": [
+    "SEC Section 31 effective dates are charge-date based: each advisory applies to covered sales on charge dates on or after the effective date.",
+    "Rate in force on 2014-01-01 was $17.40/M (set 2013-05-25, FY2013 Advisory #3); confirmed unchanged by FY2014 Advisories #2 and #4.",
+    "No-mid-year-adjustment confirmations fetched for FY2015, FY2016, FY2020, FY2021, FY2023: one rate change per fiscal year; the table captures every effective date from 2014-01-01 forward.",
+    "FINRA TAF: SEC Rel. 34-90176 states TAF rates had not increased since 2012, confirming no equity/option TAF changes 2012-07-01 through 2021-12-31.",
+    "Options TAF first row (2014-01-01, $0.002) is a window-start anchor: the rate predates 2014 (TAF adopted 2002); its original effective date was not verified and is intentionally not stated.",
+    "2025 had no TAF change: SR-FINRA-2024-019 lists 2025 as no-change from 2024 rates.",
+    "As of 2026-08-10 FINRA's static Schedule A page still displayed 2024-2025 rates; 2026-01-01 rates verified from SR-FINRA-2024-019 Exhibit 5C and FINRA's Fee Adjustment Schedule page.",
+    "All entries compiled 2026-08-10 by fetching the cited primary sources."
+  ]
+}

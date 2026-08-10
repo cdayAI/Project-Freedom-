@@ -1,0 +1,57 @@
+{
+  "fee": "finra_taf_equity",
+  "unit": "usd_per_share_sold_capped",
+  "generated_utc": "2026-08-10T02:19:52.967847+00:00",
+  "entries": [
+    {
+      "effective_date": "2012-07-01",
+      "rate": 0.000119,
+      "verified": true,
+      "source_url": "https://www.finra.org/rules-guidance/notices/12-31",
+      "source_title": "FINRA Regulatory Notice 12-31 (SR-FINRA-2012-023)",
+      "cap_per_trade_usd": 5.95
+    },
+    {
+      "effective_date": "2022-01-01",
+      "rate": 0.00013,
+      "verified": true,
+      "source_url": "https://www.sec.gov/files/rules/sro/finra/2020/34-90176.pdf",
+      "source_title": "SEC Release No. 34-90176 (SR-FINRA-2020-032 phase-in), 85 FR 66592",
+      "cap_per_trade_usd": 6.49
+    },
+    {
+      "effective_date": "2023-01-01",
+      "rate": 0.000145,
+      "verified": true,
+      "source_url": "https://www.sec.gov/files/rules/sro/finra/2020/34-90176.pdf",
+      "source_title": "SEC Release No. 34-90176 (SR-FINRA-2020-032 phase-in), 85 FR 66592",
+      "cap_per_trade_usd": 7.27
+    },
+    {
+      "effective_date": "2024-01-01",
+      "rate": 0.000166,
+      "verified": true,
+      "source_url": "https://www.sec.gov/files/rules/sro/finra/2020/34-90176.pdf",
+      "source_title": "SEC Release No. 34-90176 (SR-FINRA-2020-032 phase-in); confirmed in SR-FINRA-2024-019 and FINRA By-Laws Schedule A Section 1",
+      "cap_per_trade_usd": 8.3
+    },
+    {
+      "effective_date": "2026-01-01",
+      "rate": 0.000195,
+      "verified": true,
+      "source_url": "https://www.finra.org/sites/default/files/2024-11/sr-finra-2024-019.pdf",
+      "source_title": "FINRA rule filing SR-FINRA-2024-019 (Exhibit 5C, effective January 1, 2026); SEC Rel. 34-101696",
+      "cap_per_trade_usd": 9.79
+    }
+  ],
+  "notes": [
+    "SEC Section 31 effective dates are charge-date based: each advisory applies to covered sales on charge dates on or after the effective date.",
+    "Rate in force on 2014-01-01 was $17.40/M (set 2013-05-25, FY2013 Advisory #3); confirmed unchanged by FY2014 Advisories #2 and #4.",
+    "No-mid-year-adjustment confirmations fetched for FY2015, FY2016, FY2020, FY2021, FY2023: one rate change per fiscal year; the table captures every effective date from 2014-01-01 forward.",
+    "FINRA TAF: SEC Rel. 34-90176 states TAF rates had not increased since 2012, confirming no equity/option TAF changes 2012-07-01 through 2021-12-31.",
+    "Options TAF first row (2014-01-01, $0.002) is a window-start anchor: the rate predates 2014 (TAF adopted 2002); its original effective date was not verified and is intentionally not stated.",
+    "2025 had no TAF change: SR-FINRA-2024-019 lists 2025 as no-change from 2024 rates.",
+    "As of 2026-08-10 FINRA's static Schedule A page still displayed 2024-2025 rates; 2026-01-01 rates verified from SR-FINRA-2024-019 Exhibit 5C and FINRA's Fee Adjustment Schedule page.",
+    "All entries compiled 2026-08-10 by fetching the cited primary sources."
+  ]
+}
