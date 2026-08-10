@@ -24,7 +24,10 @@ def _maybe(path: Path) -> pl.DataFrame | None:
 
 def build_dashboard_data(ledger: Ledger, replacement: dict) -> dict:
     window_counts = _maybe(STORE_DIR / "path_window_counts.parquet")
-    confluence = _maybe(STORE_DIR / "confluence_results.parquet")
+    # v2 (time-matched) supersedes v1; the dashboard shows matched AUCs only
+    confluence = _maybe(STORE_DIR / "confluence_v2_results.parquet")
+    if confluence is not None and "matched_auc" in confluence.columns:
+        confluence = confluence.rename({"matched_auc": "auc"})
     calibration = _maybe(STORE_DIR / "calibration.parquet")
     curves = _maybe(STORE_DIR / "backtest_curves.parquet")
 

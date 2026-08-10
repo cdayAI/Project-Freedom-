@@ -34,6 +34,23 @@ YAHOO_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
 UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64)"}
 
 
+def _drop_incomplete_session(df: pl.DataFrame) -> pl.DataFrame:
+    """A pull during US market hours includes TODAY'S PARTIAL bar — a
+    mid-session snapshot masquerading as a daily close. Drop the current
+    ET session's bar unless the session has closed (>= 16:15 ET buffer)."""
+    from datetime import datetime, timedelta, timezone
+
+    now_utc = datetime.now(timezone.utc)
+    # ET offset: -5 standard, -4 daylight. Approximate DST by month (Mar-Nov)
+    # is not acceptable for a data-integrity rule; use the exact zoneinfo.
+    from zoneinfo import ZoneInfo
+
+    now_et = now_utc.astimezone(ZoneInfo("America/New_York"))
+    if now_et.hour * 60 + now_et.minute >= 16 * 60 + 15:
+        return df
+    return df.filter(pl.col("date") < now_et.date())
+
+
 class YahooDailyAdapter:
     vendor = "yahoo_finance_chart_api"
     survivorship_free = False
@@ -97,18 +114,35 @@ class YahooDailyAdapter:
                     pl.col("adjclose").alias("close"),
                     pl.col("volume").cast(pl.Float64),
                 )
-                return df.select(["date", "open", "high", "low", "close", "volume"]).sort("date")
+                df = df.select(["date", "open", "high", "low", "close", "volume"]).sort("date")
+                return _drop_incomplete_session(df)
             except (requests.RequestException, KeyError, ValueError):
                 time.sleep(2**attempt)
         return None
 
-    def ingest(self, symbols: list[str], out_dir: Path | None = None) -> dict:
+    def ingest(self, symbols: list[str], out_dir: Path | None = None,
+               resume: bool = True) -> dict:
         """Fetch, validate, quarantine failures, write one parquet per symbol
-        plus a combined long-format parquet. Returns ingestion summary."""
+        plus a combined long-format parquet. Returns ingestion summary.
+
+        resume=True reuses per-symbol parquet already pulled TODAY (same
+        vendor, same vintage), so a rate-limit interruption or a sample
+        widening never refetches what is already on disk."""
+        import datetime as _dt
+
         out_dir = out_dir or (STORE_DIR / "equities_daily")
         out_dir.mkdir(parents=True, exist_ok=True)
         ok_frames, reports, quarantined = [], [], []
+        today = _dt.date.today()
         for sym in symbols:
+            cached = out_dir / f"{sym}.parquet"
+            if (
+                resume
+                and cached.exists()
+                and _dt.date.fromtimestamp(cached.stat().st_mtime) == today
+            ):
+                ok_frames.append(pl.read_parquet(cached))
+                continue
             df = self.fetch_symbol(sym)
             time.sleep(self.pause_s)
             if df is None or df.height == 0:

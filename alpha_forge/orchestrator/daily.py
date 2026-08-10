@@ -9,9 +9,9 @@ failure halts everything downstream rather than feeding it silently):
   4. reconciler grades matured predictions(Agent 7 — before anything new)
   5. confluence identifiability          (Agent 3, one family per vintage)
   6. scanner -> immutable predictions    (Agent 6)
-  7. gates: pre-registered hypotheses    (demo + generated, budgeted)
-  8. council over the book               (Agent 8b; empty book = no-op)
-  9. replacement rate, weekly memo, FINDINGS.md, dashboard export
+  7. gates 1-11: event candidate (trained walk-forward) + demo + generated
+  8. replacement rate, weekly memo, FINDINGS.md, dashboard export
+     (council keep/kill activates when the book is non-empty)
 """
 
 from __future__ import annotations
@@ -28,6 +28,7 @@ from alpha_forge.config import (
     DUCKDB_PATH,
     NULL_BASELINE_MIN_DRAWS,
     PERMUTATION_MIN_SHUFFLES,
+    PREDICTIONS_DIR,
     RAW_DIR,
     STORE_DIR,
 )
@@ -38,7 +39,6 @@ from alpha_forge.data.regime import build_regime_series, load_regime
 from alpha_forge.data.universe import eligible_common_stocks, fetch_symbol_directory, research_sample
 from alpha_forge.gates.dsr import sharpe_ratio
 from alpha_forge.gates.gatekeeper import run_gates
-from alpha_forge.gates.permutation import benjamini_hochberg
 from alpha_forge.gates.walkforward import HoldoutRegistry, purged_walk_forward_splits
 from alpha_forge.ledger import Ledger
 from alpha_forge.reporting.export import build_dashboard_data, build_static_snapshot
@@ -50,19 +50,35 @@ from alpha_forge.research.backtest import (
     random_selection_draws,
     run_config,
 )
-from alpha_forge.research.confluence import run_confluence
+from alpha_forge.research.confluence2 import build_matched_groups, run_confluence_v2
+from alpha_forge.research.eventbt import (
+    CONFIG_GRID as EVENT_CONFIG_GRID,
+    build_event_panel,
+    matched_null_matrix,
+    walk_forward_train,
+)
 from alpha_forge.research.features import fingerprint_at
+from alpha_forge.research.features_panel import build_features_panel
 from alpha_forge.research.loop import (
     generate_hypotheses,
+    generate_hypotheses_from_calibration,
     generator_hit_rate,
     replacement_rate,
     write_weekly_memo,
 )
 from alpha_forge.research.pathfinder import enumerate_paths
-from alpha_forge.research.reconciler import calibration_summary, grade_all
+from alpha_forge.research.reconciler import GRADES_PATH, calibration_summary, grade_all
 from alpha_forge.research.scanner import scan
 
-SAMPLE_SIZE = 200  # research sample of the eligible universe (rate-limit bound)
+SAMPLE_SIZE = 1500  # research sample of the eligible universe
+HOLDOUT_FRACTION = 0.15
+# v2: signal-day features (v1 had a one-day lookahead via entry-day join),
+# label-matured direction cutoffs, block-capped trades, fully-OOS PBO matrix
+EVENT_STRATEGY_ID = "evt_fp5x_v2"
+EVENT_CLASS = 5  # pre-registered primary class: 5x paths (largest sample)
+# The night gates at most this many candidates; each permutation p-value is
+# Bonferroni-corrected against the whole family, not tested alone.
+NIGHTLY_CANDIDATE_BUDGET = 4
 
 # The standing demo hypothesis (cycle 1's pre-registered momentum, kept as a
 # permanent null-hypothesis exercise for pipeline regression testing).
@@ -216,14 +232,15 @@ def _gate_candidate(
     )
     observed = float(net_r.mean())
     p_perm = float((1 + np.sum(perm_draws >= observed)) / (1 + perm_draws.size))
-    rejected = benjamini_hochberg([p_perm], q=0.05)[0]
+    rejected = p_perm <= 0.05 / NIGHTLY_CANDIDATE_BUDGET
     permutation_result = {
         "p_value": p_perm,
         "observed": observed,
         "null_mean": float(perm_draws.mean()),
         "n_permutations": int(perm_draws.size),
         "rejected_after_correction": bool(rejected),
-        "correction": "benjamini_hochberg q=0.05 over today's hypothesis family",
+        "correction": f"bonferroni alpha=0.05/{NIGHTLY_CANDIDATE_BUDGET} across "
+        "the night's candidate family",
     }
 
     _log(f"gates: {strategy_id}: null baseline, {NULL_BASELINE_MIN_DRAWS} full-path draws")
@@ -344,7 +361,8 @@ def gate_generated_hypotheses(
 
     reports = []
     for hyp in hypotheses:
-        sid = f"gen_{hyp['feature']}_{hyp['rank_direction']}_v1"
+        gen_tag = "cal" if hyp["generator"].startswith("calibration") else "conf"
+        sid = f"gen_{gen_tag}_{hyp['feature']}_{hyp['rank_direction']}_v1"
         existing = _already_gated(ledger, sid, data_vintage)
         if existing:
             _log(f"gates: {sid} already gated on vintage {data_vintage} (skip)")
@@ -357,7 +375,7 @@ def gate_generated_hypotheses(
                 "generator": hyp["generator"],
                 "feature": hyp["feature"],
                 "rank_direction": hyp["rank_direction"],
-                "source_auc": hyp["auc"],
+                "source_auc": hyp.get("auc", hyp.get("auc_win_vs_loss")),
                 "top_k_grid": list(GENERATED_TOP_K_GRID),
                 "fills": "next_session_open",
                 "fee_verified_window_start": str(fee_floor),
@@ -378,6 +396,183 @@ def gate_generated_hypotheses(
         if report:
             reports.append(report)
     return reports
+
+
+# ------------------------------------------------------- event candidate
+
+
+def gate_event_candidate(
+    ledger: Ledger,
+    panel: pl.DataFrame,
+    features: pl.DataFrame,
+    hits: pl.DataFrame,
+    groups_by_class: dict,
+    data_vintage: str,
+) -> dict | None:
+    """The system's primary thesis, trained on past data: fingerprint-scored
+    entries toward 5x paths, walk-forward-trained, all twelve configs
+    ledgered, gates 1-11 applied to the OOS record."""
+    existing = _already_gated(ledger, EVENT_STRATEGY_ID, data_vintage)
+    if existing:
+        _log(f"gates: {EVENT_STRATEGY_ID} already gated on vintage {data_vintage} (skip)")
+        return existing
+
+    reg_id = ledger.preregister(
+        hypothesis="Event strategy: enter names whose fingerprint state is in "
+        "the cross-sectional extreme (directions learned per walk-forward fold "
+        "from matched confluence groups predating the fold), next-open fills, "
+        "exit at target multiple / stop / 126-bar time limit under full costs "
+        "and 10-slot capital. OOS record beats matched same-mechanics nulls.",
+        universe="uniform random sample of current listings (SURVIVORSHIP-"
+        "BIASED); holdout = final 15% of trading days, untouched",
+        parameters={
+            "generator": "event_fingerprint_v1",
+            "class": EVENT_CLASS,
+            "config_grid": EVENT_CONFIG_GRID,
+            "max_concurrent": 10,
+            "hold_max_bars": 126,
+            "fills": "next_open + half-spread; stop/target gap-aware; "
+            "date-aware sell fees",
+        },
+    )
+
+    _log("event: building event panel (wide arrays + feature percentiles)")
+    # the event engine pays sell-side fees on every exit: bound it to the
+    # fee-verified window (features stay full-history for warmup correctness)
+    fee_floor = earliest_verified_equity_fee_date()
+    panel_bt = panel.filter(pl.col("date") >= fee_floor)
+    features_bt = features.filter(pl.col("date") >= fee_floor)
+    ep = build_event_panel(panel_bt, features_bt)
+    research_end = int(ep.dates.size * (1 - HOLDOUT_FRACTION))
+
+    _log("event: walk-forward training")
+    wf = walk_forward_train(ep, groups_by_class, EVENT_CLASS, research_end)
+    # EVERY (fold, config) evaluation is a trial; the recorded statistic is
+    # the config's OOS daily Sharpe on that fold's test block (a genuine
+    # per-period Sharpe, comparable across trials; None when degenerate)
+    for tr_rec in wf["trial_records"]:
+        ledger.record_trial(
+            reg_id,
+            {"fold": tr_rec["fold"], **tr_rec["config"]},
+            tr_rec["test_daily_sharpe"],
+        )
+    oos_trades = wf["oos_trades"]
+    oos_daily = wf["oos_daily"]
+    _log(f"event: {len(oos_trades)} OOS trades across folds; "
+         f"{sum(1 for f in wf['fold_summaries'] if 'skipped' not in f)} live folds")
+    if len(oos_trades) < 10 or oos_daily.size < 100 or wf["final_spec"] is None:
+        result = {
+            "strategy_id": EVENT_STRATEGY_ID,
+            "verdict": "KILL",
+            "reasons": [f"insufficient OOS record: {len(oos_trades)} trades"],
+            "checks": {"data_vintage": data_vintage,
+                       "fold_summaries": wf["fold_summaries"]},
+            "reg_id": reg_id,
+        }
+        ledger.append("GATE_REPORT", result)
+        return result
+
+    final_cfg = wf["final_spec"]["config"]
+    trade_logs = np.array([t.net_log_ret for t in oos_trades])
+    gross_logs = np.array([t.gross_log_ret for t in oos_trades])
+    observed_mean = float(trade_logs.mean())
+    strat_total = float(trade_logs.sum())
+
+    if oos_daily.std() == 0:
+        result = {
+            "strategy_id": EVENT_STRATEGY_ID,
+            "verdict": "KILL",
+            "reasons": ["degenerate OOS daily series (zero variance) — nothing "
+                        "statistically evaluable was traded"],
+            "checks": {"data_vintage": data_vintage,
+                       "fold_summaries": wf["fold_summaries"]},
+            "reg_id": reg_id,
+        }
+        ledger.append("GATE_REPORT", result)
+        return result
+
+    _log(f"event: matched nulls ({PERMUTATION_MIN_SHUFFLES} draws, same mechanics)")
+    from alpha_forge.research.eventbt import composite_score
+
+    final_score = composite_score(ep, wf["final_spec"]["directions"])
+    null_mat = matched_null_matrix(
+        ep, oos_trades, wf["oos_trade_configs"], wf["oos_trade_block_ends"],
+        final_score, PERMUTATION_MIN_SHUFFLES, seed=3,
+    )
+    null_means = null_mat.mean(axis=1)
+    null_totals = null_mat.sum(axis=1)
+    p_perm = float((1 + np.sum(null_means >= observed_mean)) / (1 + null_means.size))
+    rejected = p_perm <= 0.05 / NIGHTLY_CANDIDATE_BUDGET
+    permutation_result = {
+        "p_value": p_perm,
+        "observed": observed_mean,
+        "null_mean": float(null_means.mean()),
+        "n_permutations": int(null_means.size),
+        "rejected_after_correction": bool(rejected),
+        "correction": f"bonferroni alpha=0.05/{NIGHTLY_CANDIDATE_BUDGET} across "
+        "the night's candidate family",
+    }
+    null_p95_total = float(np.percentile(null_totals, 95))
+
+    # gate-10 stress uses the RESEARCH era's gap distribution only — holdout
+    # gap statistics must not leak into a research-segment verdict
+    research_gaps = None
+    with np.errstate(invalid="ignore", divide="ignore"):
+        g = (ep.open_[1:research_end] / ep.close[: research_end - 1] - 1.0).ravel()
+    research_gaps = g[~np.isnan(g)]
+
+    fold_srs = [
+        round(f["test_mean_net_log"], 4)
+        for f in wf["fold_summaries"] if "skipped" not in f
+    ]
+    walkforward_summary = {
+        "all_folds_evaluated": all("skipped" not in f for f in wf["fold_summaries"]),
+        "fold_summaries": wf["fold_summaries"],
+        "fold_test_mean_net_logs": fold_srs,
+        "purge_bars": 126,
+        "holdout_days_untouched": int(ep.dates.size - research_end),
+    }
+
+    report = run_gates(
+        strategy_id=EVENT_STRATEGY_ID,
+        reg_id=reg_id,
+        ledger=ledger,
+        net_returns=oos_daily,
+        gross_returns=oos_daily,  # per-day series is already net; gross-vs-net
+        config_returns_matrix=wf["config_daily_matrix"],
+        n_trade_events=len(oos_trades),
+        permutation_result=permutation_result,
+        null_result_inputs=(strat_total, null_totals),
+        survivorship_free=False,
+        walkforward_summary=walkforward_summary,
+        extra_checks={
+            "data_vintage": data_vintage,
+            "final_spec": {
+                "directions": wf["final_spec"]["directions"],
+                "config": final_cfg,
+            },
+            "exit_reasons": {
+                r: sum(1 for t in oos_trades if t.exit_reason == r)
+                for r in ("target", "target_gap", "stop", "stop_gap", "time", "data_end")
+            },
+        },
+        net_vs_gross_override={
+            "gross_total_return": float(np.expm1(gross_logs.sum())),
+            "net_total_return": float(np.expm1(trade_logs.sum())),
+            "basis": "compounded per-trade OOS returns (raw fills vs full costs)",
+        },
+        stress_sizing_inputs={
+            "trade_net_returns": np.expm1(trade_logs),
+            "trade_entry_days": [t.entry_day for t in oos_trades],
+            "trade_exit_days": [t.exit_day for t in oos_trades],
+            "overnight_gaps": research_gaps,
+            "null_p95_total_log": null_p95_total,
+            "account_equity": 2000.0,
+            "per_trade_notional": 200.0,
+        },
+    )
+    _log(f"event: verdict {report.verdict} — {'; '.join(report.reasons) or 'clean pass'}")
+    return report.to_payload()
 
 
 # ------------------------------------------------------------------- main
@@ -404,23 +599,58 @@ def main() -> int:
     if grades:
         _log(f"reconciler: {len(grades)} (file, horizon) grades recorded")
 
-    _log("confluence: identifiability testing (one family per vintage)")
-    confluence = run_confluence(panel, hits, ledger, data_vintage)
+    _log("features: building vectorized panel (1e-9-verified vs fingerprint_at)")
+    features = build_features_panel(panel)
+    features.write_parquet(STORE_DIR / "features_panel.parquet")
+
+    # holdout boundary on trading days: hits whose LABELS mature inside the
+    # holdout era never inform confluence, training, or the scanner — the
+    # filter is on window_end (label resolution), not entry (label creation)
+    all_days = np.sort(panel["date"].unique().to_numpy())
+    boundary_date = all_days[int(all_days.size * (1 - HOLDOUT_FRACTION))]
+    hits_research = (
+        hits.filter(pl.col("window_end").str.slice(0, 10).str.to_date() < boundary_date)
+        if isinstance(hits, pl.DataFrame) and hits.height
+        else hits
+    )
+
+    _log("confluence v2: time-matched identifiability (supersedes v1)")
+    groups_by_class = build_matched_groups(features, hits_research, seed=17) \
+        if isinstance(hits_research, pl.DataFrame) and hits_research.height else {}
+    confluence = run_confluence_v2(
+        features, hits_research, ledger, data_vintage, groups_by_class=groups_by_class
+    )
     if confluence is not None:
         n_ident = confluence.filter(pl.col("verdict") == "IDENTIFIABLE").height
-        _log(f"confluence: {n_ident} identifiable (feature x class) cells")
+        _log(f"confluence v2: {n_ident} identifiable (feature x class) cells "
+             "(era confound removed)")
 
     _log("scanner: emitting immutable predictions")
-    pred_doc = scan(panel, confluence, hits, regime, ledger, data_vintage)
+    conf_for_scanner = (
+        confluence.rename({"matched_auc": "auc"}) if confluence is not None else None
+    )
+    pred_doc = scan(panel, conf_for_scanner, hits_research, regime, ledger, data_vintage)
     if pred_doc:
         _log(f"scanner: {len(pred_doc.get('predictions', []))} predictions "
              f"({pred_doc.get('note', 'ok')})")
 
     gate_reports = []
+    event_report = gate_event_candidate(
+        ledger, panel, features, hits_research, groups_by_class, data_vintage
+    )
+    if event_report:
+        gate_reports.append(event_report)
+
     demo = gate_demo_hypothesis(ledger, panel, data_vintage)
     if demo:
         gate_reports.append(demo)
-    hyps = generate_hypotheses(confluence, ledger)
+
+    # calibration-driven hypotheses take priority in the budget: learning
+    # from being wrong beats re-mining the same identifiability signal
+    cal_grades = pl.read_parquet(GRADES_PATH) if GRADES_PATH.exists() else None
+    hyps = generate_hypotheses_from_calibration(cal_grades, PREDICTIONS_DIR)
+    hyps += generate_hypotheses(conf_for_scanner, ledger)
+    hyps = hyps[:2]
     _log(f"loop: {len(hyps)} generated hypotheses under tonight's budget")
     gate_reports.extend(gate_generated_hypotheses(ledger, panel, hyps, data_vintage))
 
@@ -452,16 +682,40 @@ def main() -> int:
     if confluence is not None:
         surv = confluence.filter(pl.col("verdict") == "IDENTIFIABLE")
         extra.append(
-            "## Confluence (Agent 3)\n\n"
+            "## Confluence v2 (Agent 3) — TIME-MATCHED controls\n\n"
+            "Each hit is ranked only against same-era controls (other symbols, "
+            "±10 trading days), so era effects cancel; v1's unmatched design is "
+            "superseded and its numbers should not be quoted.\n\n"
             + (
                 f"{surv.height} of {confluence.filter(pl.col('verdict') != 'UNDERPOWERED').height} "
                 "tested (feature x class) cells are IDENTIFIABLE after BH correction: "
                 + ", ".join(
-                    f"{r['feature']}@{r['n_multiple']}x (AUC {r['auc']:.2f})"
+                    f"{r['feature']}@{r['n_multiple']}x (matched AUC {r['matched_auc']:.2f})"
                     for r in surv.iter_rows(named=True)
                 )
                 if surv.height
-                else "no fingerprint feature survived BH correction on this vintage"
+                else "NO fingerprint feature survives once controls are drawn from "
+                "the hit's own era — v1's identifiability was largely time-"
+                "confounded, which is exactly what this correction exists to expose"
+            )
+        )
+    if event_report is not None:
+        checks = event_report.get("checks", {})
+        spec = checks.get("final_spec", {})
+        sizing = checks.get("sizing", {})
+        fold_sums = checks.get("fold_summaries") or checks.get("walkforward", {}).get(
+            "fold_summaries", []
+        )
+        extra.append(
+            "## Event strategy (trained on past data)\n\n"
+            f"**{EVENT_STRATEGY_ID}** — verdict **{event_report['verdict']}**. "
+            f"Walk-forward folds: {len([f for f in fold_sums if 'skipped' not in f]) or 'see report'}; "
+            f"final spec: {spec.get('config')}; directions: {spec.get('directions')}. "
+            + (
+                f"Ruin-constrained size: {sizing['constrained_optimum']['fraction']:.2f} "
+                f"of equity per position (Kelly {sizing.get('kelly_fraction', 0):.2f})."
+                if sizing.get("constrained_optimum")
+                else "No ruin-safe sizing (or killed before sizing)."
             )
         )
     if gen_stats:
