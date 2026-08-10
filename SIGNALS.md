@@ -42,9 +42,15 @@ Most extreme 6-month moves are catalyst-driven; every path hit is currently
 tagged `catalyst_class: NONE`, which the mission correctly calls
 aftermath-fingerprinting. Needed feeds, cheapest-first:
 
+> Catalyst v1 is LIVE as of cycle 4: SEC EDGAR 8-K histories (free, primary
+> source) tag every pathfinder hit (EARNINGS_8K / OTHER_8K / NONE) and feed
+> two ex-ante features — days_since_earnings_8k and days_since_any_8k —
+> through the whole confluence/event pipeline. The rows below remain the
+> upgrade path for richer catalyst coverage.
+
 | Signal | Source candidates | Feeds |
 |---|---|---|
-| Earnings calendar + surprise history | Alpaca corporate actions (free w/ account) · Finnhub free tier · Nasdaq API | catalyst class EARNINGS; gap-risk conditioning in traps |
+| Earnings calendar + surprise history | **EDGAR 8-K Item 2.02 (LIVE)** · Finnhub free tier · Nasdaq API | catalyst class EARNINGS; gap-risk conditioning in traps |
 | FDA/PDUFA calendar | openFDA (free) + curated PDUFA lists (BiopharmCatalyst, paid) | catalyst class FDA — where 10x+ biotech paths live |
 | Short interest (bi-monthly) | FINRA equity SI files (free download) | squeeze-fingerprint features; borrow-availability proxy |
 | Shares float / outstanding | Sharadar fundamentals (bundled) · SEC EDGAR facts API (free) | float-rotation feature — small-float is the 50x substrate |

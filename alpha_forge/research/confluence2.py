@@ -25,18 +25,20 @@ import polars as pl
 from alpha_forge.config import PERMUTATION_MIN_SHUFFLES, STORE_DIR
 from alpha_forge.gates.permutation import benjamini_hochberg
 from alpha_forge.ledger import Ledger
-from alpha_forge.research.features import FEATURE_NAMES
+from alpha_forge.research.features import FEATURE_NAMES  # noqa: F401 (legacy consumers)
+from alpha_forge.research.features_panel import feature_columns
 
 K_CONTROLS = 5
 MATCH_WINDOW = 10          # trading days on either side of the hit's date
 MIN_GROUPS_PER_CLASS = 20  # below this a cell is UNDERPOWERED, not tested
 
 CONFLUENCE2_PATH = STORE_DIR / "confluence_v2_results.parquet"
-# v2_1: corrects v2's one-day lookahead (hit features were joined at the
-# ENTRY day; they now join at the SIGNAL day, the prior close). The v2
-# family's numbers are superseded and its ledger entries stand as the record
-# of the correction.
-FAMILY = "confluence_identifiability_v2_1"
+# Family history (each bump is a ledgered re-preregistration):
+#   v2    time-matched controls (superseded: entry-day join leaked one day)
+#   v2_1  signal-day join
+#   v3    feature set extended with ex-ante catalyst features
+#         (days_since_earnings_8k / days_since_any_8k from EDGAR 8-K)
+FAMILY = "confluence_identifiability_v3_catalyst"
 
 
 def last_family_vintage(ledger: Ledger) -> str | None:
@@ -74,7 +76,7 @@ def build_matched_groups(
     the pool is sorted by trading-date position once, and each hit's control
     window is a binary-searched slice."""
     rng = np.random.default_rng(seed)
-    feat_cols = list(FEATURE_NAMES)
+    feat_cols = feature_columns(features)
     dedup = hits.unique(subset=["symbol", "entry_date", "n_multiple"]).with_columns(
         pl.col("entry_date").str.slice(0, 10).str.to_date().alias("entry_dt")
     )
@@ -202,7 +204,7 @@ def run_confluence_v2(
         universe="ingested equity panel (survivorship-biased, see manifest)",
         parameters={
             "family": FAMILY,
-            "features": FEATURE_NAMES,
+            "features": feature_columns(features),
             "k_controls": K_CONTROLS,
             "match_window_trading_days": MATCH_WINDOW,
             "statistic": "mean_normalized_within_group_rank",
@@ -216,10 +218,11 @@ def run_confluence_v2(
     if groups_by_class is None:
         groups_by_class = build_matched_groups(features, hits, seed)
 
+    feat_cols = feature_columns(features)
     results, p_values, cells = [], [], []
     for n_x in sorted(groups_by_class):
         groups = groups_by_class[n_x]
-        for fi, feat in enumerate(FEATURE_NAMES):
+        for fi, feat in enumerate(feat_cols):
             stats = _matched_stats(groups, fi)
             cell = {
                 "n_multiple": n_x,

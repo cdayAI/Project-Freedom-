@@ -1,45 +1,26 @@
 <!doctype html>
 <html lang="en">
   <head><script>window.__DATA__ = {
- "generated_utc": "2026-08-10T16:34:18.091581+00:00",
+ "generated_utc": "2026-08-10T17:07:40.602525+00:00",
  "ledger": {
-  "entries": 247,
-  "cumulative_trials": 218
+  "entries": 344,
+  "cumulative_trials": 311
  },
  "replacement_rate": {
   "by_month": {
    "2026-08": {
     "graduated": 0,
-    "killed": 10
+    "killed": 11
    }
   },
   "trailing_3m_graduated": 0,
-  "trailing_3m_killed": 10,
+  "trailing_3m_killed": 11,
   "trailing_3m_rate": 0.0,
   "healthy": false,
   "note": "rate is graduations/deaths; None = no deaths yet AND no graduations"
  },
  "book": [],
  "gate_reports": [
-  {
-   "strategy_id": "xsmom_demo_v1",
-   "verdict": "KILL",
-   "reasons": [
-    "gate2: permutation p=0.9039 not significant after multiple-testing correction",
-    "gate3: DSR probability 0.0799 < 0.95 at N=16 ledgered trials",
-    "gate9: net metric -0.7153 does not beat null 95th percentile 0.7115",
-    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
-   ],
-   "net_vs_gross": {
-    "gross_total_return": 0.2555844224748314,
-    "net_total_return": -0.5109343673128703
-   },
-   "dsr": {
-    "dsr_probability": 0.07986780465670706,
-    "n_trials": 16
-   },
-   "pbo": 0.20536130536130537
-  },
   {
    "strategy_id": "gen_vol_20d_ann_desc_v1",
    "verdict": "KILL",
@@ -217,6 +198,28 @@
     "n_trials": 218
    },
    "pbo": 0.97000777000777
+  },
+  {
+   "strategy_id": "evt_fp5x_v3",
+   "verdict": "KILL",
+   "reasons": [
+    "gate2: permutation p=1 not significant after multiple-testing correction",
+    "gate3: DSR probability 0.0000 < 0.95 at N=311 ledgered trials",
+    "gate4: PBO 0.661 > 0.5",
+    "gate9: net metric -18.1898 does not beat null 95th percentile 3.5237",
+    "gate10: stressed net log -19.0470 no longer beats the null p95 3.5237 \u2014 the edge is a clean-fill artifact",
+    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
+   ],
+   "net_vs_gross": {
+    "basis": "compounded per-trade OOS returns (raw fills vs full costs)",
+    "gross_total_return": -0.999999864989609,
+    "net_total_return": -0.9999999874027374
+   },
+   "dsr": {
+    "dsr_probability": 5.98183884064294e-11,
+    "n_trials": 311
+   },
+   "pbo": 0.6613053613053613
   }
  ],
  "path_catalog": [
@@ -246,8 +249,8 @@
    "n_multiple": 5,
    "feature": "ret_21d",
    "n_groups": 632,
-   "auc": 0.3596518987341772,
-   "mean_u": 0.3830432489451477,
+   "auc": 0.3594936708860759,
+   "mean_u": 0.3829113924050632,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
@@ -255,8 +258,8 @@
    "n_multiple": 5,
    "feature": "ret_63d",
    "n_groups": 632,
-   "auc": 0.3365506329113924,
-   "mean_u": 0.36379219409282704,
+   "auc": 0.33686708860759496,
+   "mean_u": 0.36405590717299574,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
@@ -264,8 +267,8 @@
    "n_multiple": 5,
    "feature": "ret_126d",
    "n_groups": 632,
-   "auc": 0.3526898734177215,
-   "mean_u": 0.37724156118143465,
+   "auc": 0.3514240506329114,
+   "mean_u": 0.3761867088607595,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
@@ -273,8 +276,8 @@
    "n_multiple": 5,
    "feature": "ret_252d",
    "n_groups": 632,
-   "auc": 0.26424050632911394,
-   "mean_u": 0.3035337552742616,
+   "auc": 0.26582278481012656,
+   "mean_u": 0.30485232067510554,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
@@ -282,8 +285,8 @@
    "n_multiple": 5,
    "feature": "vol_20d_ann",
    "n_groups": 632,
-   "auc": 0.8158227848101266,
-   "mean_u": 0.7631856540084389,
+   "auc": 0.8118670886075949,
+   "mean_u": 0.7598892405063291,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
@@ -291,17 +294,17 @@
    "n_multiple": 5,
    "feature": "volume_z_20v126",
    "n_groups": 591,
-   "auc": 0.5534079348931842,
-   "mean_u": 0.5445290468133107,
-   "p_value": 0.00014999250037498125,
+   "auc": 0.5527297388945405,
+   "mean_u": 0.5439650310208686,
+   "p_value": 0.000199990000499975,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 5,
    "feature": "dollar_vol_med_20d",
    "n_groups": 632,
-   "auc": 0.20917721518987342,
-   "mean_u": 0.2576476793248945,
+   "auc": 0.2102848101265823,
+   "mean_u": 0.25857067510548526,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
@@ -309,8 +312,8 @@
    "n_multiple": 5,
    "feature": "dist_from_252d_high",
    "n_groups": 632,
-   "auc": 0.16914556962025318,
-   "mean_u": 0.2242879746835443,
+   "auc": 0.17120253164556962,
+   "mean_u": 0.22600210970464132,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
@@ -318,8 +321,8 @@
    "n_multiple": 5,
    "feature": "price",
    "n_groups": 632,
-   "auc": 0.3541139240506329,
-   "mean_u": 0.3784282700421941,
+   "auc": 0.3560126582278481,
+   "mean_u": 0.38001054852320676,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
@@ -327,17 +330,35 @@
    "n_multiple": 5,
    "feature": "cs_spread_est",
    "n_groups": 632,
-   "auc": 0.6604430379746835,
-   "mean_u": 0.6337025316455697,
+   "auc": 0.6574367088607594,
+   "mean_u": 0.6311972573839664,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
+  },
+  {
+   "n_multiple": 5,
+   "feature": "days_since_earnings_8k",
+   "n_groups": 347,
+   "auc": 0.4925864909390445,
+   "mean_u": 0.5031940441882805,
+   "p_value": 0.8335083245837708,
+   "verdict": "NOT_SIGNIFICANT"
+  },
+  {
+   "n_multiple": 5,
+   "feature": "days_since_any_8k",
+   "n_groups": 440,
+   "auc": 0.469886702444842,
+   "mean_u": 0.4795075757575758,
+   "p_value": 0.12774361281935903,
+   "verdict": "NOT_SIGNIFICANT"
   },
   {
    "n_multiple": 10,
    "feature": "ret_21d",
    "n_groups": 183,
-   "auc": 0.3546448087431694,
-   "mean_u": 0.37887067395264123,
+   "auc": 0.35737704918032787,
+   "mean_u": 0.38114754098360654,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
@@ -345,8 +366,8 @@
    "n_multiple": 10,
    "feature": "ret_63d",
    "n_groups": 183,
-   "auc": 0.33114754098360655,
-   "mean_u": 0.3592896174863388,
+   "auc": 0.3366120218579235,
+   "mean_u": 0.3638433515482696,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
@@ -354,17 +375,17 @@
    "n_multiple": 10,
    "feature": "ret_126d",
    "n_groups": 183,
-   "auc": 0.37923497267759565,
-   "mean_u": 0.39936247723132967,
-   "p_value": 4.999750012499375e-05,
+   "auc": 0.380327868852459,
+   "mean_u": 0.4002732240437158,
+   "p_value": 9.99950002499875e-05,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 10,
    "feature": "ret_252d",
    "n_groups": 183,
-   "auc": 0.33224043715846996,
-   "mean_u": 0.36020036429872493,
+   "auc": 0.3180327868852459,
+   "mean_u": 0.34836065573770486,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
@@ -372,8 +393,8 @@
    "n_multiple": 10,
    "feature": "vol_20d_ann",
    "n_groups": 183,
-   "auc": 0.7213114754098361,
-   "mean_u": 0.6844262295081968,
+   "auc": 0.7306010928961748,
+   "mean_u": 0.6921675774134791,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
@@ -381,17 +402,17 @@
    "n_multiple": 10,
    "feature": "volume_z_20v126",
    "n_groups": 164,
-   "auc": 0.536019536019536,
-   "mean_u": 0.5303861788617887,
-   "p_value": 0.1703914804259787,
+   "auc": 0.5409035409035409,
+   "mean_u": 0.5336382113821139,
+   "p_value": 0.13219339033048347,
    "verdict": "NOT_SIGNIFICANT"
   },
   {
    "n_multiple": 10,
    "feature": "dollar_vol_med_20d",
    "n_groups": 183,
-   "auc": 0.17486338797814208,
-   "mean_u": 0.2290528233151184,
+   "auc": 0.173224043715847,
+   "mean_u": 0.22768670309653918,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
@@ -399,8 +420,8 @@
    "n_multiple": 10,
    "feature": "dist_from_252d_high",
    "n_groups": 183,
-   "auc": 0.24207650273224043,
-   "mean_u": 0.28506375227686703,
+   "auc": 0.2262295081967213,
+   "mean_u": 0.2718579234972678,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
@@ -408,8 +429,8 @@
    "n_multiple": 10,
    "feature": "price",
    "n_groups": 183,
-   "auc": 0.3617486338797814,
-   "mean_u": 0.3847905282331512,
+   "auc": 0.3540983606557377,
+   "mean_u": 0.37841530054644806,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
@@ -417,71 +438,89 @@
    "n_multiple": 10,
    "feature": "cs_spread_est",
    "n_groups": 183,
-   "auc": 0.6278688524590164,
-   "mean_u": 0.6065573770491803,
+   "auc": 0.6333333333333333,
+   "mean_u": 0.6111111111111112,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
+  },
+  {
+   "n_multiple": 10,
+   "feature": "days_since_earnings_8k",
+   "n_groups": 95,
+   "auc": 0.47754491017964074,
+   "mean_u": 0.48807017543859643,
+   "p_value": 0.6790660466976651,
+   "verdict": "NOT_SIGNIFICANT"
+  },
+  {
+   "n_multiple": 10,
+   "feature": "days_since_any_8k",
+   "n_groups": 120,
+   "auc": 0.4934782608695652,
+   "mean_u": 0.48944444444444446,
+   "p_value": 0.6882155892205389,
+   "verdict": "NOT_SIGNIFICANT"
   },
   {
    "n_multiple": 20,
    "feature": "ret_21d",
    "n_groups": 69,
-   "auc": 0.41739130434782606,
-   "mean_u": 0.4311594202898551,
-   "p_value": 0.046897655117244134,
+   "auc": 0.42028985507246375,
+   "mean_u": 0.4335748792270532,
+   "p_value": 0.0535973201339933,
    "verdict": "NOT_SIGNIFICANT"
   },
   {
    "n_multiple": 20,
    "feature": "ret_63d",
    "n_groups": 69,
-   "auc": 0.37971014492753624,
-   "mean_u": 0.39975845410628025,
-   "p_value": 0.003749812509374531,
+   "auc": 0.3739130434782609,
+   "mean_u": 0.3949275362318841,
+   "p_value": 0.00199990000499975,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 20,
    "feature": "ret_126d",
    "n_groups": 69,
-   "auc": 0.391304347826087,
-   "mean_u": 0.4094202898550724,
-   "p_value": 0.00974951252437378,
-   "verdict": "IDENTIFIABLE"
+   "auc": 0.4144927536231884,
+   "mean_u": 0.4287439613526569,
+   "p_value": 0.04039798010099495,
+   "verdict": "NOT_SIGNIFICANT"
   },
   {
    "n_multiple": 20,
    "feature": "ret_252d",
    "n_groups": 69,
-   "auc": 0.3710144927536232,
-   "mean_u": 0.3925120772946859,
-   "p_value": 0.0022998850057497125,
+   "auc": 0.4028985507246377,
+   "mean_u": 0.41908212560386465,
+   "p_value": 0.0199990000499975,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 20,
    "feature": "vol_20d_ann",
    "n_groups": 69,
-   "auc": 0.6086956521739131,
-   "mean_u": 0.5905797101449275,
-   "p_value": 0.009549522523873807,
+   "auc": 0.6260869565217392,
+   "mean_u": 0.6050724637681159,
+   "p_value": 0.0028998550072496373,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 20,
    "feature": "volume_z_20v126",
    "n_groups": 53,
-   "auc": 0.5189393939393939,
-   "mean_u": 0.5144654088050314,
-   "p_value": 0.712514374281286,
+   "auc": 0.5358490566037736,
+   "mean_u": 0.529874213836478,
+   "p_value": 0.4727263636818159,
    "verdict": "NOT_SIGNIFICANT"
   },
   {
    "n_multiple": 20,
    "feature": "dollar_vol_med_20d",
    "n_groups": 69,
-   "auc": 0.1,
-   "mean_u": 0.16666666666666666,
+   "auc": 0.08985507246376812,
+   "mean_u": 0.1582125603864734,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
@@ -489,9 +528,9 @@
    "n_multiple": 20,
    "feature": "dist_from_252d_high",
    "n_groups": 69,
-   "auc": 0.3289855072463768,
-   "mean_u": 0.35748792270531393,
-   "p_value": 9.99950002499875e-05,
+   "auc": 0.35507246376811596,
+   "mean_u": 0.3792270531400965,
+   "p_value": 0.0002999850007499625,
    "verdict": "IDENTIFIABLE"
   },
   {
@@ -499,62 +538,80 @@
    "feature": "price",
    "n_groups": 69,
    "auc": 0.3652173913043478,
-   "mean_u": 0.38768115942028974,
-   "p_value": 0.0008999550022498875,
+   "mean_u": 0.3876811594202898,
+   "p_value": 0.0010499475026248687,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 20,
    "feature": "cs_spread_est",
    "n_groups": 69,
-   "auc": 0.4826086956521739,
-   "mean_u": 0.4855072463768115,
-   "p_value": 0.6766661666916655,
+   "auc": 0.4753623188405797,
+   "mean_u": 0.47946859903381633,
+   "p_value": 0.575371231438428,
+   "verdict": "NOT_SIGNIFICANT"
+  },
+  {
+   "n_multiple": 20,
+   "feature": "days_since_earnings_8k",
+   "n_groups": 28,
+   "auc": 0.6435643564356436,
+   "mean_u": 0.6211309523809522,
+   "p_value": 0.0231988400579971,
+   "verdict": "IDENTIFIABLE"
+  },
+  {
+   "n_multiple": 20,
+   "feature": "days_since_any_8k",
+   "n_groups": 42,
+   "auc": 0.5569620253164557,
+   "mean_u": 0.5388888888888889,
+   "p_value": 0.3832308384580771,
    "verdict": "NOT_SIGNIFICANT"
   },
   {
    "n_multiple": 50,
    "feature": "ret_21d",
    "n_groups": 21,
-   "auc": 0.36666666666666664,
-   "mean_u": 0.38888888888888884,
-   "p_value": 0.07134643267836609,
-   "verdict": "NOT_SIGNIFICANT"
+   "auc": 0.3380952380952381,
+   "mean_u": 0.3650793650793651,
+   "p_value": 0.029498525073746312,
+   "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 50,
    "feature": "ret_63d",
    "n_groups": 21,
-   "auc": 0.32857142857142857,
-   "mean_u": 0.35714285714285715,
-   "p_value": 0.020048997550122495,
+   "auc": 0.2904761904761905,
+   "mean_u": 0.3253968253968254,
+   "p_value": 0.003949802509874506,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 50,
    "feature": "ret_126d",
    "n_groups": 21,
-   "auc": 0.3142857142857143,
-   "mean_u": 0.3452380952380952,
-   "p_value": 0.016199190040497975,
+   "auc": 0.26666666666666666,
+   "mean_u": 0.30555555555555547,
+   "p_value": 0.002199890005499725,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 50,
    "feature": "ret_252d",
    "n_groups": 21,
-   "auc": 0.29523809523809524,
-   "mean_u": 0.32936507936507936,
-   "p_value": 0.006299685015749213,
+   "auc": 0.26666666666666666,
+   "mean_u": 0.3055555555555555,
+   "p_value": 0.00199990000499975,
    "verdict": "IDENTIFIABLE"
   },
   {
    "n_multiple": 50,
    "feature": "vol_20d_ann",
    "n_groups": 21,
-   "auc": 0.5666666666666667,
-   "mean_u": 0.5555555555555555,
-   "p_value": 0.3717314134293285,
+   "auc": 0.5476190476190477,
+   "mean_u": 0.5396825396825397,
+   "p_value": 0.5290735463226839,
    "verdict": "NOT_SIGNIFICANT"
   },
   {
@@ -570,8 +627,8 @@
    "n_multiple": 50,
    "feature": "dollar_vol_med_20d",
    "n_groups": 21,
-   "auc": 0.13333333333333333,
-   "mean_u": 0.19444444444444442,
+   "auc": 0.14761904761904762,
+   "mean_u": 0.20634920634920628,
    "p_value": 4.999750012499375e-05,
    "verdict": "IDENTIFIABLE"
   },
@@ -579,28 +636,46 @@
    "n_multiple": 50,
    "feature": "dist_from_252d_high",
    "n_groups": 21,
-   "auc": 0.36666666666666664,
-   "mean_u": 0.38888888888888884,
-   "p_value": 0.07424628768561573,
+   "auc": 0.35714285714285715,
+   "mean_u": 0.38095238095238093,
+   "p_value": 0.055347232638368084,
    "verdict": "NOT_SIGNIFICANT"
   },
   {
    "n_multiple": 50,
    "feature": "price",
    "n_groups": 21,
-   "auc": 0.4095238095238095,
-   "mean_u": 0.4246031746031746,
-   "p_value": 0.2534373281335933,
+   "auc": 0.41904761904761906,
+   "mean_u": 0.4325396825396825,
+   "p_value": 0.31243437828108594,
    "verdict": "NOT_SIGNIFICANT"
   },
   {
    "n_multiple": 50,
    "feature": "cs_spread_est",
    "n_groups": 21,
-   "auc": 0.42857142857142855,
-   "mean_u": 0.4404761904761904,
-   "p_value": 0.37388130593470326,
+   "auc": 0.49523809523809526,
+   "mean_u": 0.49603174603174593,
+   "p_value": 1.0,
    "verdict": "NOT_SIGNIFICANT"
+  },
+  {
+   "n_multiple": 50,
+   "feature": "days_since_earnings_8k",
+   "n_groups": 6,
+   "auc": null,
+   "mean_u": null,
+   "p_value": null,
+   "verdict": "UNDERPOWERED"
+  },
+  {
+   "n_multiple": 50,
+   "feature": "days_since_any_8k",
+   "n_groups": 12,
+   "auc": null,
+   "mean_u": null,
+   "p_value": null,
+   "verdict": "UNDERPOWERED"
   }
  ],
  "calibration": [],
