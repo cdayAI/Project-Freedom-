@@ -38,7 +38,7 @@ class TestDateAwareFees:
 
     def test_unverified_table_blocks(self, tmp_path):
         with pytest.raises(UnverifiedFeeError):
-            FeeSchedule.load("orf_by_exchange")  # not yet sourced -> no file -> blocked
+            FeeSchedule.load("cme_exchange_fees")  # not sourced -> no file -> blocked
 
 
 class TestSpreadModel:

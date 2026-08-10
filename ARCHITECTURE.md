@@ -171,9 +171,11 @@ Yahoo daily OHLCV ──► validation (rows/continuity/OHLC/split) ─┤ quara
    per catalyst class starts when these feeds land.
 2. **Survivorship-free equities** (Norgate/Sharadar) on credential presence —
    flips `survivorship_free` and removes the standing gate-7 flag.
-3. **Options (DESIGN→LIVE)** on API key presence; futures likewise; both
-   blocked from backtests by unverified fee tables until their fee schedules
-   are sourced (ORF, OCC, CME member/non-member).
+3. **Options (DESIGN→LIVE)** on API key presence for HISTORICAL chains; the
+   self-built Cboe delayed-chain archive accumulates in the meantime and
+   measured spread stats already feed the options cost model. SCOPE (owner
+   decision 2026-08-10): stocks and options only — futures adapters stay
+   dormant, no research compute spent on them (see IMPROVEMENTS.md).
 4. **Sequence composer** activates on first gate-PASS + paper-trading
    graduation (DAG over setup occurrences, best-product path, per-leg costs).
 5. **Sizing Lab + Trap Detector wired into the gate pipeline** as gates 10-11

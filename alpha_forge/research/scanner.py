@@ -27,6 +27,7 @@ import polars as pl
 from alpha_forge.config import PREDICTIONS_DIR, WINDOW_TRADING_DAYS
 from alpha_forge.data.regime import regime_on
 from alpha_forge.ledger import Ledger
+from alpha_forge.research.calibration import calibrate_score
 from alpha_forge.research.features import FEATURE_NAMES, fingerprint_at
 
 TOP_N_PREDICTIONS = 20
@@ -166,6 +167,19 @@ def scan(
     preds = []
     for r in rows[:TOP_N_PREDICTIONS]:
         pct = float((scores < r["score"]).mean())
+        # calibrated probability when the isotonic fit exists (live grades
+        # only); until then the honest raw percentile with its status in-band
+        cal = calibrate_score(r["score"])
+        confidence = (
+            cal
+            if cal["status"] == "CALIBRATED"
+            else {
+                "value": pct,
+                "status": "UNCALIBRATED",
+                "note": "similarity percentile; becomes a probability only "
+                "after reconciler calibration",
+            }
+        )
         preds.append(
             {
                 "instrument": r["symbol"],
@@ -176,12 +190,7 @@ def scan(
                 "stop": None,
                 "size_usd": 0.0,
                 "executable": False,
-                "confidence": {
-                    "value": pct,
-                    "status": "UNCALIBRATED",
-                    "note": "similarity percentile; becomes a probability only "
-                    "after reconciler calibration",
-                },
+                "confidence": confidence,
                 "score": r["score"],
                 "last_close": r["last_close"],
                 "features": r["features"],

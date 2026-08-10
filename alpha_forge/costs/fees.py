@@ -109,11 +109,85 @@ def equity_sell_fees(notional_usd: float, shares: int, trade_date: date | str) -
     }
 
 
-def option_sell_fees(contracts: int, trade_date: date | str) -> dict:
-    """FINRA TAF on option sells. ORF/OCC schedules are not yet verified and
-    will raise here until their tables land with primary sources."""
-    taf = _schedule("finra_taf_options")
-    taf_fee = contracts * taf.rate_on(trade_date)
-    orf = FeeSchedule.load("orf_by_exchange")  # raises UnverifiedFeeError until sourced
-    _ = orf
-    return {"finra_taf": taf_fee, "total": taf_fee}
+def _orf_table() -> dict:
+    path = FEES_DIR / "orf_by_exchange.json"
+    if not path.exists():
+        raise UnverifiedFeeError("no ORF table on disk")
+    return json.loads(path.read_text())
+
+
+def orf_rate_on(exchange: str, trade_date: date | str) -> float:
+    """Per-contract-side ORF for the executing exchange on trade_date.
+    Dates before the earliest verified entry raise: several exchanges publish
+    rates without ORF-specific effective dates, so those rates are anchored
+    as-of the fetch date and carry NO verified history (see table notes —
+    the ORF assessment model itself changed industry-wide on 2026-07-01)."""
+    if isinstance(trade_date, str):
+        trade_date = datetime.strptime(trade_date, "%Y-%m-%d").date()
+    table = _orf_table()
+    entries = table.get("exchanges", {}).get(exchange)
+    if not entries:
+        raise UnverifiedFeeError(
+            f"orf_by_exchange: no verified schedule for exchange {exchange!r}; "
+            f"known: {sorted(table.get('exchanges', {}).keys())}"
+        )
+    governing = None
+    for e in sorted(entries, key=lambda x: x["effective_date"]):
+        if datetime.strptime(e["effective_date"], "%Y-%m-%d").date() <= trade_date:
+            governing = e
+    if governing is None:
+        raise UnverifiedFeeError(
+            f"orf_by_exchange[{exchange}]: no rate on record for {trade_date} "
+            f"(earliest verified {entries[0]['effective_date']})"
+        )
+    if not governing.get("verified", False):
+        raise UnverifiedFeeError(f"orf_by_exchange[{exchange}]: governing rate UNVERIFIED")
+    return float(governing["rate"])
+
+
+def option_sell_fees(
+    contracts: int,
+    premium_usd: float,
+    trade_date: date | str,
+    exchange: str = "CBOE",
+    is_index_option: bool = False,
+) -> dict:
+    """Regulatory + clearing fees on a US-listed option SELL.
+
+    premium_usd: total premium of the sale (contracts x price x 100).
+    Components (each verified-or-raise, per primary sources in the tables):
+      - FINRA TAF per contract, NO cap for options; index options TAF-exempt
+      - OCC clearing per contract (also assessed on buys; callers model the
+        buy side by calling option_buy_fees)
+      - ORF per contract side, by EXECUTING exchange
+      - SEC Section 31 on the premium (covered sale); INDEX options exempt
+        (17 CFR 240.31(a)(11)(vi))
+    """
+    occ = _schedule("occ_clearing")
+    occ_fee = contracts * occ.rate_on(trade_date)
+    orf_fee = contracts * orf_rate_on(exchange, trade_date)
+    if is_index_option:
+        taf_fee = 0.0  # index options are TAF-exempt (Schedule A Section 1)
+        sec_fee = 0.0  # and Section 31-exempt (240.31(a)(11)(vi))
+    else:
+        taf = _schedule("finra_taf_options")
+        taf_fee = contracts * taf.rate_on(trade_date)
+        sec = _schedule("sec_section31")
+        sec_fee = premium_usd / 1_000_000.0 * sec.rate_on(trade_date)
+    return {
+        "finra_taf": taf_fee,
+        "occ_clearing": occ_fee,
+        "orf": orf_fee,
+        "sec_section31": sec_fee,
+        "total": taf_fee + occ_fee + orf_fee + sec_fee,
+    }
+
+
+def option_buy_fees(
+    contracts: int, trade_date: date | str, exchange: str = "CBOE"
+) -> dict:
+    """Buy side: OCC clearing + ORF apply; TAF and Section 31 are sell-side."""
+    occ = _schedule("occ_clearing")
+    occ_fee = contracts * occ.rate_on(trade_date)
+    orf_fee = contracts * orf_rate_on(exchange, trade_date)
+    return {"occ_clearing": occ_fee, "orf": orf_fee, "total": occ_fee + orf_fee}

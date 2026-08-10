@@ -1,0 +1,34 @@
+{
+  "fee": "occ_clearing",
+  "unit": "usd_per_contract",
+  "generated_utc": "2026-08-10T00:00:00+00:00",
+  "entries": [
+    {
+      "effective_date": "2025-01-01",
+      "rate": 0.025,
+      "verified": true,
+      "source_url": "https://www.sec.gov/files/rules/sro/occ/2025/34-102437.pdf",
+      "source_title": "SEC Release 34-102437 (SR-OCC-2025-002), Exhibit 5: OCC Schedule of Fees — flat $0.025/contract, no per-trade cap (replaced tiered $0.02 / $55-cap schedule)"
+    },
+    {
+      "effective_date": "2025-12-01",
+      "rate": 0.0,
+      "verified": true,
+      "source_url": "https://www.sec.gov/files/rules/sro/occ/2025/34-104274-ex5a.pdf",
+      "source_title": "SR-OCC-2025-019 Exhibit 5A: December 2025 fee holiday ($0.00/contract Dec 1-31, 2025)"
+    },
+    {
+      "effective_date": "2026-01-02",
+      "rate": 0.025,
+      "verified": true,
+      "source_url": "https://www.sec.gov/files/rules/sro/occ/2025/34-104274-ex5a.pdf",
+      "source_title": "SR-OCC-2025-019 Exhibit 5A: reversion to $0.025/contract on the first trading day of 2026"
+    }
+  ],
+  "notes": [
+    "theocc.com is behind a Cloudflare challenge; rates verified from OCC's own SEC rule filings, which reproduce the Schedule of Fees verbatim.",
+    "SR-OCC-2025-002 was initially filed effective 2025-01-01 and refiled effective 2025-02-14; OCC's later filing states 'Beginning in January 2025, OCC increased its clearing fee to $0.025 per contract.'",
+    "Pre-2025 tiered schedule ($0.02/contract <=2,750 contracts; $55 flat above) is not encoded: dates before 2025-01-01 raise, blocking any historical options backtest until that schedule is added with citations.",
+    "All entries compiled 2026-08-10 from the cited primary sources."
+  ]
+}

@@ -52,27 +52,66 @@ def corwin_schultz_spread(high: np.ndarray, low: np.ndarray, close: np.ndarray) 
     return out
 
 
+def abdi_ranaldo_spread(high: np.ndarray, low: np.ndarray, close: np.ndarray) -> np.ndarray:
+    """Per-pair squared-spread estimates via Abdi & Ranaldo (2017), "A Simple
+    Estimation of Bid-Ask Spreads from Daily Close, High, and Low Prices",
+    Review of Financial Studies 30(12). See SOURCES.md.
+
+    s2_t = 4 * (c_t - eta_t) * (c_t - eta_{t+1}), eta = midpoint of daily
+    log range, c = log close. Returns the SQUARED estimates (may be negative
+    on single pairs; the caller averages before taking the root, per the
+    paper). Slot t of the output is the pair (t-1, t), NaN at slot 0.
+    """
+    h = np.log(np.asarray(high, dtype=float))
+    l = np.log(np.asarray(low, dtype=float))
+    c = np.log(np.asarray(close, dtype=float))
+    n = c.size
+    out = np.full(n, np.nan)
+    if n < 2:
+        return out
+    eta = (h + l) / 2.0
+    out[1:] = 4.0 * (c[:-1] - eta[:-1]) * (c[:-1] - eta[1:])
+    return out
+
+
+def _rolling_stat(vals: np.ndarray, lookback: int, fn) -> np.ndarray:
+    out = np.full(vals.size, np.nan)
+    if vals.size >= lookback:
+        windows = np.lib.stride_tricks.sliding_window_view(vals, lookback)
+        with np.errstate(invalid="ignore"):
+            out[lookback - 1 :] = fn(windows, axis=1)
+    for i in range(min(lookback - 1, vals.size)):
+        w = vals[: i + 1]
+        w = w[~np.isnan(w)]
+        if w.size:
+            out[i] = fn(w.reshape(1, -1), axis=1)[0]
+    return out
+
+
 def effective_half_spread(
     high: np.ndarray,
     low: np.ndarray,
     close: np.ndarray,
     lookback: int = 21,
 ) -> np.ndarray:
-    """Rolling-median CS spread / 2, floored at half a tick ($0.005/price).
-    This is the per-side proportional cost applied to every fill.
+    """Per-side proportional cost applied to every fill: the CONSERVATIVE
+    blend max(CS, AR)/2, floored at half a tick ($0.005/price).
+
+    Two independent estimators (Corwin-Schultz range-based; Abdi-Ranaldo
+    close-vs-midrange) disagree most exactly where estimation is hardest —
+    taking the elementwise max means the model may overstate spread cost but
+    never quietly understates it. Overstated costs kill marginal edges at
+    the gates; understated costs graduate fictions. The asymmetry is policy.
     """
     c = np.asarray(close, dtype=float)
-    s = corwin_schultz_spread(high, low, close)
-    half = np.full(c.size, np.nan)
-    if c.size >= lookback:
-        windows = np.lib.stride_tricks.sliding_window_view(s, lookback)
-        with np.errstate(invalid="ignore"):
-            half[lookback - 1 :] = np.nanmedian(windows, axis=1) / 2.0
-    # warm-up rows: expanding median over what exists so far
-    for i in range(min(lookback - 1, c.size)):
-        w = s[: i + 1]
-        w = w[~np.isnan(w)]
-        if w.size:
-            half[i] = np.median(w) / 2.0
+    cs = corwin_schultz_spread(high, low, close)
+    half_cs = _rolling_stat(cs, lookback, np.nanmedian) / 2.0
+
+    ar2 = abdi_ranaldo_spread(high, low, close)
+    with np.errstate(invalid="ignore"):
+        ar = np.sqrt(np.maximum(_rolling_stat(ar2, lookback, np.nanmean), 0.0))
+    half_ar = ar / 2.0
+
+    half = np.fmax(half_cs, half_ar)  # fmax: NaN in one estimator defers to the other
     tick_floor = 0.005 / np.maximum(c, 1e-12)  # half of the $0.01 minimum increment
     return np.fmax(half, tick_floor)
