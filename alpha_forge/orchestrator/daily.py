@@ -70,14 +70,20 @@ from alpha_forge.research.pathfinder import enumerate_paths
 from alpha_forge.research.reconciler import GRADES_PATH, calibration_summary, grade_all
 from alpha_forge.research.scanner import scan
 
-SAMPLE_SIZE = 1500  # research sample of the eligible universe
+SAMPLE_SIZE = 2500  # research sample of the eligible universe (~36% coverage;
+                    # +67% expected hit episodes vs 1500 -> more matched-group
+                    # power per confluence family; nightly pull ~11 min, 429s
+                    # handled with backoff; raise further only after observing
+                    # sustained rate-limit headroom)
 HOLDOUT_FRACTION = 0.15
 # v2: signal-day features (v1 had a one-day lookahead via entry-day join),
 # label-matured direction cutoffs, block-capped trades, fully-OOS PBO matrix
 # v3: feature set extended with ex-ante EDGAR catalyst features
 # v4: episode-level matched groups + gap-above-target intrabar ordering
 #     (adversarial review round 2)
-EVENT_STRATEGY_ID = "evt_fp5x_v4"
+# v5: spread cost model upgraded to conservative max(Corwin-Schultz,
+#     Abdi-Ranaldo)/2 per side — all net numbers shift, so the id bumps
+EVENT_STRATEGY_ID = "evt_fp5x_v5"
 EVENT_CLASS = 5  # pre-registered primary class: 5x paths (largest sample)
 # The night gates at most this many candidates; each permutation p-value is
 # Bonferroni-corrected against the whole family, not tested alone.
@@ -311,7 +317,7 @@ def gate_demo_hypothesis(ledger: Ledger, panel: pl.DataFrame, data_vintage: str)
         "listings, price>=$1, median 20d dollar volume>=$500k — SURVIVORSHIP-BIASED",
         parameters={"primary": PRIMARY_CONFIG, "grid": CONFIG_GRID,
                     "fills": "next_session_open",
-                    "costs": "CS half-spread x2 + SEC31 + TAF",
+                    "costs": "max(CS,AR) half-spread x2 + SEC31 + TAF",
                     "fee_verified_window_start": str(fee_floor)},
     )
     mp = build_month_panel(panel)
@@ -601,6 +607,14 @@ def main() -> int:
     grades = grade_all(panel, ledger)
     if grades:
         _log(f"reconciler: {len(grades)} (file, horizon) grades recorded")
+    # refresh the isotonic score calibrator from live grades (no-op until
+    # >= 100 graded predictions exist at the 21-bar horizon)
+    from alpha_forge.research.calibration import fit_calibrator
+
+    cal_fit = fit_calibrator(horizon=21)
+    if cal_fit:
+        _log(f"calibration: isotonic fit on {cal_fit['n_graded']} grades "
+             f"(Brier {cal_fit['brier']:.3f}, base rate {cal_fit['base_rate']:.2f})")
 
     _log("catalysts: EDGAR 8-K histories (resumable)")
     from alpha_forge.data.catalysts import (
@@ -652,6 +666,16 @@ def main() -> int:
         _log(f"confluence v2: {n_ident} identifiable (feature x class) cells "
              "(era confound removed)")
 
+    _log("confluence-catalyst: per-catalyst-class identifiability (5x cohort)")
+    from alpha_forge.research.confluence_catalyst import run_confluence_by_catalyst
+
+    conf_cat = run_confluence_by_catalyst(
+        features, hits_research, ledger, data_vintage, max_date=boundary_date
+    )
+    if conf_cat is not None:
+        n_ci = conf_cat.filter(pl.col("verdict") == "IDENTIFIABLE").height
+        _log(f"confluence-catalyst: {n_ci} identifiable (class x feature) cells")
+
     _log("scanner: emitting immutable predictions")
     conf_for_scanner = (
         confluence.rename({"matched_auc": "auc"}) if confluence is not None else None
@@ -660,6 +684,28 @@ def main() -> int:
     if pred_doc:
         _log(f"scanner: {len(pred_doc.get('predictions', []))} predictions "
              f"({pred_doc.get('note', 'ok')})")
+
+    # options: archive today's REAL delayed chains (Cboe) for the prediction
+    # names + the panel's most liquid names — the system builds its own chain
+    # history because no free source provides one. Failures are non-fatal:
+    # an options outage must never block the equities loop.
+    from alpha_forge.data.options_chains import archive_depth, snapshot_chains
+
+    try:
+        liquid = (
+            panel.group_by("symbol")
+            .agg((pl.col("close") * pl.col("volume")).median().alias("dv"))
+            .sort("dv", descending=True)
+            .head(30)["symbol"]
+            .to_list()
+        )
+        pred_syms = [p["instrument"] for p in (pred_doc or {}).get("predictions", [])]
+        chain_summary = snapshot_chains(sorted(set(liquid + pred_syms)))
+        depth = archive_depth()
+        _log(f"options: chains archived for {chain_summary['fetched_now']} underlyings "
+             f"(archive: {depth['snapshot_days']} days, {depth.get('underlyings', 0)} names)")
+    except Exception as exc:
+        _log(f"options: chain snapshot failed ({exc}) — equities loop continues")
 
     gate_reports = []
     event_report = gate_event_candidate(
@@ -691,9 +737,12 @@ def main() -> int:
         calibration,
         best_validated="N/A — no strategy has passed all gates plus live requirements",
         open_questions=[
-            "options/futures data purchase (Polygon/ORATS/databento keys) to leave DESIGN mode",
-            "survivorship-free equities vendor (Norgate/Sharadar) to clear the gate-7 flag",
-            "catalyst calendars (earnings/FDA/short interest) — hits are still tagged NONE",
+            "survivorship-free equities vendor (Norgate/Sharadar) — the dominant "
+            "remaining bias; see IMPROVEMENTS.md ranking",
+            "historical options chains (ORATS/Polygon) — the self-built Cboe "
+            "archive accumulates meanwhile",
+            "remaining catalyst feeds (FDA/PDUFA, FINRA short interest, halts) — "
+            "EDGAR 8-K tagging is live",
         ],
     )
     if memo:

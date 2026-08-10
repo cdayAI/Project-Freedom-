@@ -43,6 +43,26 @@ def replacement_rate(ledger: Ledger) -> dict:
     }
 
 
+def stable_survivor_features(ledger: Ledger, family_prefix: str = "confluence_identifiability") -> set[str] | None:
+    """Features IDENTIFIABLE in BOTH of the two most recent runs of the main
+    confluence family. One-vintage artifacts (a feature that clears BH once
+    and never again) don't deserve a night of gate compute; stability across
+    re-tests is the cheapest replication test available. Returns None while
+    fewer than two families exist (bootstrapping: no filter yet)."""
+    survivor_sets: list[set[str]] = []
+    for e in ledger.entries():
+        if e["kind"] != "RESULT":
+            continue
+        res = e["payload"].get("result", {})
+        fam = res.get("family", "")
+        if fam.startswith(family_prefix) and "catalyst" not in fam:
+            cells = res.get("survivor_cells", [])
+            survivor_sets.append({c["feature"] for c in cells})
+    if len(survivor_sets) < 2:
+        return None
+    return survivor_sets[-1] & survivor_sets[-2]
+
+
 def generate_hypotheses(confluence: pl.DataFrame | None, ledger: Ledger) -> list[dict]:
     """Turn Confluence survivors into pre-registrable screening hypotheses.
 
@@ -52,10 +72,16 @@ def generate_hypotheses(confluence: pl.DataFrame | None, ledger: Ledger) -> list
     hypothesis is only EMITTED here — preregistration + testing happen in
     the nightly loop under the compute budget, and every config becomes a
     ledgered trial like any other.
+
+    Stability rule: once two family runs exist, only features identifiable
+    in BOTH of the last two runs are eligible.
     """
     if confluence is None:
         return []
     survivors = confluence.filter(pl.col("verdict") == "IDENTIFIABLE")
+    stable = stable_survivor_features(ledger)
+    if stable is not None:
+        survivors = survivors.filter(pl.col("feature").is_in(sorted(stable)))
     if survivors.height == 0:
         return []
     # strongest effects first: |AUC - 0.5|, dedup by feature

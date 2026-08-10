@@ -75,6 +75,13 @@ fees per product (member/non-member). Any code path touching these raises.
   Machine Learning, ch. 7, Wiley.
 - Spread estimator: Corwin & Schultz (2012), "A Simple Way to Estimate
   Bid-Ask Spreads from Daily High and Low Prices", Journal of Finance 67(2).
+- Spread estimator (blend partner): Abdi & Ranaldo (2017), "A Simple
+  Estimation of Bid-Ask Spreads from Daily Close, High, and Low Prices",
+  Review of Financial Studies 30(12). Cost model uses max(CS, AR)/2 per
+  side — deliberately conservative.
+- Isotonic score calibration: Zadrozny & Elkan (2002), "Transforming
+  classifier scores into accurate multiclass probability estimates", KDD;
+  pool-adjacent-violators per Ayer et al. (1955), Ann. Math. Statist. 26(4).
 - Permutation p-value add-one estimator: Phipson & Smyth (2010), Statistical
   Applications in Genetics and Molecular Biology 9(1), Article 39.
 - Demo hypothesis (cross-sectional momentum): Jegadeesh & Titman (1993),
@@ -90,6 +97,10 @@ fees per product (member/non-member). Any code path touching these raises.
   submissions "recent" window caps at ~1,000 filings per company.
 - NASDAQ Trader symbol directory (universe): nasdaqtrader.com SymDir files;
   current listings only — survivorship bias recorded in manifest.
+- Cboe delayed option chains (cdn.cboe.com/api/global/delayed_quotes):
+  real exchange-published delayed (~15 min) bids/asks/IV/open interest,
+  archived nightly as immutable snapshots watermarked REAL_DELAYED; the
+  system's own accumulating chain history (no free historical chains exist).
 - Yahoo Finance v8 chart API (query1.finance.yahoo.com) daily OHLCV;
   OHLC adjusted by the vendor's adjclose/close factor; adjustment quality
   not independently verified (recorded in manifest); keyless, rate-limited.
