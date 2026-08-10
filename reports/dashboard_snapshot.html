@@ -1,63 +1,26 @@
 <!doctype html>
 <html lang="en">
   <head><script>window.__DATA__ = {
- "generated_utc": "2026-08-10T19:49:38.766771+00:00",
+ "generated_utc": "2026-08-10T21:03:29.254467+00:00",
  "ledger": {
-  "entries": 495,
-  "cumulative_trials": 452
+  "entries": 595,
+  "cumulative_trials": 548
  },
  "replacement_rate": {
   "by_month": {
    "2026-08": {
     "graduated": 0,
-    "killed": 14
+    "killed": 16
    }
   },
   "trailing_3m_graduated": 0,
-  "trailing_3m_killed": 14,
+  "trailing_3m_killed": 16,
   "trailing_3m_rate": 0.0,
   "healthy": false,
   "note": "rate is graduations/deaths; None = no deaths yet AND no graduations"
  },
  "book": [],
  "gate_reports": [
-  {
-   "strategy_id": "xsmom_demo_v1",
-   "verdict": "KILL",
-   "reasons": [
-    "gate2: permutation p=1 not significant after multiple-testing correction",
-    "gate3: DSR probability 0.0010 < 0.95 at N=119 ledgered trials",
-    "gate9: net metric -2.5717 does not beat null 95th percentile 0.7366",
-    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
-   ],
-   "net_vs_gross": {
-    "gross_total_return": -0.687018913337519,
-    "net_total_return": -0.9235911198283866
-   },
-   "dsr": {
-    "dsr_probability": 0.0010176298209701128,
-    "n_trials": 119
-   },
-   "pbo": 0.2745143745143745
-  },
-  {
-   "strategy_id": "gen_dollar_vol_med_20d_asc_v1",
-   "verdict": "KILL",
-   "reasons": [
-    "gate3: DSR probability 0.1533 < 0.95 at N=122 ledgered trials",
-    "gate4: PBO 0.832 > 0.5",
-    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
-   ],
-   "net_vs_gross": {
-    "gross_total_return": 6.4177116105561085,
-    "net_total_return": 1.4663942971571826
-   },
-   "dsr": {
-    "dsr_probability": 0.15330692318587424,
-    "n_trials": 122
-   },
-   "pbo": 0.8323232323232324
-  },
   {
    "strategy_id": "gen_dist_from_252d_high_asc_v1",
    "verdict": "KILL",
@@ -231,28 +194,74 @@
     "n_trials": 452
    },
    "pbo": 0.737995337995338
+  },
+  {
+   "strategy_id": "evt_fp5x_v5",
+   "verdict": "KILL",
+   "reasons": [
+    "gate2: permutation p=1 not significant after multiple-testing correction",
+    "gate3: DSR probability 0.0000 < 0.95 at N=500 ledgered trials",
+    "gate4: PBO 0.582 > 0.5",
+    "gate9: net metric -37.9509 does not beat null 95th percentile 1.8957",
+    "gate10: stressed net log -38.8823 no longer beats the null p95 1.8957 \u2014 the edge is a clean-fill artifact",
+    "gate11: the best ruin-safe fraction (0.01) still has median terminal wealth 0.866 <= 1 under parameter uncertainty \u2014 no sizing grows this edge inside the ruin constraint",
+    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
+   ],
+   "net_vs_gross": {
+    "basis": "compounded per-trade OOS returns (raw fills vs full costs)",
+    "gross_total_return": -0.9999999999999988,
+    "net_total_return": -1.0
+   },
+   "dsr": {
+    "dsr_probability": 1.4932986439940448e-17,
+    "n_trials": 500
+   },
+   "pbo": 0.5822843822843823
+  },
+  {
+   "strategy_id": "evt_fp5x_logit_v6",
+   "verdict": "KILL",
+   "reasons": [
+    "gate2: permutation p=1 not significant after multiple-testing correction",
+    "gate3: DSR probability 0.0000 < 0.95 at N=548 ledgered trials",
+    "gate4: PBO 0.889 > 0.5",
+    "gate9: net metric -40.5620 does not beat null 95th percentile 2.7785",
+    "gate10: stressed net log -41.5696 no longer beats the null p95 2.7785 \u2014 the edge is a clean-fill artifact",
+    "gate11: the best ruin-safe fraction (0.01) still has median terminal wealth 0.901 <= 1 under parameter uncertainty \u2014 no sizing grows this edge inside the ruin constraint",
+    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
+   ],
+   "net_vs_gross": {
+    "basis": "compounded per-trade OOS returns (raw fills vs full costs)",
+    "gross_total_return": -0.9999999999999998,
+    "net_total_return": -1.0
+   },
+   "dsr": {
+    "dsr_probability": 1.666650145398935e-14,
+    "n_trials": 548
+   },
+   "pbo": 0.8891996891996892
   }
  ],
  "path_catalog": [
   {
    "n_multiple": 5,
-   "symbol_window_hits": 310,
-   "windows_with_any_path": 223
+   "symbol_window_hits": 2938,
+   "windows_with_any_path": 1362
   },
   {
    "n_multiple": 10,
-   "symbol_window_hits": 125,
-   "windows_with_any_path": 113
+   "symbol_window_hits": 832,
+   "windows_with_any_path": 598
   },
   {
    "n_multiple": 20,
-   "symbol_window_hits": 63,
-   "windows_with_any_path": 61
+   "symbol_window_hits": 306,
+   "windows_with_any_path": 254
   },
   {
    "n_multiple": 50,
-   "symbol_window_hits": 16,
-   "windows_with_any_path": 16
+   "symbol_window_hits": 95,
+   "windows_with_any_path": 85
   }
  ],
  "confluence": [],
