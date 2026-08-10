@@ -52,8 +52,26 @@ def fetch_cik_map(timeout: int = 60) -> dict[str, int]:
     return {e["ticker"].upper(): int(e["cik_str"]) for e in doc.values()}
 
 
-def fetch_8k_history(cik: int, timeout: int = 30) -> list[dict]:
-    """(filing_date, items) for every 8-K in the company's recent window."""
+TRACKED_FORM_PREFIXES = (
+    "8-K",            # material events (items parsed; 2.02 = earnings)
+    "4",              # insider transactions (statement of changes)
+    "S-1", "S-3",     # shelf/IPO registration — dilution pipeline
+    "F-1", "F-3",     # foreign-issuer equivalents
+    "424B",           # prospectus filed = offering priced
+)
+
+
+def _tracked(form: str) -> bool:
+    return any(
+        form == p or form.startswith(p + "/") or (p == "424B" and form.startswith("424B"))
+        for p in TRACKED_FORM_PREFIXES
+    )
+
+
+def fetch_filing_history(cik: int, timeout: int = 30) -> list[dict]:
+    """(form, filing_date, items) for every TRACKED filing in the company's
+    recent window — one request already being made for 8-Ks now yields the
+    insider and dilution series too."""
     r = requests.get(SUBMISSIONS_URL.format(cik=cik), headers=UA, timeout=timeout)
     if r.status_code == 404:
         return []
@@ -64,9 +82,18 @@ def fetch_8k_history(cik: int, timeout: int = 30) -> list[dict]:
     items = recent.get("items", [""] * len(forms))
     out = []
     for f, d, it in zip(forms, dates, items):
-        if f == "8-K":
-            out.append({"filing_date": d, "items": it or ""})
+        if _tracked(f):
+            out.append({"form": f, "filing_date": d, "items": it or ""})
     return out
+
+
+def fetch_8k_history(cik: int, timeout: int = 30) -> list[dict]:
+    """Back-compat: 8-K rows only."""
+    return [
+        {k: v for k, v in row.items() if k != "form"}
+        for row in fetch_filing_history(cik, timeout)
+        if row["form"].startswith("8-K")
+    ]
 
 
 def ingest_8k_catalysts(symbols: list[str], pause_s: float = 0.12) -> dict:
@@ -86,7 +113,7 @@ def ingest_8k_catalysts(symbols: list[str], pause_s: float = 0.12) -> dict:
     fetched = 0
     for sym in todo:
         try:
-            filings = fetch_8k_history(cik_map[sym.upper()])
+            filings = fetch_filing_history(cik_map[sym.upper()])
             fetched += 1
         except requests.RequestException:
             continue
@@ -94,9 +121,10 @@ def ingest_8k_catalysts(symbols: list[str], pause_s: float = 0.12) -> dict:
             rows.append(
                 {
                     "symbol": sym,
+                    "form": f["form"],
                     "filing_date": f["filing_date"],
                     "items": f["items"],
-                    "is_earnings": "2.02" in f["items"],
+                    "is_earnings": f["form"].startswith("8-K") and "2.02" in f["items"],
                 }
             )
         time.sleep(pause_s)
@@ -107,8 +135,12 @@ def ingest_8k_catalysts(symbols: list[str], pause_s: float = 0.12) -> dict:
             )
         )
     if frames:
-        catalog = pl.concat(frames, how="diagonal").unique(
-            subset=["symbol", "filing_date", "items"]
+        catalog = pl.concat(frames, how="diagonal")
+        if "form" not in catalog.columns:
+            catalog = catalog.with_columns(pl.lit("8-K").alias("form"))
+        # pre-v2 archives stored 8-K rows without a form column
+        catalog = catalog.with_columns(pl.col("form").fill_null("8-K")).unique(
+            subset=["symbol", "form", "filing_date", "items"]
         )
         catalog.write_parquet(CATALYST_PATH)
     else:
@@ -132,6 +164,8 @@ def tag_hits(hits: pl.DataFrame, catalog: pl.DataFrame | None) -> pl.DataFrame:
     """Replace the placeholder catalyst_class with EDGAR-derived classes."""
     if catalog is None or catalog.height == 0 or hits is None or hits.height == 0:
         return hits
+    if "form" in catalog.columns:  # v2 catalogs carry all forms; tag on 8-Ks
+        catalog = catalog.filter(pl.col("form").str.starts_with("8-K"))
     by_symbol: dict[str, tuple[np.ndarray, np.ndarray]] = {}
     for (sym,), g in catalog.group_by("symbol"):
         g = g.sort("filing_date")
@@ -156,49 +190,92 @@ def tag_hits(hits: pl.DataFrame, catalog: pl.DataFrame | None) -> pl.DataFrame:
 
 # ------------------------------------------------------- ex-ante features
 
-CATALYST_FEATURES = ["days_since_earnings_8k", "days_since_any_8k"]
+CATALYST_FEATURES = [
+    "days_since_earnings_8k",
+    "days_since_any_8k",
+    "days_until_expected_earnings",  # forward clock from own filing cadence
+    "days_since_form4",              # insider transaction recency
+    "n_form4_90d",                   # insider filing intensity
+    "days_since_dilution_filing",    # S-1/S-3/F-1/F-3/424B recency
+]
+
+MIN_EARNINGS_FOR_CADENCE = 4
+
+
+def _dilution_mask(forms: np.ndarray) -> np.ndarray:
+    out = np.zeros(forms.size, dtype=bool)
+    for i, f in enumerate(forms):
+        s = str(f)
+        out[i] = s.startswith(("S-1", "S-3", "F-1", "F-3", "424B"))
+    return out
 
 
 def attach_catalyst_features(features: pl.DataFrame, catalog: pl.DataFrame | None) -> pl.DataFrame:
     """Add ex-ante catalyst features to the features panel. Strictly
-    backward-looking: a filing dated D is knowable from D onward (8-Ks for
-    material events are due within four business days; treating the filing
-    date itself as the knowledge date adds no lookahead)."""
+    backward-looking: a filing dated D is knowable from D onward. The
+    forward-looking earnings clock uses only PAST filings: expected next
+    earnings = last earnings 8-K + the symbol's own median inter-earnings
+    gap (>= MIN_EARNINGS_FOR_CADENCE past reports required), so quarterly
+    reporters read ~"-60 ... 0 ... +91" with negative = overdue."""
+    null_cols = [pl.lit(None, dtype=pl.Float64).alias(c) for c in CATALYST_FEATURES]
     if catalog is None or catalog.height == 0:
-        return features.with_columns(
-            pl.lit(None, dtype=pl.Float64).alias("days_since_earnings_8k"),
-            pl.lit(None, dtype=pl.Float64).alias("days_since_any_8k"),
-        )
-    by_symbol: dict[str, tuple[np.ndarray, np.ndarray]] = {}
+        return features.with_columns(null_cols)
+    if "form" not in catalog.columns:
+        catalog = catalog.with_columns(pl.lit("8-K").alias("form"))
+
+    by_symbol: dict[str, dict] = {}
     for (sym,), g in catalog.group_by("symbol"):
         g = g.sort("filing_date")
-        by_symbol[str(sym)] = (
-            g["filing_date"].to_numpy().astype("datetime64[D]"),
-            g["is_earnings"].to_numpy(),
-        )
+        fdates = g["filing_date"].to_numpy().astype("datetime64[D]")
+        forms = np.asarray(g["form"].to_list(), dtype=object)
+        earn = g["is_earnings"].to_numpy().astype(bool)
+        is_8k = np.array([str(f).startswith("8-K") for f in forms])
+        by_symbol[str(sym)] = {
+            "any8k": fdates[is_8k],
+            "earn": fdates[earn],
+            "form4": fdates[np.array([str(f) == "4" or str(f).startswith("4/") for f in forms])],
+            "dilution": fdates[_dilution_mask(forms)],
+        }
 
     frames = []
     for (sym,), g in features.group_by("symbol", maintain_order=True):
         g = g.sort("date")
         dates = g["date"].to_numpy().astype("datetime64[D]")
         n = dates.size
-        d_earn = np.full(n, np.nan)
-        d_any = np.full(n, np.nan)
-        if str(sym) in by_symbol:
-            fdates, earn = by_symbol[str(sym)]
-            edates = fdates[earn]
-            # searchsorted: index of last filing at or before each panel date
-            idx_any = np.searchsorted(fdates, dates, side="right") - 1
-            ok = idx_any >= 0
-            d_any[ok] = (dates[ok] - fdates[idx_any[ok]]).astype(float)
-            if edates.size:
-                idx_e = np.searchsorted(edates, dates, side="right") - 1
-                oke = idx_e >= 0
-                d_earn[oke] = (dates[oke] - edates[idx_e[oke]]).astype(float)
-        frames.append(
-            g.with_columns(
-                pl.Series("days_since_earnings_8k", d_earn),
-                pl.Series("days_since_any_8k", d_any),
-            )
-        )
+        cols = {c: np.full(n, np.nan) for c in CATALYST_FEATURES}
+        info = by_symbol.get(str(sym))
+        if info is not None:
+            def _days_since(series: np.ndarray, out: np.ndarray) -> None:
+                if series.size == 0:
+                    return
+                idx = np.searchsorted(series, dates, side="right") - 1
+                ok = idx >= 0
+                out[ok] = (dates[ok] - series[idx[ok]]).astype(float)
+
+            _days_since(info["any8k"], cols["days_since_any_8k"])
+            _days_since(info["earn"], cols["days_since_earnings_8k"])
+            _days_since(info["form4"], cols["days_since_form4"])
+            _days_since(info["dilution"], cols["days_since_dilution_filing"])
+
+            f4 = info["form4"]
+            if f4.size:
+                hi = np.searchsorted(f4, dates, side="right")
+                lo = np.searchsorted(f4, dates - np.timedelta64(90, "D"), side="right")
+                cols["n_form4_90d"] = (hi - lo).astype(float)
+
+            edates = info["earn"]
+            if edates.size >= MIN_EARNINGS_FOR_CADENCE:
+                # expected next report, using only earnings filings <= each date
+                idx = np.searchsorted(edates, dates, side="right") - 1
+                for i in range(n):
+                    j = idx[i]
+                    if j < MIN_EARNINGS_FOR_CADENCE - 1:
+                        continue
+                    gaps = np.diff(edates[: j + 1]).astype(float)
+                    med_gap = float(np.median(gaps))
+                    expected = edates[j] + np.timedelta64(int(round(med_gap)), "D")
+                    cols["days_until_expected_earnings"][i] = float(
+                        (expected - dates[i]).astype(float)
+                    )
+        frames.append(g.with_columns([pl.Series(c, v) for c, v in cols.items()]))
     return pl.concat(frames)

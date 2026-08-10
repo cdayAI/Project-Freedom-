@@ -101,6 +101,12 @@ fees per product (member/non-member). Any code path touching these raises.
   submissions "recent" window caps at ~1,000 filings per company.
 - NASDAQ Trader symbol directory (universe): nasdaqtrader.com SymDir files;
   current listings only — survivorship bias recorded in manifest.
+- FINRA Reg SHO daily short-sale volume (cdn.finra.org/equity/regsho/daily):
+  consolidated NMS per-symbol daily short volume, free, no auth; features
+  lagged one session (files publish after the close) — see data/regsho.py.
+- SEC EDGAR submissions API (data.sec.gov): all tracked filing forms per
+  issuer — 8-K (+item codes), Form 4 (insider transactions), S-1/S-3/F-1/
+  F-3/424B (dilution pipeline); filing date = knowledge date, ex-ante.
 - Cboe delayed option chains (cdn.cboe.com/api/global/delayed_quotes):
   real exchange-published delayed (~15 min) bids/asks/IV/open interest,
   archived nightly as immutable snapshots watermarked REAL_DELAYED; the

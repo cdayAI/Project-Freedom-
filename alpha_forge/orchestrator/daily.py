@@ -638,9 +638,21 @@ def main() -> int:
         _log("catalysts: hit classes — " + ", ".join(
             f"{r['catalyst_class']}: {r['len']}" for r in tag_counts.iter_rows(named=True)))
 
+    _log("regsho: FINRA daily short-sale volume (resumable backfill)")
+    from alpha_forge.data.regsho import attach_short_features, ingest_regsho, load_regsho
+
+    try:
+        sho_summary = ingest_regsho()
+        _log(f"regsho: +{sho_summary['fetched_now']} days fetched, "
+             f"{sho_summary['days_in_archive']} days in archive")
+    except Exception as exc:  # feed outage: features go NaN, loudly, tonight
+        _log(f"regsho: unavailable ({exc}) — short features NaN tonight")
+    regsho = load_regsho()
+
     _log("features: building vectorized panel (1e-9-verified vs fingerprint_at)")
     features = build_features_panel(panel)
     features = attach_catalyst_features(features, catalog)
+    features = attach_short_features(features, regsho)
     features.write_parquet(STORE_DIR / "features_panel.parquet")
 
     # holdout boundary on trading days: hits whose LABELS mature inside the
