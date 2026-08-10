@@ -67,9 +67,13 @@ class EventPanel:
     feat_pctl: dict[str, np.ndarray]  # feature -> (D, S) cross-sectional pctl, float32
     sell_fee_prop: np.ndarray    # (D, S) proportional sell-side fees by date
     overnight_gaps: np.ndarray   # pooled distribution for stress tests
+    feat_cols: list[str] | None = None  # dynamic feature list (None -> FEATURE_NAMES)
 
 
 def build_event_panel(panel: pl.DataFrame, features: pl.DataFrame) -> EventPanel:
+    from alpha_forge.research.features_panel import feature_columns
+
+    feat_cols = feature_columns(features)
     wide = {}
     for col in ("open", "high", "low", "close"):
         w = panel.pivot(index="date", on="symbol", values=col).sort("date")
@@ -89,9 +93,9 @@ def build_event_panel(panel: pl.DataFrame, features: pl.DataFrame) -> EventPanel
             hs[ok, s] = effective_half_spread(H[ok, s], L[ok, s], C[ok, s])
 
     # per-day cross-sectional percentile of each feature (float32 to keep
-    # ten D x S matrices affordable)
+    # the D x S matrices affordable)
     fwide = {}
-    for feat in FEATURE_NAMES:
+    for feat in feat_cols:
         w = (
             features.pivot(index="date", on="symbol", values=feat)
             .sort("date")
@@ -119,7 +123,7 @@ def build_event_panel(panel: pl.DataFrame, features: pl.DataFrame) -> EventPanel
     )
 
     feat_pctl = {}
-    for feat in FEATURE_NAMES:
+    for feat in feat_cols:
         m = np.where(eligible, fwide[feat], np.nan)
         counts = np.sum(~np.isnan(m), axis=1, keepdims=True).astype(float)
         # rank via double argsort per row (NaN sorts last, then masked out)
@@ -146,7 +150,7 @@ def build_event_panel(panel: pl.DataFrame, features: pl.DataFrame) -> EventPanel
     return EventPanel(
         dates=dates, symbols=symbols, open_=O, high=H, low=L, close=C,
         half_spread=hs, eligible=eligible, feat_pctl=feat_pctl,
-        sell_fee_prop=sell_fee, overnight_gaps=gaps,
+        sell_fee_prop=sell_fee, overnight_gaps=gaps, feat_cols=feat_cols,
     )
 
 
@@ -157,14 +161,16 @@ def fold_directions(
     groups_with_dates: dict[int, list[tuple[object, np.ndarray]]],
     n_class: int,
     cutoff_date,
+    feat_cols: list[str] | None = None,
 ) -> dict[str, float]:
     """Feature -> direction (+1/-1) learned ONLY from matched groups whose
     hit predates cutoff_date. Features inside the margin are dropped."""
+    feat_cols = feat_cols or list(FEATURE_NAMES)
     groups = [g for d, g in groups_with_dates.get(n_class, []) if d < cutoff_date]
     out: dict[str, float] = {}
     if len(groups) < 20:
         return out
-    for fi, feat in enumerate(FEATURE_NAMES):
+    for fi, feat in enumerate(feat_cols):
         us = []
         for g in groups:
             vals = g[:, fi]
@@ -251,15 +257,18 @@ def simulate_trade(
         if tau == last and tau > e:
             exit_day, exit_raw, reason = tau, o, "time"  # sell at the open
             break
-        # stop first (conservative intrabar ordering), then target
+        # OPEN-based exits first — the open happens before any intraday path,
+        # so a bar that gaps through the target fills the resting limit at
+        # the open even if it later collapses through the stop. Then intraday:
+        # stop (low) before target (high), conservatively.
         if stop_frac is not None and o <= stop_px:
             exit_day, exit_raw, reason = tau, o, "stop_gap"
             break
-        if stop_frac is not None and np.isfinite(l) and l <= stop_px:
-            exit_day, exit_raw, reason = tau, stop_px, "stop"
-            break
         if tau > e and o >= target_px:
             exit_day, exit_raw, reason = tau, o, "target_gap"
+            break
+        if stop_frac is not None and np.isfinite(l) and l <= stop_px:
+            exit_day, exit_raw, reason = tau, stop_px, "stop"
             break
         # entry-bar intrabar target touches are NOT filled: a resting limit's
         # queue position on the very bar we market-bought is unknowable, and
@@ -465,7 +474,7 @@ def walk_forward_train(
         # label-maturation cutoff: hits must have fully resolved pre-cutoff
         matured_idx = max(0, train_end - purge)
         cutoff = ep.dates[matured_idx]
-        dirs = fold_directions(groups_with_dates, n_class, cutoff)
+        dirs = fold_directions(groups_with_dates, n_class, cutoff, ep.feat_cols)
         if not dirs:
             fold_summaries.append({"fold": k, "skipped": "no matured directions pre-cutoff"})
             for c in CONFIG_GRID:

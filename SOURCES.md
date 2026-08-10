@@ -81,6 +81,13 @@ fees per product (member/non-member). Any code path touching these raises.
   "Returns to Buying Winners and Selling Losers", Journal of Finance 48(1).
 
 ## Data vendors
+
+- SEC EDGAR (catalyst layer): official CIK/ticker map
+  (sec.gov/files/company_tickers.json) and per-company filing histories
+  (data.sec.gov/submissions). 8-K Item 2.02 = "Results of Operations and
+  Financial Condition" per the SEC's Form 8-K item definitions — used as
+  the earnings-announcement marker. Known limitation (in manifest): the
+  submissions "recent" window caps at ~1,000 filings per company.
 - NASDAQ Trader symbol directory (universe): nasdaqtrader.com SymDir files;
   current listings only — survivorship bias recorded in manifest.
 - Yahoo Finance v8 chart API (query1.finance.yahoo.com) daily OHLCV;

@@ -74,7 +74,10 @@ SAMPLE_SIZE = 1500  # research sample of the eligible universe
 HOLDOUT_FRACTION = 0.15
 # v2: signal-day features (v1 had a one-day lookahead via entry-day join),
 # label-matured direction cutoffs, block-capped trades, fully-OOS PBO matrix
-EVENT_STRATEGY_ID = "evt_fp5x_v2"
+# v3: feature set extended with ex-ante EDGAR catalyst features
+# v4: episode-level matched groups + gap-above-target intrabar ordering
+#     (adversarial review round 2)
+EVENT_STRATEGY_ID = "evt_fp5x_v4"
 EVENT_CLASS = 5  # pre-registered primary class: 5x paths (largest sample)
 # The night gates at most this many candidates; each permutation p-value is
 # Bonferroni-corrected against the whole family, not tested alone.
@@ -599,8 +602,31 @@ def main() -> int:
     if grades:
         _log(f"reconciler: {len(grades)} (file, horizon) grades recorded")
 
+    _log("catalysts: EDGAR 8-K histories (resumable)")
+    from alpha_forge.data.catalysts import (
+        attach_catalyst_features,
+        ingest_8k_catalysts,
+        load_catalog,
+        tag_hits,
+    )
+
+    try:
+        cat_summary = ingest_8k_catalysts(sorted(panel["symbol"].unique().to_list()))
+        _log(f"catalysts: {cat_summary['filings_total']} 8-K filings across "
+             f"{cat_summary['symbols_with_cik']} CIK-matched symbols")
+    except Exception as exc:  # EDGAR outage: proceed catalyst-less, loudly
+        _log(f"catalysts: EDGAR unavailable ({exc}) — hits stay NONE tonight")
+    catalog = load_catalog()
+    if isinstance(hits, pl.DataFrame) and hits.height:
+        hits = tag_hits(hits, catalog)
+        hits.write_parquet(STORE_DIR / "path_hits.parquet")
+        tag_counts = hits.group_by("catalyst_class").len().sort("len", descending=True)
+        _log("catalysts: hit classes — " + ", ".join(
+            f"{r['catalyst_class']}: {r['len']}" for r in tag_counts.iter_rows(named=True)))
+
     _log("features: building vectorized panel (1e-9-verified vs fingerprint_at)")
     features = build_features_panel(panel)
+    features = attach_catalyst_features(features, catalog)
     features.write_parquet(STORE_DIR / "features_panel.parquet")
 
     # holdout boundary on trading days: hits whose LABELS mature inside the
@@ -615,8 +641,9 @@ def main() -> int:
     )
 
     _log("confluence v2: time-matched identifiability (supersedes v1)")
-    groups_by_class = build_matched_groups(features, hits_research, seed=17) \
-        if isinstance(hits_research, pl.DataFrame) and hits_research.height else {}
+    groups_by_class = build_matched_groups(
+        features, hits_research, seed=17, max_date=boundary_date
+    ) if isinstance(hits_research, pl.DataFrame) and hits_research.height else {}
     confluence = run_confluence_v2(
         features, hits_research, ledger, data_vintage, groups_by_class=groups_by_class
     )

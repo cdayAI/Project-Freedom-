@@ -21,6 +21,15 @@ from alpha_forge.costs.slippage import corwin_schultz_spread
 
 WARMUP = 260  # bars of history required before a symbol's features are valid
 
+META_COLUMNS = {"symbol", "date", "valid", "starts_5x_fwd", "pos"}
+
+
+def feature_columns(features: pl.DataFrame) -> list[str]:
+    """Every non-meta column is a feature. Catalyst columns joined onto the
+    panel flow through confluence and the event engine with no code changes —
+    the feature list is data, not configuration."""
+    return [c for c in features.columns if c not in META_COLUMNS]
+
 
 def _rolling_nan(fn, arr: np.ndarray, window: int) -> np.ndarray:
     """Rolling fn over trailing `window` values (inclusive of current)."""
