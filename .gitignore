@@ -7,3 +7,6 @@ __pycache__/
 # data/manifest.jsonl) and the ledger are committed
 data/raw/
 data/store/
+dashboard/node_modules/
+dashboard/dist/
+dashboard/public/data.json

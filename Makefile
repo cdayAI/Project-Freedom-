@@ -1,4 +1,4 @@
-.PHONY: setup daily test verify-ledger clean-caches
+.PHONY: setup daily test verify-ledger clean-caches dashboard
 
 PY := .venv/bin/python
 PIP := .venv/bin/pip
@@ -17,6 +17,10 @@ test:
 
 verify-ledger:
 	$(PY) -m alpha_forge.ledger.verify
+
+dashboard:
+	cd dashboard && npm install && npm run build
+	$(PY) -c "from alpha_forge.reporting.export import build_static_snapshot; print(build_static_snapshot())"
 
 clean-caches:
 	rm -rf data/raw/*.tmp

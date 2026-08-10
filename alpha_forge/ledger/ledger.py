@@ -41,6 +41,8 @@ VALID_KINDS = {
     "HUMAN_DECISION",
     "KILL",
     "GRADUATION",
+    "PREDICTION",   # content hash of a dated immutable predictions file
+    "GRADE",        # reconciler's grading of a prediction file at a horizon
 }
 
 GENESIS_HASH = "0" * 64

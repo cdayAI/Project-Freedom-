@@ -4,16 +4,22 @@ A perpetual compounding engine: an autonomous research platform that
 discovers, validates, sizes, retires, and replaces trading strategies, with
 one objective — long-run net log-wealth growth under a hard ruin constraint.
 
-This is cycle 1: equities end-to-end. See `ARCHITECTURE.md` for the system
-map and roadmap, `SOURCES.md` for where every number comes from, and
+Cycle 2: the full agent chain runs nightly on equities — data + regime
+(Agent 0), date-aware costs (1), pathfinder (2), confluence identifiability
+(3), sizing lab (4), trap detector (5), scanner predictions (6), reconciler
+calibration (7), capacity/tiers (8a), council (8b), the self-improvement
+loop with replacement-rate tracking and weekly memos (9), and execution
+readiness with a doubly-locked broker interface (10). See `ARCHITECTURE.md`
+for the system map, `SOURCES.md` for where every number comes from, and
 `FINDINGS.md` (regenerated nightly) for current results.
 
 ## Run it
 
 ```bash
-make setup   # venv + deps + editable install
-make daily   # full nightly loop: ingest -> validate -> pathfinder -> gates -> FINDINGS.md
-make test    # reference test suite (45 tests incl. golden values for DSR/PBO)
+make setup      # venv + deps + editable install
+make daily      # full nightly loop, end to end
+make test       # reference test suite (91 tests incl. golden values for DSR/PBO)
+make dashboard  # build TS/React dashboard + single-file HTML snapshot
 make verify-ledger
 ```
 
