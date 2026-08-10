@@ -1,4 +1,4 @@
-# ALPHA FORGE — FINDINGS (regenerated 2026-08-10 14:34 UTC)
+# ALPHA FORGE — FINDINGS (regenerated 2026-08-10 14:48 UTC)
 
 ## The four numbers
 
