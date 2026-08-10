@@ -126,6 +126,14 @@ Yahoo daily OHLCV ──► validation (rows/continuity/OHLC/split) ─┤ quara
   retroactively revocable as N grows. That is the point of deflation.
 - **Live trading is doubly locked**: env flag set by a human AND a ledgered
   HUMAN_DECISION; a grep-guard test asserts no source file sets the flag.
+- **Broker connectivity is paper-first**: `AlpacaClient` refuses the live
+  endpoint except through the double-locked `place_order` path;
+  `paper_order` works only against the paper endpoint. The command center
+  (`make command-center`) serves the dashboard plus sanitized live account
+  state; secrets stay server-side in `.env` (gitignored). The test suite
+  strips broker credentials from every test and hard-fails any test that
+  attempts a broker HTTP call — a guard added after a legacy test placed a
+  real paper order (caught same-session, position closed, cost $0.13).
 
 ## Roadmap (activation conditions, in order)
 

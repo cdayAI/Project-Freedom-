@@ -12,6 +12,7 @@ from pathlib import Path
 import polars as pl
 
 from alpha_forge.config import PREDICTIONS_DIR, REPO_ROOT, STORE_DIR
+from alpha_forge.execution.alpaca import account_snapshot_public
 from alpha_forge.ledger import Ledger
 
 DASHBOARD_DATA = REPO_ROOT / "dashboard" / "public" / "data.json"
@@ -71,6 +72,9 @@ def build_dashboard_data(ledger: Ledger, replacement: dict) -> dict:
         "calibration": calibration.to_dicts() if calibration is not None else [],
         "equity_curves": curves.to_dicts() if curves is not None else [],
         "predictions": latest_pred,
+        # sanitized paper-account snapshot (balances + flags only, no
+        # identifiers); None when no credentials are configured
+        "account": account_snapshot_public(),
     }
     DASHBOARD_DATA.parent.mkdir(parents=True, exist_ok=True)
     DASHBOARD_DATA.write_text(json.dumps(data, indent=1))

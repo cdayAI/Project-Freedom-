@@ -68,18 +68,48 @@ class BrokerAdapter(ABC):
 
 
 class AlpacaAdapter(BrokerAdapter):
-    """DESIGN mode without ALPACA_API_KEY_ID/ALPACA_API_SECRET_KEY."""
+    """LIVE against the Alpaca PAPER endpoint when keys are present; the
+    real-money endpoint remains behind place_order's human double-lock.
+
+    paper_order() exists so the Agent-10 paper harness can place PAPER
+    orders without the live lock — paper fills are testing, not trading.
+    DESIGN mode (NotImplementedError) without keys."""
 
     name = "alpaca"
 
+    def _client(self, allow_live: bool = False):
+        from alpha_forge.execution.alpaca import AlpacaClient
+
+        return AlpacaClient(allow_live=allow_live)
+
+    def paper_order(self, order: Order) -> dict:
+        client = self._client()
+        if not client.is_paper:
+            raise LiveTradingDisabledError(
+                "paper_order requires the paper endpoint; live goes through place_order"
+            )
+        return client.submit_order(
+            symbol=order.symbol,
+            qty=order.quantity,
+            side=order.side,
+            order_type="market" if order.order_type == "MARKET_ON_OPEN" else order.order_type.lower(),
+            limit_price=order.limit_price,
+            stop_price=order.stop_price,
+        )
+
     def submit(self, order: Order) -> dict:
-        raise NotImplementedError(
-            "design: POST /v2/orders {symbol, qty, side, type, time_in_force} "
-            "(fractional qty supported; commission $0 per Alpaca pricing page)"
+        client = self._client(allow_live=True)
+        return client.submit_order(
+            symbol=order.symbol,
+            qty=order.quantity,
+            side=order.side,
+            order_type="market" if order.order_type == "MARKET_ON_OPEN" else order.order_type.lower(),
+            limit_price=order.limit_price,
+            stop_price=order.stop_price,
         )
 
     def positions(self) -> list[dict]:
-        raise NotImplementedError("design: GET /v2/positions")
+        return self._client().positions()
 
 
 class IBKRAdapter(BrokerAdapter):
