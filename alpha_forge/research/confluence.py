@@ -32,8 +32,40 @@ from alpha_forge.research.features import FEATURE_NAMES, fingerprint_at
 
 BASELINE_PER_HIT = 5
 MIN_HITS_PER_CLASS = 20  # below this, the cell is reported UNDERPOWERED, not tested
+RETEST_TRADING_DAYS = 5  # a family re-runs only after this many new trading days:
+                         # re-testing on 1-day-shifted data would ledger ~30 trials
+                         # per night for near-zero new information (over-deflation
+                         # is safe but wasteful; cadence is the honest fix)
 
 CONFLUENCE_PATH = STORE_DIR / "confluence_results.parquet"
+
+
+def last_family_vintage(ledger: Ledger) -> str | None:
+    """Data vintage of the most recent confluence family, if any."""
+    last = None
+    for e in ledger.entries():
+        if (
+            e["kind"] == "RESULT"
+            and e["payload"].get("result", {}).get("family") == "confluence_identifiability"
+        ):
+            last = e["payload"]["result"].get("data_vintage")
+    return last
+
+
+def should_retest(ledger: Ledger, panel: pl.DataFrame, data_vintage: str) -> bool:
+    """True when no family exists yet or >= RETEST_TRADING_DAYS trading days
+    of new data have arrived since the last family's vintage."""
+    from datetime import datetime as _dt
+
+    last = last_family_vintage(ledger)
+    if last is None:
+        return True
+    if last == data_vintage:
+        return False
+    last_d = _dt.strptime(last[:10], "%Y-%m-%d").date()
+    dates = panel.get_column("date").unique()
+    n_new = int((dates > last_d).sum())
+    return n_new >= RETEST_TRADING_DAYS
 
 
 def _auc(pos: np.ndarray, neg: np.ndarray) -> float:
@@ -137,14 +169,10 @@ def run_confluence(
     if hits is None or hits.height == 0:
         return None
 
-    # idempotency: one confluence family per data vintage
-    for e in ledger.entries():
-        if (
-            e["kind"] == "RESULT"
-            and e["payload"].get("result", {}).get("family") == "confluence_identifiability"
-            and e["payload"]["result"].get("data_vintage") == data_vintage
-        ):
-            return pl.read_parquet(CONFLUENCE_PATH) if CONFLUENCE_PATH.exists() else None
+    # cadence guard: one family per vintage AND >= RETEST_TRADING_DAYS of new
+    # data before a re-test; otherwise serve the cached results
+    if not should_retest(ledger, panel, data_vintage):
+        return pl.read_parquet(CONFLUENCE_PATH) if CONFLUENCE_PATH.exists() else None
 
     reg_id = ledger.preregister(
         hypothesis="Pre-move fingerprints of N-x path hits are distinguishable "
