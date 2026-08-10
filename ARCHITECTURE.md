@@ -10,13 +10,21 @@ drawdown control part of the return, not a preference.
 graduating all gates per month vs strategies dying. Reported in every
 summary; a rate < 1.0 leads the weekly memo.
 
-## Status: cycle 1 (equities end-to-end)
+## Status: cycle 2 (full agent chain on equities)
 
-Built and running: Agent 0 (data), Agent 1 (costs), Agent 2 (pathfinder),
-the full Section-4 gate library, the hash-chained ledger, and the nightly
-orchestrator that takes one pre-registered hypothesis through every gate on
-real equities data. Everything else exists as enforced interfaces (DESIGN
-mode) and is listed under Roadmap with its activation condition.
+Built and running nightly: Agents 0-8b plus the loop (9) and execution
+readiness (10) on equities. In one pass: ingest + regime series →
+pathfinder → reconciler grading → confluence identifiability (every cell a
+ledgered trial, BH-corrected) → immutable predictions → gated hypotheses
+(standing demo + up to 2 generated from confluence survivors per night) →
+replacement rate → weekly memo → FINDINGS.md → dashboard export + static
+snapshot. Options/futures remain DESIGN-mode (no keys); catalyst calendars
+are not yet ingested (hits tagged NONE); sequences remain structurally zero
+until first graduation.
+
+Agent map: 0 data (`data/`), 1 costs (`costs/`), 2 pathfinder, 3 confluence,
+4 sizing, 5 traps, 6 scanner, 7 reconciler, 8a capacity, 8b council, 9 loop
+(all `research/`), 10 execution (`execution/`).
 
 ## Language choices (justified per Operating Rules)
 
@@ -95,22 +103,42 @@ Yahoo daily OHLCV ──► validation (rows/continuity/OHLC/split) ─┤ quara
   aborts the run before any downstream agent sees the data.
 - The ledger chain is verified at the top of every run.
 
+## Additional cycle-2 design decisions
+
+- **Confluence statistic is rank-based** (Mann-Whitney AUC): fingerprint
+  distributions are fat-tailed, and mean-based statistics would be driven by
+  single outliers. Permutations are exact label shuffles vectorized via the
+  rank-invariance trick (ranks computed once; 20k label draws are index
+  gathers). Underpowered cells (<20 hits) are reported, never tested.
+- **The scanner refuses to predict without an identifiable signal.** If no
+  fingerprint feature survives BH correction, the predictions file is empty
+  with the reason in-band. Confidence is stamped UNCALIBRATED until the
+  reconciler produces calibration curves; size is 0 and executable=false
+  until gates + 60 paper-trading days are done.
+- **Predictions are graded against their sha256.** The scanner ledgeres the
+  file hash at write time; the reconciler re-hashes before grading and halts
+  on mismatch. Editing a prediction after the fact is detected, not silently
+  graded.
+- **Generated hypotheses are budgeted** (2/night) and carry their generator
+  name in the preregistration, so meta-learning can compute survivor rate
+  per generator and force a generation-strategy change when it stagnates.
+- **The council's DSR check uses the CURRENT trial count** — graduation is
+  retroactively revocable as N grows. That is the point of deflation.
+- **Live trading is doubly locked**: env flag set by a human AND a ledgered
+  HUMAN_DECISION; a grep-guard test asserts no source file sets the flag.
+
 ## Roadmap (activation conditions, in order)
 
-1. **Agent 7 (Reconciler)** — activates with the first dated predictions
-   file; calibration curves become the system's fitness function.
-2. **Agent 3 (Confluence)** + fingerprint identifiability testing on the
-   pathfinder hit catalog (every combination tried = ledgered trial).
-3. **Agents 4/5 (Sizing Lab, Trap Detector)** — activate on first gate-PASS
-   candidate; PDT/settlement/integer-lot simulator specified in Section 3 of
-   the mission is the acceptance test list.
-4. **Catalyst data** (earnings calendar, FINRA short interest, halts) — every
+1. **Catalyst data** (earnings calendar, FINRA short interest, halts) — every
    pathfinder hit is currently tagged catalyst_class=NONE; identifiability
    per catalyst class starts when these feeds land.
-5. **Options (DESIGN→LIVE)** on API key presence; futures likewise; both
+2. **Survivorship-free equities** (Norgate/Sharadar) on credential presence —
+   flips `survivorship_free` and removes the standing gate-7 flag.
+3. **Options (DESIGN→LIVE)** on API key presence; futures likewise; both
    blocked from backtests by unverified fee tables until their fee schedules
    are sourced (ORF, OCC, CME member/non-member).
-6. **Survivorship-free equities** (Norgate/Sharadar) on credential presence —
-   flips `survivorship_free` and removes the standing gate-7 flag.
-7. **Dashboard + static HTML snapshot**, **Agent 8a/8b**, **Agent 10
-   (paper-trading harness)** — in that order, each reading the same store.
+4. **Sequence composer** activates on first gate-PASS + paper-trading
+   graduation (DAG over setup occurrences, best-product path, per-leg costs).
+5. **Sizing Lab + Trap Detector wired into the gate pipeline** as gates 10-11
+   for the first candidate that passes gates 1-9 (both are built and tested;
+   they have nothing real to size yet).

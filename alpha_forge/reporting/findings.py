@@ -23,6 +23,7 @@ def render_findings(
     gate_reports: list[dict],
     dataset_note: str,
     replacement_rate_note: str,
+    extra_sections: list[str] | None = None,
 ) -> str:
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     trials = ledger.trial_count()
@@ -119,6 +120,9 @@ def render_findings(
         )
     else:
         lines.append("No qualifying N-x paths in the current sample (see dataset note).")
+    for section in extra_sections or []:
+        lines += ["", section]
+
     lines += [
         "",
         "## Standing disclosures",
