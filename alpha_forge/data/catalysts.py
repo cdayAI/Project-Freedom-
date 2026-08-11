@@ -117,6 +117,11 @@ def ingest_8k_catalysts(symbols: list[str], pause_s: float = 0.12) -> dict:
             fetched += 1
         except requests.RequestException:
             continue
+        if fetched % 200 == 0 and rows:
+            # periodic flush: a crash mid-batch must not lose the fetch work
+            _flush_catalog(frames, rows)
+            frames = [pl.read_parquet(CATALYST_PATH)]
+            rows = []
         for f in filings:
             rows.append(
                 {
@@ -128,21 +133,8 @@ def ingest_8k_catalysts(symbols: list[str], pause_s: float = 0.12) -> dict:
                 }
             )
         time.sleep(pause_s)
-    if rows:
-        frames.append(
-            pl.DataFrame(rows).with_columns(
-                pl.col("filing_date").str.to_date().alias("filing_date")
-            )
-        )
-    if frames:
-        catalog = pl.concat(frames, how="diagonal")
-        if "form" not in catalog.columns:
-            catalog = catalog.with_columns(pl.lit("8-K").alias("form"))
-        # pre-v2 archives stored 8-K rows without a form column
-        catalog = catalog.with_columns(pl.col("form").fill_null("8-K")).unique(
-            subset=["symbol", "form", "filing_date", "items"]
-        )
-        catalog.write_parquet(CATALYST_PATH)
+    if frames or rows:
+        catalog = _flush_catalog(frames, rows)
     else:
         catalog = pl.DataFrame()
     return {
@@ -151,6 +143,25 @@ def ingest_8k_catalysts(symbols: list[str], pause_s: float = 0.12) -> dict:
         "symbols_fetched_now": fetched,
         "filings_total": catalog.height if catalog.height else 0,
     }
+
+
+def _flush_catalog(frames: list[pl.DataFrame], rows: list[dict]) -> pl.DataFrame:
+    parts = list(frames)
+    if rows:
+        parts.append(
+            pl.DataFrame(rows).with_columns(
+                pl.col("filing_date").str.to_date().alias("filing_date")
+            )
+        )
+    catalog = pl.concat(parts, how="diagonal")
+    if "form" not in catalog.columns:
+        catalog = catalog.with_columns(pl.lit("8-K").alias("form"))
+    # pre-v2 archives stored 8-K rows without a form column
+    catalog = catalog.with_columns(pl.col("form").fill_null("8-K")).unique(
+        subset=["symbol", "form", "filing_date", "items"]
+    )
+    catalog.write_parquet(CATALYST_PATH)
+    return catalog
 
 
 def load_catalog() -> pl.DataFrame | None:

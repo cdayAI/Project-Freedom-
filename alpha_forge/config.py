@@ -44,7 +44,10 @@ DUCKDB_PATH = STORE_DIR / "alpha_forge.duckdb"
 # --- Research-design constants (structural choices, see ARCHITECTURE.md) ---
 TRADING_DAYS_PER_YEAR = 252          # NYSE calendar convention
 WINDOW_TRADING_DAYS = 126            # 6-month rolling research window
-PATH_MULTIPLES = (5, 10, 20, 50)     # N-x path targets
+PATH_MULTIPLES = (3, 5, 10, 20, 50)  # N-x path targets; 3x is an AUXILIARY
+                                     # training class (many more episodes for
+                                     # the learned signal), 5x+ are the
+                                     # reported research targets
 SEQUENCE_MIN_LEGS = 2
 SEQUENCE_MAX_LEGS = 8
 

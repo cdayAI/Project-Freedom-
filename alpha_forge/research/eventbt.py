@@ -189,6 +189,120 @@ def fold_directions(
     return out
 
 
+def ridge_logistic(X: np.ndarray, y: np.ndarray, lam: float = 1.0, iters: int = 30) -> np.ndarray:
+    """IRLS ridge logistic. X: (n, p) centered inputs; returns (p+1,) with
+    intercept last. lam is fixed (structural) — no tuning inside folds."""
+    n, p = X.shape
+    Xb = np.hstack([X, np.ones((n, 1))])
+    w = np.zeros(p + 1)
+    for _ in range(iters):
+        z = Xb @ w
+        mu = 1.0 / (1.0 + np.exp(-np.clip(z, -30, 30)))
+        s = np.maximum(mu * (1 - mu), 1e-6)
+        # ridge on feature weights only, not the intercept
+        reg = lam * np.eye(p + 1)
+        reg[p, p] = 0.0
+        H = Xb.T @ (Xb * s[:, None]) + reg
+        g = Xb.T @ (y - mu) - reg @ w
+        try:
+            step = np.linalg.solve(H, g)
+        except np.linalg.LinAlgError:
+            break
+        w = w + step
+        if float(np.abs(step).max()) < 1e-10:
+            break
+    return w
+
+
+TRAIN_CLASSES_POOLED = (3, 5)   # v7: auxiliary 3x episodes pool with 5x —
+                                # same phenomenon family, ~5-10x the examples
+MAX_ROUNDTRIP_SPREAD = 0.10     # v7 tradability floor: skip entries whose
+                                # measured roundtrip spread exceeds 10% —
+                                # tonight's kill showed spread, not selection,
+                                # was the cause of death (structural constant,
+                                # pre-registered with the candidate)
+
+
+def _adaptive_lam(n_groups: int, n_features: int) -> float:
+    """Pre-registered regularization formula — NEVER hand-tuned: shrink
+    harder when groups are scarce relative to features. lam = max(1, 25p/G):
+    at 300 groups x 15 features -> lam ~ 1.25; at 60 groups -> lam ~ 6."""
+    return max(1.0, 25.0 * n_features / max(n_groups, 1))
+
+
+def fold_weights_pooled(
+    groups_with_dates: dict[int, list[tuple[object, np.ndarray]]],
+    classes: tuple[int, ...],
+    cutoff_date,
+    feat_cols: list[str] | None = None,
+) -> dict[str, float]:
+    """v7 signal: pool matured groups across the training classes, then fit
+    with the adaptive lambda. Pooling note (honest dilution): controls are
+    contamination-filtered against 5x starts; a 3x-group control may itself
+    start a 3x, which DILUTES the 3x signal toward zero — conservative, never
+    inflationary."""
+    feat_cols = feat_cols or list(FEATURE_NAMES)
+    merged: list[tuple[object, np.ndarray]] = []
+    for c in classes:
+        merged.extend(groups_with_dates.get(c, []))
+    pooled = {0: merged}
+    matured = [g for d, g in merged if d < cutoff_date]
+    lam = _adaptive_lam(len(matured), len(feat_cols))
+    return fold_weights(pooled, 0, cutoff_date, feat_cols, lam=lam)
+
+
+def fold_weights(
+    groups_with_dates: dict[int, list[tuple[object, np.ndarray]]],
+    n_class: int,
+    cutoff_date,
+    feat_cols: list[str] | None = None,
+    lam: float = 1.0,
+) -> dict[str, float]:
+    """v6 signal: per-feature WEIGHTS learned by ridge logistic on matured
+    matched groups (hit=1 vs controls=0), inputs = within-group normalized
+    ranks centered at 0 (scale-free, NaN -> neutral 0). Same maturation rule
+    as fold_directions; same 20-group floor. A feature that separates at
+    matched-AUC 0.9 now outvotes one at 0.6 instead of tying it."""
+    feat_cols = feat_cols or list(FEATURE_NAMES)
+    groups = [g for d, g in groups_with_dates.get(n_class, []) if d < cutoff_date]
+    if len(groups) < 20:
+        return {}
+    rows, ys = [], []
+    for g in groups:
+        m, p = g.shape
+        ranks = np.full((m, p), 0.0)
+        for fi in range(p):
+            col = g[:, fi]
+            ok = ~np.isnan(col)
+            if ok.sum() >= 2:
+                order = col[ok].argsort(kind="mergesort").argsort().astype(float)
+                ranks[ok, fi] = (order + 0.5) / ok.sum() - 0.5  # centered (−.5,.5)
+        rows.append(ranks)
+        ys.append(np.concatenate([[1.0], np.zeros(m - 1)]))
+    X = np.vstack(rows)
+    y = np.concatenate(ys)
+    w = ridge_logistic(X, y, lam=lam)
+    return {f: float(w[i]) for i, f in enumerate(feat_cols) if abs(w[i]) > 1e-9}
+
+
+def composite_score_weighted(ep: EventPanel, weights: dict[str, float]) -> np.ndarray:
+    """(D, S) weighted sum of centered cross-sectional percentiles — the
+    logit of the trained model up to the intercept, monotone in P(hit)."""
+    if not weights:
+        return np.full(ep.close.shape, np.nan, dtype=np.float32)
+    acc = np.zeros(ep.close.shape, dtype=np.float32)
+    seen = np.zeros(ep.close.shape, dtype=bool)
+    for feat, w in weights.items():
+        p = ep.feat_pctl.get(feat)
+        if p is None:
+            continue
+        v = (p - 0.5) * np.float32(w)
+        ok = ~np.isnan(v)
+        acc[ok] += v[ok]
+        seen |= ok
+    return np.where(seen, acc, np.nan)
+
+
 def composite_score(ep: EventPanel, directions: dict[str, float]) -> np.ndarray:
     """(D, S) mean directional percentile over the admitted features."""
     if not directions:
@@ -328,7 +442,11 @@ def run_event_strategy(
         held = np.zeros(len(ep.symbols), dtype=bool)
         if open_positions:
             held[list(open_positions.keys())] = True
-        elig = ep.eligible[d] & ~np.isnan(row) & ~held
+        # v7 tradability floor: a name whose roundtrip spread exceeds the cap
+        # cannot pay its own toll — no signal strength overrides this
+        hs_row = ep.half_spread[d]
+        tradable = np.isfinite(hs_row) & (2.0 * hs_row <= MAX_ROUNDTRIP_SPREAD)
+        elig = ep.eligible[d] & ~np.isnan(row) & ~held & tradable
         if not elig.any():
             continue
         vals = row[elig]
@@ -439,6 +557,7 @@ def walk_forward_train(
     research_end: int,
     n_folds: int = 4,
     min_train_trades: int = 20,
+    signal_mode: str = "directions",
 ) -> dict:
     """Expanding-window training on [0, research_end).
 
@@ -474,13 +593,24 @@ def walk_forward_train(
         # label-maturation cutoff: hits must have fully resolved pre-cutoff
         matured_idx = max(0, train_end - purge)
         cutoff = ep.dates[matured_idx]
-        dirs = fold_directions(groups_with_dates, n_class, cutoff, ep.feat_cols)
+        if signal_mode == "logistic":
+            dirs = fold_weights(groups_with_dates, n_class, cutoff, ep.feat_cols)
+        elif signal_mode == "logistic_pooled":
+            dirs = fold_weights_pooled(
+                groups_with_dates, TRAIN_CLASSES_POOLED, cutoff, ep.feat_cols
+            )
+        else:
+            dirs = fold_directions(groups_with_dates, n_class, cutoff, ep.feat_cols)
         if not dirs:
-            fold_summaries.append({"fold": k, "skipped": "no matured directions pre-cutoff"})
+            fold_summaries.append({"fold": k, "skipped": "no matured signal pre-cutoff"})
             for c in CONFIG_GRID:
                 config_oos_cols[json_key(c)].append(np.zeros(test_end - test_start))
             continue
-        score = composite_score(ep, dirs)
+        score = (
+            composite_score_weighted(ep, dirs)
+            if signal_mode in ("logistic", "logistic_pooled")
+            else composite_score(ep, dirs)
+        )
         best, best_cfg = None, None
         fold_tests = {}
         for cfg in CONFIG_GRID:
