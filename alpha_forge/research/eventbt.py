@@ -308,14 +308,37 @@ def fold_hazard_weights(
     training rows stop at train_end_idx - purge. Inputs are centered
     cross-sectional percentiles (identical to scoring). Negatives are
     subsampled at NEG_PER_POS per positive; lambda from the adaptive
-    formula on the positive count unless given."""
+    formula on the positive count unless given.
+
+    Overlap control: two positive start-days on the SAME symbol closer than
+    the label horizon describe the same forward episode — counting both
+    manufactures pseudo-independent observations. Only the first start of
+    each cluster survives as a positive (the later days are dropped from
+    training entirely rather than kept as negatives, which would be a lie)."""
     feat_cols = ep.feat_cols or list(FEATURE_NAMES)
+    if label_mat.shape != ep.eligible.shape:
+        raise ValueError(
+            f"label_mat shape {label_mat.shape} does not match the panel's "
+            f"(dates, symbols) grid {ep.eligible.shape} — a misaligned pivot "
+            "would silently train on the wrong symbols' labels"
+        )
     d_max = max(0, train_end_idx - purge)
     if d_max < 50:
         return {}
     valid = ep.eligible[:d_max]
     y_all = label_mat[:d_max]
     pos_idx = np.argwhere(valid & y_all)
+    if pos_idx.shape[0]:
+        keep = []
+        last_kept: dict[int, int] = {}  # symbol -> day of last kept positive
+        for d, s in pos_idx[np.lexsort((pos_idx[:, 0], pos_idx[:, 1]))]:
+            if int(s) in last_kept and int(d) - last_kept[int(s)] < HOLD_MAX:
+                continue  # same forward episode, not a new observation
+            last_kept[int(s)] = int(d)
+            keep.append((int(d), int(s)))
+        pos_idx = np.array(keep, dtype=np.int64).reshape(-1, 2)
+    # negatives exclude EVERY originally-labeled day: an overlap-dropped
+    # positive is not a counter-example, it is a duplicate observation
     neg_idx = np.argwhere(valid & ~y_all)
     if pos_idx.shape[0] < 30 or neg_idx.shape[0] < pos_idx.shape[0]:
         return {}
