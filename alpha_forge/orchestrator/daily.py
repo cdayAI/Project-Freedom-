@@ -465,9 +465,17 @@ def gate_event_candidate(
     ep = build_event_panel(panel_bt, features_bt)
     research_end = int(ep.dates.size * (1 - HOLDOUT_FRACTION))
 
+    label_mat = None
+    if signal_mode == "hazard":
+        lw = features_bt.pivot(
+            index="date", on="symbol", values="starts_5x_fwd"
+        ).sort("date")
+        raw = lw.select(ep.symbols).to_numpy()
+        label_mat = np.where(raw == None, False, raw).astype(bool)  # noqa: E711
+
     _log("event: walk-forward training")
     wf = walk_forward_train(ep, groups_by_class, EVENT_CLASS, research_end,
-                            signal_mode=signal_mode)
+                            signal_mode=signal_mode, label_mat=label_mat)
     # EVERY (fold, config) evaluation is a trial; the recorded statistic is
     # the config's OOS daily Sharpe on that fold's test block (a genuine
     # per-period Sharpe, comparable across trials; None when degenerate)
@@ -755,6 +763,16 @@ def main() -> int:
     )
     if event_v7:
         gate_reports.append(event_v7)
+
+    # v8: discrete-time hazard — trained on EVERY eligible stock-day
+    # (starts_5x_fwd label), the training question equal to the deployment
+    # question; label maturation enforced by the purge
+    event_v8 = gate_event_candidate(
+        ledger, panel, features, hits_research, groups_by_class, data_vintage,
+        strategy_id="evt_fp5x_hazard_v8", signal_mode="hazard",
+    )
+    if event_v8:
+        gate_reports.append(event_v8)
 
     demo = gate_demo_hypothesis(ledger, panel, data_vintage)
     if demo:

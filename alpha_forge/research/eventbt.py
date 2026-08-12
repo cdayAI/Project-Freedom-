@@ -285,6 +285,54 @@ def fold_weights(
     return {f: float(w[i]) for i, f in enumerate(feat_cols) if abs(w[i]) > 1e-9}
 
 
+NEG_PER_POS = 20  # hazard training: negatives subsampled per positive
+                  # (structural; the intercept absorbs the induced base-rate
+                  # shift and the RANKING the engine uses is unaffected)
+
+
+def fold_hazard_weights(
+    ep: EventPanel,
+    label_mat: np.ndarray,
+    train_end_idx: int,
+    purge: int,
+    rng: np.random.Generator,
+    lam: float | None = None,
+) -> dict[str, float]:
+    """v8 — discrete-time hazard formulation: instead of one snapshot per
+    episode (matched groups), train on EVERY eligible stock-day with the
+    label 'does a >=5x path start here?' (starts_5x_fwd). Hundreds of
+    thousands of rows from the same data, and the training question is
+    EXACTLY the deployment question the scanner answers each day.
+
+    Label maturation: a day's label needs HOLD_MAX bars to resolve, so
+    training rows stop at train_end_idx - purge. Inputs are centered
+    cross-sectional percentiles (identical to scoring). Negatives are
+    subsampled at NEG_PER_POS per positive; lambda from the adaptive
+    formula on the positive count unless given."""
+    feat_cols = ep.feat_cols or list(FEATURE_NAMES)
+    d_max = max(0, train_end_idx - purge)
+    if d_max < 50:
+        return {}
+    valid = ep.eligible[:d_max]
+    y_all = label_mat[:d_max]
+    pos_idx = np.argwhere(valid & y_all)
+    neg_idx = np.argwhere(valid & ~y_all)
+    if pos_idx.shape[0] < 30 or neg_idx.shape[0] < pos_idx.shape[0]:
+        return {}
+    take_neg = min(neg_idx.shape[0], pos_idx.shape[0] * NEG_PER_POS)
+    neg_idx = neg_idx[rng.choice(neg_idx.shape[0], size=take_neg, replace=False)]
+    rows = np.vstack([pos_idx, neg_idx])
+    y = np.concatenate([np.ones(pos_idx.shape[0]), np.zeros(neg_idx.shape[0])])
+
+    X = np.zeros((rows.shape[0], len(feat_cols)))
+    for fi, feat in enumerate(feat_cols):
+        p = ep.feat_pctl[feat][rows[:, 0], rows[:, 1]].astype(float)
+        X[:, fi] = np.where(np.isnan(p), 0.0, p - 0.5)  # missing -> neutral
+    lam = lam if lam is not None else _adaptive_lam(int(pos_idx.shape[0]), len(feat_cols))
+    w = ridge_logistic(X, y, lam=lam)
+    return {f: float(w[i]) for i, f in enumerate(feat_cols) if abs(w[i]) > 1e-9}
+
+
 def composite_score_weighted(ep: EventPanel, weights: dict[str, float]) -> np.ndarray:
     """(D, S) weighted sum of centered cross-sectional percentiles — the
     logit of the trained model up to the intercept, monotone in P(hit)."""
@@ -558,6 +606,8 @@ def walk_forward_train(
     n_folds: int = 4,
     min_train_trades: int = 20,
     signal_mode: str = "directions",
+    label_mat: np.ndarray | None = None,
+    seed: int = 41,
 ) -> dict:
     """Expanding-window training on [0, research_end).
 
@@ -599,6 +649,13 @@ def walk_forward_train(
             dirs = fold_weights_pooled(
                 groups_with_dates, TRAIN_CLASSES_POOLED, cutoff, ep.feat_cols
             )
+        elif signal_mode == "hazard":
+            if label_mat is None:
+                raise ValueError("hazard mode requires label_mat")
+            dirs = fold_hazard_weights(
+                ep, label_mat, int(train_end), purge,
+                np.random.default_rng(seed + k),
+            )
         else:
             dirs = fold_directions(groups_with_dates, n_class, cutoff, ep.feat_cols)
         if not dirs:
@@ -608,7 +665,7 @@ def walk_forward_train(
             continue
         score = (
             composite_score_weighted(ep, dirs)
-            if signal_mode in ("logistic", "logistic_pooled")
+            if signal_mode in ("logistic", "logistic_pooled", "hazard")
             else composite_score(ep, dirs)
         )
         best, best_cfg = None, None

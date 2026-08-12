@@ -55,7 +55,9 @@ def symbol_features(
 
     def lag_ret(lb: int) -> np.ndarray:
         out = np.full(n, np.nan)
-        out[lb:] = close[lb:] / close[:-lb] - 1.0
+        with np.errstate(divide="ignore", invalid="ignore"):
+            base = np.where(close[:-lb] > 0, close[:-lb], np.nan)  # zero-price
+            out[lb:] = close[lb:] / base - 1.0                     # rows -> NaN
         return out
 
     feats["ret_21d"] = lag_ret(21)
