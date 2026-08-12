@@ -96,7 +96,7 @@ _quote_cache = QuoteCache()
 def _journal_manual_order(entry: dict) -> None:
     path = STORE_DIR / "paper" / "manual_orders.jsonl"
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a") as f:
+    with path.open("a", encoding="utf-8") as f:
         f.write(json.dumps(entry) + "\n")
 
 

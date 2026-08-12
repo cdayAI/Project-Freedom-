@@ -15,14 +15,31 @@ for the system map, `SOURCES.md` for where every number comes from, and
 
 ## Run it
 
+macOS / Linux:
+
 ```bash
 make setup           # venv + deps + editable install
 make daily           # full nightly loop, end to end
-make test            # reference test suite (101 tests incl. golden values for DSR/PBO)
+make test            # reference test suite (incl. golden values for DSR/PBO)
 make dashboard       # build TS/React dashboard + single-file HTML snapshot
 make command-center  # local server: dashboard + live paper-account state
 make verify-ledger
 ```
+
+Windows (the Makefile assumes Unix tooling — use the portable bootstrap):
+
+```powershell
+py scripts/setup.py                          # venv + deps + editable install
+.venv\Scripts\python -m alpha_forge.orchestrator.daily
+.venv\Scripts\python -m pytest
+.venv\Scripts\python -m alpha_forge.ledger.verify
+```
+
+Repository files are UTF-8. If console output shows mojibake (an em-dash
+rendering as three garbled characters), the console is decoding with a
+legacy codepage — the files are NOT corrupted; do not rewrite them. Fix the
+console: PowerShell `[Console]::OutputEncoding =
+[System.Text.Encoding]::UTF8`, cmd.exe `chcp 65001`, or set `PYTHONUTF8=1`.
 
 ## Command center / terminal
 

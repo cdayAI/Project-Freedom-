@@ -114,7 +114,7 @@ def _log(msg: str) -> None:
 def ingest_equities(force: bool = False) -> dict:
     marker = RAW_DIR / f"ingest_{date.today().isoformat()}.json"
     if marker.exists() and not force and (STORE_DIR / "equities_daily.parquet").exists():
-        prior = json.loads(marker.read_text())
+        prior = json.loads(marker.read_text(encoding="utf-8"))
         # the marker must key on WHAT was pulled, not just when: a run after a
         # sample-size increase must not silently reuse the smaller panel
         if prior.get("sample_size", 0) >= SAMPLE_SIZE:
@@ -157,7 +157,7 @@ def ingest_equities(force: bool = False) -> dict:
         },
         survivorship_free=adapter.survivorship_free,
     )
-    marker.write_text(json.dumps({k: v for k, v in summary.items() if k != "validation_reports"}))
+    marker.write_text(json.dumps({k: v for k, v in summary.items() if k != "validation_reports"}), encoding="utf-8")
     _log(f"ingest: {summary['ingested']} series in store, "
          f"{len(summary['quarantined'])} quarantined")
     return summary

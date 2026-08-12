@@ -55,7 +55,7 @@ def scan(
         # immutable: never regenerated — but a crash between file write and
         # ledger append would leave it unledgered and therefore ungradeable;
         # heal the ledger entry on cache hit if it is missing
-        doc = json.loads(out_path.read_text())
+        doc = json.loads(out_path.read_text(encoding="utf-8"))
         if not any(
             e["kind"] == "PREDICTION" and e["payload"].get("file") == out_path.name
             for e in ledger.entries()
@@ -79,7 +79,7 @@ def scan(
             "note": "no fingerprint feature survived BH correction; scanning "
             "without an identifiable signal would be noise dressed as research",
         }
-        out_path.write_text(json.dumps(doc, indent=2))
+        out_path.write_text(json.dumps(doc, indent=2), encoding="utf-8")
         ledger.append("PREDICTION", {"file": out_path.name, "sha256": _sha(out_path), "n": 0})
         return doc
 
@@ -206,7 +206,7 @@ def scan(
         "surviving_features": sorted(stats.keys()),
         "predictions": preds,
     }
-    out_path.write_text(json.dumps(doc, indent=2))
+    out_path.write_text(json.dumps(doc, indent=2), encoding="utf-8")
     ledger.append(
         "PREDICTION",
         {"file": out_path.name, "sha256": _sha(out_path), "n": len(preds)},

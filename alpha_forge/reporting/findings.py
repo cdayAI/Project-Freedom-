@@ -151,4 +151,4 @@ def render_findings(
 
 
 def write_findings(content: str) -> None:
-    (REPO_ROOT / "FINDINGS.md").write_text(content)
+    (REPO_ROOT / "FINDINGS.md").write_text(content, encoding="utf-8")

@@ -29,7 +29,7 @@ def record_dataset(
         "survivorship_free": survivorship_free,
         "validation": validation_summary,
     }
-    with MANIFEST_PATH.open("a") as f:
+    with MANIFEST_PATH.open("a", encoding="utf-8") as f:
         f.write(json.dumps(entry) + "\n")
     return entry
 
@@ -38,7 +38,7 @@ def latest_entry(dataset_id: str) -> dict | None:
     if not MANIFEST_PATH.exists():
         return None
     found = None
-    with MANIFEST_PATH.open() as f:
+    with MANIFEST_PATH.open(encoding="utf-8") as f:
         for line in f:
             if line.strip():
                 e = json.loads(line)

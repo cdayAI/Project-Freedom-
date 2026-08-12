@@ -84,7 +84,7 @@ class Ledger:
     def entries(self) -> Iterator[dict]:
         if not self.path.exists():
             return
-        with self.path.open() as f:
+        with self.path.open(encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if line:
@@ -138,7 +138,7 @@ class Ledger:
             "prev_hash": last_hash,
         }
         entry["hash"] = _entry_hash(entry)
-        with self.path.open("a") as f:
+        with self.path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(entry, sort_keys=True, ensure_ascii=True) + "\n")
             f.flush()
             os.fsync(f.fileno())

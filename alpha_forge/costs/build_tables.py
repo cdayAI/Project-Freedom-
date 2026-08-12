@@ -58,13 +58,13 @@ def build(compiled: dict) -> list[str]:
             "notes": compiled.get("notes", []),
         }
         path = FEES_DIR / f"{name}.json"
-        path.write_text(json.dumps(doc, indent=2) + "\n")
+        path.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
         written.append(str(path))
     return written
 
 
 if __name__ == "__main__":
-    with open(sys.argv[1]) as f:
+    with open(sys.argv[1], encoding="utf-8") as f:
         compiled = json.load(f)
     for p in build(compiled):
         print(f"wrote {p}")

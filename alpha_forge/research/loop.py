@@ -172,7 +172,7 @@ def generate_hypotheses_from_calibration(
     import pathlib
 
     for path in sorted(pathlib.Path(predictions_dir).glob("predictions_*.json")):
-        doc = _json.loads(path.read_text())
+        doc = _json.loads(path.read_text(encoding="utf-8"))
         for p in doc.get("predictions", []):
             feat_rows.append(
                 {"file": path.name, "symbol": p["instrument"], **{
@@ -316,5 +316,5 @@ def write_weekly_memo(
         f"_Generated {datetime.now(timezone.utc).isoformat()} — the dashboard is "
         "for browsing; this memo is for deciding._",
     ]
-    path.write_text("\n".join(lines) + "\n")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return str(path)

@@ -64,7 +64,7 @@ def grade_all(panel: pl.DataFrame, ledger: Ledger) -> list[dict]:
             raise TamperedPredictionsError(
                 f"{path.name}: sha256 mismatch vs ledger — grading halted"
             )
-        doc = json.loads(path.read_text())
+        doc = json.loads(path.read_text(encoding="utf-8"))
         vintage = np.datetime64(doc["data_vintage"])
         preds = doc.get("predictions", [])
         if not preds:

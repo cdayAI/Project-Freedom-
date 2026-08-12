@@ -38,7 +38,7 @@ def build_dashboard_data(ledger: Ledger, replacement: dict) -> dict:
     latest_pred = None
     pred_files = sorted(PREDICTIONS_DIR.glob("predictions_*.json"))
     if pred_files:
-        latest_pred = json.loads(pred_files[-1].read_text())
+        latest_pred = json.loads(pred_files[-1].read_text(encoding="utf-8"))
 
     data = {
         "generated_utc": datetime.now(timezone.utc).isoformat(),
@@ -80,7 +80,7 @@ def build_dashboard_data(ledger: Ledger, replacement: dict) -> dict:
         "account": account_snapshot_public(),
     }
     DASHBOARD_DATA.parent.mkdir(parents=True, exist_ok=True)
-    DASHBOARD_DATA.write_text(json.dumps(data, indent=1))
+    DASHBOARD_DATA.write_text(json.dumps(data, indent=1), encoding="utf-8")
     return data
 
 
@@ -90,7 +90,7 @@ def build_static_snapshot() -> str | None:
     index = dist / "index.html"
     if not index.exists() or not DASHBOARD_DATA.exists():
         return None
-    html = index.read_text()
+    html = index.read_text(encoding="utf-8")
     # inline the built assets referenced from index.html
     import re
 
@@ -100,17 +100,17 @@ def build_static_snapshot() -> str | None:
         if not asset.exists():
             return m.group(0)
         if rel.endswith(".js"):
-            return f"<script type=\"module\">{asset.read_text()}</script>"
+            return f"<script type=\"module\">{asset.read_text(encoding="utf-8")}</script>"
         if rel.endswith(".css"):
-            return f"<style>{asset.read_text()}</style>"
+            return f"<style>{asset.read_text(encoding="utf-8")}</style>"
         return m.group(0)
 
     html = re.sub(r'<script type="module"[^>]*src="([^"]+)"></script>', inline_asset, html)
     html = re.sub(r'<link rel="stylesheet"[^>]*href="([^"]+)"[^>]*>', inline_asset, html)
-    data = DASHBOARD_DATA.read_text()
+    data = DASHBOARD_DATA.read_text(encoding="utf-8")
     html = html.replace(
         "<head>", f"<head><script>window.__DATA__ = {data};</script>", 1
     )
     out = REPO_ROOT / "reports" / "dashboard_snapshot.html"
-    out.write_text(html)
+    out.write_text(html, encoding="utf-8")
     return str(out)
