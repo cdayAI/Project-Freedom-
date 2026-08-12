@@ -10,20 +10,32 @@ from datetime import date, datetime, timezone
 
 import polars as pl
 
-from alpha_forge.config import REPORTS_DIR
+from alpha_forge.config import MIN_REPLACEMENT_OBS_MONTHS, REPORTS_DIR
 from alpha_forge.ledger import Ledger
 
 MAX_GENERATED_HYPOTHESES_PER_NIGHT = 2  # research-compute budget, structural
 
 
 def replacement_rate(ledger: Ledger) -> dict:
-    """Monthly graduations vs deaths. The system's single most important
-    health metric; a trailing-3-month rate < 1.0 leads the weekly memo."""
+    """Observed pipeline lifecycle counts, plus a health metric that refuses
+    to exist before it is measurable.
+
+    A KILL gate report is an event; a STRATEGY kill is a distinct strategy
+    identity with a KILL verdict — the two are reported separately, and
+    neither is a trial count. The replacement-rate HEALTH metric (are
+    graduations replacing deaths?) is meaningful only once at least one
+    strategy has ever graduated AND the pipeline has a minimum observation
+    window — an empty pipeline is not 'healthy', it is unmeasured, so until
+    then health is NOT YET ESTIMABLE and only the raw counts are reported."""
     by_month: dict[str, dict] = defaultdict(lambda: {"graduated": 0, "killed": 0})
+    graduated_ever = 0
+    months_seen: set[str] = set()
     for e in ledger.entries():
         month = e["ts_utc"][:7]
+        months_seen.add(month)
         if e["kind"] == "GRADUATION":
             by_month[month]["graduated"] += 1
+            graduated_ever += 1
         elif e["kind"] == "KILL":
             by_month[month]["killed"] += 1
         elif e["kind"] == "GATE_REPORT" and e["payload"].get("verdict") == "KILL":
@@ -32,14 +44,31 @@ def replacement_rate(ledger: Ledger) -> dict:
     recent = months[-3:]
     grad = sum(by_month[m]["graduated"] for m in recent)
     dead = sum(by_month[m]["killed"] for m in recent)
-    rate = grad / dead if dead else (float("inf") if grad else None)
+    estimable = len(months_seen) >= MIN_REPLACEMENT_OBS_MONTHS and graduated_ever >= 1
+    rate = (grad / dead if dead else (float("inf") if grad else None)) if estimable else None
+    if estimable:
+        health = "healthy" if (rate is None or rate >= 1.0) else "unhealthy"
+    else:
+        health = (
+            "NOT YET ESTIMABLE — requires >= "
+            f"{MIN_REPLACEMENT_OBS_MONTHS} observed months and >= 1 graduation "
+            "before a replacement rate exists"
+        )
     return {
         "by_month": {m: by_month[m] for m in months},
+        "observed": {
+            "graduations_ever": graduated_ever,
+            "distinct_strategies_killed": len(ledger.killed_strategies()),
+            "kill_gate_reports_trailing_3m": dead,
+            "graduations_trailing_3m": grad,
+            "months_observed": len(months_seen),
+        },
         "trailing_3m_graduated": grad,
         "trailing_3m_killed": dead,
         "trailing_3m_rate": rate,
-        "healthy": (rate is None) or (rate >= 1.0),
-        "note": "rate is graduations/deaths; None = no deaths yet AND no graduations",
+        "health": health,
+        "note": "kill gate reports are events, not distinct strategies; "
+        "trials are a third, separate population (see ledger.trial_audit)",
     }
 
 
@@ -232,7 +261,8 @@ def write_weekly_memo(
     if path.exists():
         return None
     rate = rep_rate["trailing_3m_rate"]
-    rate_str = "N/A (no completed lifecycle events yet)" if rate is None else (
+    obs = rep_rate.get("observed", {})
+    rate_str = rep_rate["health"] if rate is None else (
         "inf (deaths=0)" if rate == float("inf") else f"{rate:.2f}"
     )
     lines = [
@@ -247,9 +277,14 @@ def write_weekly_memo(
             "",
         ]
     lines += [
-        f"- Pipeline replacement rate (trailing 3m): **{rate_str}** "
-        f"({rep_rate['trailing_3m_graduated']} graduated / {rep_rate['trailing_3m_killed']} killed)",
-        f"- Cumulative ledgered trial count: **{ledger.trial_count()}**",
+        f"- Pipeline replacement rate (trailing 3m): **{rate_str}** — observed: "
+        f"{obs.get('graduations_ever', 0)} graduations ever / "
+        f"{obs.get('distinct_strategies_killed', 0)} distinct strategies killed "
+        f"({rep_rate['trailing_3m_graduated']} graduated / "
+        f"{rep_rate['trailing_3m_killed']} kill reports, trailing 3m)",
+        f"- Cumulative ledgered trial count: **{ledger.trial_count()}** "
+        "(trials are evaluated configurations — NOT strategy kills; see "
+        "dsr_audit in any gate report for the population breakdown)",
         f"- Best validated 6-month projected multiple: {best_validated}",
         "- Calibration drift: "
         + (

@@ -92,12 +92,30 @@ class TestLoop:
         ledger = Ledger(path=tmp_path / "l.jsonl")
         reg = ledger.preregister("h", "u", {})
         ledger.append("GATE_REPORT", {"strategy_id": "a", "verdict": "KILL", "reg_id": reg})
-        ledger.append("GRADUATION", {"strategy_id": "b"})
         rep = replacement_rate(ledger)
         assert rep["trailing_3m_killed"] == 1
-        assert rep["trailing_3m_graduated"] == 1
-        assert rep["trailing_3m_rate"] == 1.0
-        assert rep["healthy"]
+        assert rep["observed"]["distinct_strategies_killed"] == 1
+        assert rep["observed"]["graduations_ever"] == 0
+        # no graduation has ever occurred and the observation window is thin:
+        # the health metric must refuse to exist, not report "healthy"
+        assert rep["trailing_3m_rate"] is None
+        assert "NOT YET ESTIMABLE" in rep["health"]
+
+    def test_kill_reports_and_distinct_strategies_reported_separately(self, tmp_path):
+        ledger = Ledger(path=tmp_path / "l.jsonl")
+        reg = ledger.preregister("h", "u", {})
+        for _ in range(3):  # same strategy killed on three vintages
+            ledger.append("GATE_REPORT", {"strategy_id": "a", "verdict": "KILL", "reg_id": reg})
+        rep = replacement_rate(ledger)
+        assert rep["trailing_3m_killed"] == 3          # events
+        assert rep["observed"]["distinct_strategies_killed"] == 1  # strategies
+
+    def test_graduation_prohibited_under_status_ceiling(self, tmp_path):
+        from alpha_forge.ledger.ledger import LedgerError
+
+        ledger = Ledger(path=tmp_path / "l.jsonl")
+        with pytest.raises(LedgerError, match="PIPELINE_PROOF_ONLY"):
+            ledger.append("GRADUATION", {"strategy_id": "b"})
 
     def test_hypotheses_from_survivors_only(self, tmp_path):
         ledger = Ledger(path=tmp_path / "l.jsonl")

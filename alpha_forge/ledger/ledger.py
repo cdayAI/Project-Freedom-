@@ -29,7 +29,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterator
 
-from alpha_forge.config import LEDGER_DIR
+from alpha_forge.config import (
+    LEDGER_DIR,
+    STATUS_CEILING,
+    SURVIVORSHIP_FREE_DATA_INSTALLED,
+)
 
 VALID_KINDS = {
     "PREREGISTRATION",
@@ -118,6 +122,13 @@ class Ledger:
     def append(self, kind: str, payload: dict) -> dict:
         if kind not in VALID_KINDS:
             raise LedgerError(f"unknown ledger entry kind: {kind}")
+        if kind == "GRADUATION" and not SURVIVORSHIP_FREE_DATA_INSTALLED:
+            raise LedgerError(
+                f"status ceiling {STATUS_CEILING}: GRADUATION is prohibited "
+                "until point-in-time survivorship-free data is installed "
+                "(config.SURVIVORSHIP_FREE_DATA_INSTALLED); flipping that flag "
+                "is a human act that must be logged as HUMAN_DECISION"
+            )
         last_seq, last_hash = self._load_tail()
         entry = {
             "seq": last_seq + 1,
@@ -181,6 +192,47 @@ class Ledger:
 
     def trial_count(self) -> int:
         return sum(1 for e in self.entries() if e["kind"] == "TRIAL")
+
+    def trial_audit(self) -> dict:
+        """DSR trial-count semantics, audited (Bailey & Lopez de Prado 2014
+        call for the number of independent trials and the variance across
+        their Sharpe estimates — the same population for both).
+
+        raw_cumulative_trials counts every TRIAL entry, including trials
+        (e.g. confluence identifiability cells) that carry no Sharpe.
+        sharpe_bearing_trials counts those whose Sharpe feeds the deflation
+        variance. distinct_registrations lower-bounds independence (trials in
+        one registration family are correlated). A point estimate of the
+        effective independent count would need per-trial return series, which
+        are not yet retained — so it is reported as bounds, not manufactured."""
+        raw = sharpe_bearing = 0
+        regs: set[str] = set()
+        for e in self.entries():
+            if e["kind"] != "TRIAL":
+                continue
+            raw += 1
+            if e["payload"].get("sharpe") is not None:
+                sharpe_bearing += 1
+            regs.add(e["payload"].get("reg_id", "?"))
+        return {
+            "raw_cumulative_trials": raw,
+            "sharpe_bearing_trials": sharpe_bearing,
+            "distinct_registrations": len(regs),
+            "effective_independent_trials": "NOT YET ESTIMABLE",
+            "effective_independent_bounds": [len(regs), max(raw, 1)],
+        }
+
+    def killed_strategies(self) -> set[str]:
+        """Distinct strategy identities with a KILL verdict. Kills and trials
+        are different populations: a trial is one evaluated configuration, a
+        kill is a strategy-level verdict. Neither count implies the other."""
+        out: set[str] = set()
+        for e in self.entries():
+            if e["kind"] == "KILL":
+                out.add(e["payload"].get("strategy_id", "?"))
+            elif e["kind"] == "GATE_REPORT" and e["payload"].get("verdict") == "KILL":
+                out.add(e["payload"].get("strategy_id", "?"))
+        return out
 
     def trial_sharpes(self) -> list[float]:
         return [
