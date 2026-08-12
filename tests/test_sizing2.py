@@ -103,7 +103,11 @@ class TestDecisionSurface:
         out = sizing_frontier_v2(r, n_paths=20_000, seed=13)
         c = out["constrained_optimum"]
         assert c is not None
-        assert c["p_ruin_worst"] < 0.05
+        # BINDING is the drawdown constraint; the 90%-loss probability is a
+        # secondary measure and must be weakly smaller at the optimum
+        assert c["p_drawdown_below_50pct_worst"] <= 0.05
+        assert c["p_ruin_worst"] <= c["p_drawdown_below_50pct_worst"]
+        assert "maxDD" in out["constraint"]
         assert "iid" not in out["constraint"]  # iid never votes
 
     def test_kelly_posterior_p5_below_point(self):
@@ -126,3 +130,44 @@ class TestDecisionSurface:
             assert "unsizeable" in out["note"]
         else:
             assert out["constrained_optimum"]["fraction"] <= 0.05
+
+
+class TestHorizonConstraint:
+    def test_year_marks_monotone_and_horizon_reported(self):
+        """With a trade frequency, the 20y horizon maps onto path length and
+        breach probabilities at 1/5/10/20y are reported, weakly increasing
+        (a max-drawdown breach never un-happens)."""
+        rng = np.random.default_rng(20)
+        r = rng.normal(0.01, 0.12, 250)
+        out = sizing_frontier_v2(
+            r, n_paths=20_000, fractions=np.array([0.3, 0.8]),
+            trades_per_year=50.0, seed=21,
+        )
+        h = out["horizon"]
+        assert h["years_requested"] == 20.0
+        assert h["years_simulated"] == 20.0
+        assert h["n_trades_per_path"] == 1000
+        assert h["note"] is None
+        for row in out["combined"]:
+            marks = row["p_dd50_by_year_worst"]
+            seq = [marks["1y"], marks["5y"], marks["10y"], marks["20y"]]
+            assert all(a <= b + 1e-12 for a, b in zip(seq, seq[1:]))
+            # binding value is the full-horizon breach probability
+            assert row["p_drawdown_below_50pct_worst"] == seq[-1]
+
+    def test_truncated_horizon_is_explicit_not_silent(self):
+        """A high-frequency strategy cannot have its 20y breach probability
+        simulated inside the path cap — the output must say NOT SIMULATED
+        rather than quietly reporting a shorter horizon as if it were 20y."""
+        rng = np.random.default_rng(22)
+        r = rng.normal(0.002, 0.02, 500)
+        out = sizing_frontier_v2(
+            r, n_paths=20_000, fractions=np.array([0.5]),
+            trades_per_year=2520.0, seed=23,
+        )
+        h = out["horizon"]
+        assert h["n_trades_per_path"] == 1260
+        assert h["years_simulated"] == 0.5
+        assert "NOT SIMULATED" in h["note"]
+        # no calendar mark inside the simulated 0.5y — none may be reported
+        assert "p_dd50_by_year_worst" not in out["combined"][0]

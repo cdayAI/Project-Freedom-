@@ -258,15 +258,23 @@ def _gates_10_11(report: GateReport, inputs: dict) -> tuple[list[str], list[str]
             "margin (PDT) accounts at this equity — killed regardless of backtest"
         )
 
-    # ---- gate 11: ruin-constrained sizing must exist under the WORST of the
-    # v2 path generators (stationary blocks / Bayesian bootstrap / regime
+    # ---- gate 11: drawdown-constrained sizing must exist under the WORST of
+    # the v2 path generators (stationary blocks / Bayesian bootstrap / regime
     # chain when labels exist); the iid number rides along as the baseline
-    # it is — measured, never voting
+    # it is — measured, never voting. The binding constraint is
+    # P(maxDD >= 50% over the 20y horizon) <= epsilon; the strategy's own
+    # trade frequency maps the horizon onto path length.
     if r.size >= 30:
+        entry_days = np.asarray(inputs["trade_entry_days"], dtype=float)
+        exit_days = np.asarray(inputs["trade_exit_days"], dtype=float)
+        span_years = max(
+            (float(exit_days.max()) - float(entry_days.min()) + 1.0) / 252.0,
+            1.0 / 252.0,
+        )
         frontier = sizing_frontier_v2(
             r,
             regime_labels=inputs.get("trade_regime_labels"),
-            n_trades_per_path=max(50, r.size),
+            trades_per_year=r.size / span_years,
             seed=11,
         )
         c = frontier["constrained_optimum"]
@@ -276,11 +284,11 @@ def _gates_10_11(report: GateReport, inputs: dict) -> tuple[list[str], list[str]
             "constrained_optimum": c,
             "unconstrained_optimum": frontier["unconstrained_optimum"],
             "constraint": frontier["constraint"],
+            "horizon": frontier["horizon"],
         }
         if c is None:
             kill11.append(
-                "gate11: no bet fraction satisfies P(losing 90%) < 5% under the "
-                f"worst path model ({frontier['generators_used']}) — unsizeable"
+                f"gate11: no bet fraction satisfies {frontier['constraint']} — unsizeable"
             )
         elif c["median_terminal_wealth_bayes"] <= 1.0:
             kill11.append(
