@@ -59,6 +59,7 @@ def run_gates(
     extra_checks: dict | None = None,
     stress_sizing_inputs: dict | None = None,
     net_vs_gross_override: dict | None = None,
+    stats_ledger: Ledger | None = None,
 ) -> GateReport:
     """Evaluate gates 1-9. Writes the full report to the ledger.
 
@@ -67,7 +68,12 @@ def run_gates(
     null_result_inputs: (strategy_net_metric, null_net_metrics) for gate 9.
     extra_checks: caller metadata (e.g. data vintage) that must land in the
     LEDGERED copy of the report, not just the returned object.
+    stats_ledger: where the DSR trial statistics come from, when the report
+    is written elsewhere (the Alpha-v0 acceptance replay writes to an
+    isolated acceptance ledger but deflates by the RESEARCH ledger's audited
+    trial history — replay trials must not shrink the deflation).
     """
+    stats = stats_ledger if stats_ledger is not None else ledger
     report = GateReport(strategy_id=strategy_id, reg_id=reg_id)
     if extra_checks:
         report.checks.update(extra_checks)
@@ -97,8 +103,8 @@ def run_gates(
     # Sharpe-less trials, e.g. confluence cells). The gate BINDS on the
     # conservative number; the effective independent count is reported as
     # bounds only (per-trial return series are not retained yet).
-    audit = ledger.trial_audit()
-    trial_srs = ledger.trial_sharpes()
+    audit = stats.trial_audit()
+    trial_srs = stats.trial_sharpes()
     if len(trial_srs) >= 2:
         var_trial = float(np.var(trial_srs, ddof=1))
     else:
