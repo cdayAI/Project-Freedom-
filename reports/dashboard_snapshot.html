@@ -1,140 +1,26 @@
 <!doctype html>
 <html lang="en">
   <head><script>window.__DATA__ = {
- "generated_utc": "2026-08-10T21:18:14.131942+00:00",
+ "generated_utc": "2026-08-12T17:58:04.599803+00:00",
  "ledger": {
-  "entries": 745,
-  "cumulative_trials": 692
+  "entries": 963,
+  "cumulative_trials": 900
  },
  "replacement_rate": {
   "by_month": {
    "2026-08": {
     "graduated": 0,
-    "killed": 19
+    "killed": 24
    }
   },
   "trailing_3m_graduated": 0,
-  "trailing_3m_killed": 19,
+  "trailing_3m_killed": 24,
   "trailing_3m_rate": 0.0,
   "healthy": false,
   "note": "rate is graduations/deaths; None = no deaths yet AND no graduations"
  },
  "book": [],
  "gate_reports": [
-  {
-   "strategy_id": "gen_conf_dist_from_252d_high_asc_v1",
-   "verdict": "KILL",
-   "reasons": [
-    "gate2: permutation p=0.9997 not significant after multiple-testing correction",
-    "gate3: DSR probability 0.0015 < 0.95 at N=218 ledgered trials",
-    "gate4: PBO 0.970 > 0.5",
-    "gate9: net metric -2.5596 does not beat null 95th percentile 0.8608",
-    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
-   ],
-   "net_vs_gross": {
-    "gross_total_return": -0.4595683826672122,
-    "net_total_return": -0.9226674778721328
-   },
-   "dsr": {
-    "dsr_probability": 0.00153941203207666,
-    "n_trials": 218
-   },
-   "pbo": 0.97000777000777
-  },
-  {
-   "strategy_id": "evt_fp5x_v3",
-   "verdict": "KILL",
-   "reasons": [
-    "gate2: permutation p=1 not significant after multiple-testing correction",
-    "gate3: DSR probability 0.0000 < 0.95 at N=311 ledgered trials",
-    "gate4: PBO 0.661 > 0.5",
-    "gate9: net metric -18.1898 does not beat null 95th percentile 3.5237",
-    "gate10: stressed net log -19.0470 no longer beats the null p95 3.5237 \u2014 the edge is a clean-fill artifact",
-    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
-   ],
-   "net_vs_gross": {
-    "basis": "compounded per-trade OOS returns (raw fills vs full costs)",
-    "gross_total_return": -0.999999864989609,
-    "net_total_return": -0.9999999874027374
-   },
-   "dsr": {
-    "dsr_probability": 5.98183884064294e-11,
-    "n_trials": 311
-   },
-   "pbo": 0.6613053613053613
-  },
-  {
-   "strategy_id": "evt_fp5x_v4",
-   "verdict": "KILL",
-   "reasons": [
-    "gate2: permutation p=1 not significant after multiple-testing correction",
-    "gate3: DSR probability 0.0000 < 0.95 at N=392 ledgered trials",
-    "gate4: PBO 0.810 > 0.5",
-    "gate9: net metric -20.0390 does not beat null 95th percentile 3.9044",
-    "gate10: stressed net log -20.9684 no longer beats the null p95 3.9044 \u2014 the edge is a clean-fill artifact",
-    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
-   ],
-   "net_vs_gross": {
-    "basis": "compounded per-trade OOS returns (raw fills vs full costs)",
-    "gross_total_return": -0.9999999717684932,
-    "net_total_return": -0.9999999980177703
-   },
-   "dsr": {
-    "dsr_probability": 3.314577390015528e-12,
-    "n_trials": 392
-   },
-   "pbo": 0.8104118104118104
-  },
-  {
-   "strategy_id": "evt_fp5x_v5",
-   "verdict": "KILL",
-   "reasons": [
-    "gate2: permutation p=1 not significant after multiple-testing correction",
-    "gate3: DSR probability 0.0000 < 0.95 at N=428 ledgered trials",
-    "gate5: walk-forward incomplete",
-    "gate8: 75 trade events < 100 minimum",
-    "gate9: net metric -16.5462 does not beat null 95th percentile -0.7387",
-    "gate10: stressed net log -16.8990 no longer beats the null p95 -0.7387 \u2014 the edge is a clean-fill artifact",
-    "gate11: the best ruin-safe fraction (0.01) still has median terminal wealth 0.910 <= 1 under parameter uncertainty \u2014 no sizing grows this edge inside the ruin constraint",
-    "gate4: PBO 0.355 > 0.35 (flag)",
-    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
-   ],
-   "net_vs_gross": {
-    "basis": "compounded per-trade OOS returns (raw fills vs full costs)",
-    "gross_total_return": -0.9999997173398909,
-    "net_total_return": -0.9999999348279777
-   },
-   "dsr": {
-    "dsr_probability": 6.880295708088633e-12,
-    "n_trials": 428
-   },
-   "pbo": 0.3550893550893551
-  },
-  {
-   "strategy_id": "evt_fp5x_logit_v6",
-   "verdict": "KILL",
-   "reasons": [
-    "gate2: permutation p=1 not significant after multiple-testing correction",
-    "gate3: DSR probability 0.0000 < 0.95 at N=452 ledgered trials",
-    "gate4: PBO 0.738 > 0.5",
-    "gate5: walk-forward incomplete",
-    "gate8: 65 trade events < 100 minimum",
-    "gate9: net metric -16.6973 does not beat null 95th percentile -0.7496",
-    "gate10: stressed net log -17.0500 no longer beats the null p95 -0.7496 \u2014 the edge is a clean-fill artifact",
-    "gate11: the best ruin-safe fraction (0.01) still has median terminal wealth 0.924 <= 1 under parameter uncertainty \u2014 no sizing grows this edge inside the ruin constraint",
-    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
-   ],
-   "net_vs_gross": {
-    "basis": "compounded per-trade OOS returns (raw fills vs full costs)",
-    "gross_total_return": -0.9999997956393997,
-    "net_total_return": -0.9999999439656795
-   },
-   "dsr": {
-    "dsr_probability": 6.881620985104767e-08,
-    "n_trials": 452
-   },
-   "pbo": 0.737995337995338
-  },
   {
    "strategy_id": "evt_fp5x_v5",
    "verdict": "KILL",
@@ -249,38 +135,783 @@
     "n_trials": 692
    },
    "pbo": 0.5428127428127428
+  },
+  {
+   "strategy_id": "evt_fp5x_v5_1",
+   "verdict": "KILL",
+   "reasons": [
+    "gate2: permutation p=1 not significant after multiple-testing correction",
+    "gate3: DSR probability 0.0000 < 0.95 at N=740 ledgered trials",
+    "gate4: PBO 0.742 > 0.5",
+    "gate9: net metric -38.1925 does not beat null 95th percentile 3.2539",
+    "gate10: stressed net log -39.1901 no longer beats the null p95 3.2539 \u2014 the edge is a clean-fill artifact",
+    "gate11: the best ruin-safe fraction (0.01) still has median terminal wealth 0.891 <= 1 under parameter uncertainty \u2014 no sizing grows this edge inside the ruin constraint",
+    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
+   ],
+   "net_vs_gross": {
+    "basis": "compounded per-trade OOS returns (raw fills vs full costs)",
+    "gross_total_return": -0.9999999999999954,
+    "net_total_return": -1.0
+   },
+   "dsr": {
+    "dsr_probability": 1.6612934831218676e-19,
+    "n_trials": 740
+   },
+   "pbo": 0.7424242424242424
+  },
+  {
+   "strategy_id": "evt_fp5x_logit_v6_1",
+   "verdict": "KILL",
+   "reasons": [
+    "gate2: permutation p=1 not significant after multiple-testing correction",
+    "gate3: DSR probability 0.0000 < 0.95 at N=788 ledgered trials",
+    "gate4: PBO 0.521 > 0.5",
+    "gate9: net metric -32.6849 does not beat null 95th percentile 0.9385",
+    "gate10: stressed net log -33.6990 no longer beats the null p95 0.9385 \u2014 the edge is a clean-fill artifact",
+    "gate11: the best ruin-safe fraction (0.01) still has median terminal wealth 0.908 <= 1 under parameter uncertainty \u2014 no sizing grows this edge inside the ruin constraint",
+    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
+   ],
+   "net_vs_gross": {
+    "basis": "compounded per-trade OOS returns (raw fills vs full costs)",
+    "gross_total_return": -0.9999999999996296,
+    "net_total_return": -0.9999999999999936
+   },
+   "dsr": {
+    "dsr_probability": 8.08230519973435e-20,
+    "n_trials": 788
+   },
+   "pbo": 0.5209790209790209
+  },
+  {
+   "strategy_id": "evt_fp5x_pooled_v7",
+   "verdict": "KILL",
+   "reasons": [
+    "gate2: permutation p=1 not significant after multiple-testing correction",
+    "gate3: DSR probability 0.0000 < 0.95 at N=836 ledgered trials",
+    "gate9: net metric -28.5597 does not beat null 95th percentile 1.7150",
+    "gate10: stressed net log -29.4993 no longer beats the null p95 1.7150 \u2014 the edge is a clean-fill artifact",
+    "gate11: the best ruin-safe fraction (0.01) still has median terminal wealth 0.931 <= 1 under parameter uncertainty \u2014 no sizing grows this edge inside the ruin constraint",
+    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
+   ],
+   "net_vs_gross": {
+    "basis": "compounded per-trade OOS returns (raw fills vs full costs)",
+    "gross_total_return": -0.9999999999773487,
+    "net_total_return": -0.999999999999605
+   },
+   "dsr": {
+    "dsr_probability": 2.028070302032181e-18,
+    "n_trials": 836
+   },
+   "pbo": 0.14537684537684537
+  },
+  {
+   "strategy_id": "evt_fp5x_hazard_v8",
+   "verdict": "KILL",
+   "reasons": [
+    "gate2: permutation p=0.9975 not significant after multiple-testing correction",
+    "gate3: DSR probability 0.0000 < 0.95 at N=884 ledgered trials",
+    "gate4: PBO 0.624 > 0.5",
+    "gate9: net metric -11.4531 does not beat null 95th percentile 5.3462",
+    "gate10: stressed net log -12.4672 no longer beats the null p95 5.3462 \u2014 the edge is a clean-fill artifact",
+    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
+   ],
+   "net_vs_gross": {
+    "basis": "compounded per-trade OOS returns (raw fills vs full costs)",
+    "gross_total_return": -0.9990345374247148,
+    "net_total_return": -0.9999893832577565
+   },
+   "dsr": {
+    "dsr_probability": 1.218458913396992e-12,
+    "n_trials": 884
+   },
+   "pbo": 0.6243201243201243
+  },
+  {
+   "strategy_id": "xsmom_demo_v1",
+   "verdict": "KILL",
+   "reasons": [
+    "gate2: permutation p=1 not significant after multiple-testing correction",
+    "gate3: DSR probability 0.0000 < 0.95 at N=900 ledgered trials",
+    "gate9: net metric -4.5533 does not beat null 95th percentile 0.4184",
+    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
+   ],
+   "net_vs_gross": {
+    "gross_total_return": -0.9026006988274136,
+    "net_total_return": -0.9894674446951861
+   },
+   "dsr": {
+    "dsr_probability": 1.0886004233366767e-07,
+    "n_trials": 900
+   },
+   "pbo": 0.03014763014763015
   }
  ],
  "path_catalog": [
   {
    "n_multiple": 3,
-   "symbol_window_hits": 9396,
-   "windows_with_any_path": 2160
+   "symbol_window_hits": 9806,
+   "windows_with_any_path": 2182
   },
   {
    "n_multiple": 5,
-   "symbol_window_hits": 2938,
-   "windows_with_any_path": 1362
+   "symbol_window_hits": 3143,
+   "windows_with_any_path": 1374
   },
   {
    "n_multiple": 10,
-   "symbol_window_hits": 832,
-   "windows_with_any_path": 598
+   "symbol_window_hits": 923,
+   "windows_with_any_path": 627
   },
   {
    "n_multiple": 20,
-   "symbol_window_hits": 306,
-   "windows_with_any_path": 254
+   "symbol_window_hits": 340,
+   "windows_with_any_path": 279
   },
   {
    "n_multiple": 50,
-   "symbol_window_hits": 95,
-   "windows_with_any_path": 85
+   "symbol_window_hits": 114,
+   "windows_with_any_path": 101
   }
  ],
  "confluence": [],
  "calibration": [],
- "equity_curves": [],
+ "equity_curves": [
+  {
+   "month": "0",
+   "gross": 0.9939894524551574,
+   "net": 0.9805273641228096
+  },
+  {
+   "month": "1",
+   "gross": 1.0662844192464775,
+   "net": 1.0351434006620719
+  },
+  {
+   "month": "2",
+   "gross": 0.8778004486052867,
+   "net": 0.8339633229723555
+  },
+  {
+   "month": "3",
+   "gross": 0.7835283043671161,
+   "net": 0.733749398661683
+  },
+  {
+   "month": "4",
+   "gross": 0.7080283262985189,
+   "net": 0.6511687314285118
+  },
+  {
+   "month": "5",
+   "gross": 0.8140351222575677,
+   "net": 0.7409524233287516
+  },
+  {
+   "month": "6",
+   "gross": 0.7596590922399715,
+   "net": 0.684411181134876
+  },
+  {
+   "month": "7",
+   "gross": 0.7868629164337075,
+   "net": 0.6989616061238647
+  },
+  {
+   "month": "8",
+   "gross": 0.7057683755485471,
+   "net": 0.618371526984346
+  },
+  {
+   "month": "9",
+   "gross": 0.6995140008274469,
+   "net": 0.6033717825118947
+  },
+  {
+   "month": "10",
+   "gross": 0.7555904857553498,
+   "net": 0.6425925696776166
+  },
+  {
+   "month": "11",
+   "gross": 0.7767167994682576,
+   "net": 0.6495834733032041
+  },
+  {
+   "month": "12",
+   "gross": 0.7061692976637711,
+   "net": 0.5803443240075873
+  },
+  {
+   "month": "13",
+   "gross": 0.7621643244687241,
+   "net": 0.620161207196584
+  },
+  {
+   "month": "14",
+   "gross": 0.7576892333223303,
+   "net": 0.6087379807410889
+  },
+  {
+   "month": "15",
+   "gross": 0.742842738872062,
+   "net": 0.5892595471872215
+  },
+  {
+   "month": "16",
+   "gross": 0.7793591076192828,
+   "net": 0.6098536618965454
+  },
+  {
+   "month": "17",
+   "gross": 0.7961686202439713,
+   "net": 0.6150978099136917
+  },
+  {
+   "month": "18",
+   "gross": 0.7453819557711255,
+   "net": 0.5650483208718874
+  },
+  {
+   "month": "19",
+   "gross": 0.6582270053042342,
+   "net": 0.48918785214999
+  },
+  {
+   "month": "20",
+   "gross": 0.5747041954682127,
+   "net": 0.4214490419487508
+  },
+  {
+   "month": "21",
+   "gross": 0.5880815606856938,
+   "net": 0.4274417206846999
+  },
+  {
+   "month": "22",
+   "gross": 0.6047578052811879,
+   "net": 0.43438205025831345
+  },
+  {
+   "month": "23",
+   "gross": 0.555578613768379,
+   "net": 0.39490613853306555
+  },
+  {
+   "month": "24",
+   "gross": 0.48386387727444935,
+   "net": 0.33771305391895623
+  },
+  {
+   "month": "25",
+   "gross": 0.4751159978629597,
+   "net": 0.32619150333610536
+  },
+  {
+   "month": "26",
+   "gross": 0.48397771175262455,
+   "net": 0.32827666692058366
+  },
+  {
+   "month": "27",
+   "gross": 0.5433646556050693,
+   "net": 0.3641321869932082
+  },
+  {
+   "month": "28",
+   "gross": 0.5114445366978521,
+   "net": 0.337416147147142
+  },
+  {
+   "month": "29",
+   "gross": 0.6881986926104121,
+   "net": 0.4473807143968536
+  },
+  {
+   "month": "30",
+   "gross": 0.7877688405552591,
+   "net": 0.504514119370474
+  },
+  {
+   "month": "31",
+   "gross": 0.6123428601101382,
+   "net": 0.386415236037684
+  },
+  {
+   "month": "32",
+   "gross": 0.6298873064530426,
+   "net": 0.393123939071351
+  },
+  {
+   "month": "33",
+   "gross": 0.5484404006278275,
+   "net": 0.33508339015258665
+  },
+  {
+   "month": "34",
+   "gross": 0.5966149407548874,
+   "net": 0.3575319141879723
+  },
+  {
+   "month": "35",
+   "gross": 0.5863619390440425,
+   "net": 0.34630847059633246
+  },
+  {
+   "month": "36",
+   "gross": 0.5588363382038884,
+   "net": 0.325734265378119
+  },
+  {
+   "month": "37",
+   "gross": 0.6707519890947142,
+   "net": 0.38709623121094466
+  },
+  {
+   "month": "38",
+   "gross": 0.6019873049373261,
+   "net": 0.342431021106176
+  },
+  {
+   "month": "39",
+   "gross": 0.5531092757923035,
+   "net": 0.31062138489525903
+  },
+  {
+   "month": "40",
+   "gross": 0.4721045314360371,
+   "net": 0.260686670308816
+  },
+  {
+   "month": "41",
+   "gross": 0.4845265896576409,
+   "net": 0.2652319485643716
+  },
+  {
+   "month": "42",
+   "gross": 0.4942414292385506,
+   "net": 0.2676017646053989
+  },
+  {
+   "month": "43",
+   "gross": 0.5080431793562216,
+   "net": 0.2713180023083714
+  },
+  {
+   "month": "44",
+   "gross": 0.5533385658415241,
+   "net": 0.2925816880356297
+  },
+  {
+   "month": "45",
+   "gross": 0.5173514089058505,
+   "net": 0.270476547459205
+  },
+  {
+   "month": "46",
+   "gross": 0.5150237519584699,
+   "net": 0.2651749589794482
+  },
+  {
+   "month": "47",
+   "gross": 0.5559030855290693,
+   "net": 0.28138973797671835
+  },
+  {
+   "month": "48",
+   "gross": 0.6234646456442593,
+   "net": 0.3114784000038678
+  },
+  {
+   "month": "49",
+   "gross": 0.6606886476367353,
+   "net": 0.32726216410058506
+  },
+  {
+   "month": "50",
+   "gross": 0.6496190092370564,
+   "net": 0.3178652615365218
+  },
+  {
+   "month": "51",
+   "gross": 0.6023545175705672,
+   "net": 0.2909114463587181
+  },
+  {
+   "month": "52",
+   "gross": 0.6917872805610421,
+   "net": 0.33045439372489543
+  },
+  {
+   "month": "53",
+   "gross": 0.6441279865313554,
+   "net": 0.3012148343545522
+  },
+  {
+   "month": "54",
+   "gross": 0.6416640187672448,
+   "net": 0.2951788311397814
+  },
+  {
+   "month": "55",
+   "gross": 0.7008366334655993,
+   "net": 0.3161335916326211
+  },
+  {
+   "month": "56",
+   "gross": 0.6257480132443448,
+   "net": 0.27790295135609017
+  },
+  {
+   "month": "57",
+   "gross": 0.4746730604210755,
+   "net": 0.20413760469976958
+  },
+  {
+   "month": "58",
+   "gross": 0.4778635204060968,
+   "net": 0.20134893315241847
+  },
+  {
+   "month": "59",
+   "gross": 0.39461517810854463,
+   "net": 0.1629814408891997
+  },
+  {
+   "month": "60",
+   "gross": 0.4732279254015496,
+   "net": 0.19323211537235724
+  },
+  {
+   "month": "61",
+   "gross": 0.5166603687860679,
+   "net": 0.2082885894115141
+  },
+  {
+   "month": "62",
+   "gross": 0.4646208811071681,
+   "net": 0.18335838640264365
+  },
+  {
+   "month": "63",
+   "gross": 0.4411578802010646,
+   "net": 0.17019096655239657
+  },
+  {
+   "month": "64",
+   "gross": 0.46409084690228075,
+   "net": 0.17624768144404215
+  },
+  {
+   "month": "65",
+   "gross": 0.445197717215288,
+   "net": 0.16595867256950034
+  },
+  {
+   "month": "66",
+   "gross": 0.4095918545300826,
+   "net": 0.1501921080870345
+  },
+  {
+   "month": "67",
+   "gross": 0.38465026999517027,
+   "net": 0.13830080518284138
+  },
+  {
+   "month": "68",
+   "gross": 0.35573257306447775,
+   "net": 0.12528313058630366
+  },
+  {
+   "month": "69",
+   "gross": 0.38286017001328304,
+   "net": 0.1332369551094339
+  },
+  {
+   "month": "70",
+   "gross": 0.43793197127113637,
+   "net": 0.1503766970020564
+  },
+  {
+   "month": "71",
+   "gross": 0.5422911371397897,
+   "net": 0.18354912910991697
+  },
+  {
+   "month": "72",
+   "gross": 0.5313887433261749,
+   "net": 0.17701754759042673
+  },
+  {
+   "month": "73",
+   "gross": 0.5128205677937342,
+   "net": 0.16789879229792487
+  },
+  {
+   "month": "74",
+   "gross": 0.35762150739472626,
+   "net": 0.11254706351808809
+  },
+  {
+   "month": "75",
+   "gross": 0.461730576377856,
+   "net": 0.14247023550442106
+  },
+  {
+   "month": "76",
+   "gross": 0.5037865195446916,
+   "net": 0.15276687605147754
+  },
+  {
+   "month": "77",
+   "gross": 0.5738363648200775,
+   "net": 0.17007406702402567
+  },
+  {
+   "month": "78",
+   "gross": 0.6824837382851131,
+   "net": 0.19677528047498366
+  },
+  {
+   "month": "79",
+   "gross": 0.5322624293781482,
+   "net": 0.14987025116925667
+  },
+  {
+   "month": "80",
+   "gross": 0.5101616102708115,
+   "net": 0.14046623206133868
+  },
+  {
+   "month": "81",
+   "gross": 0.5692734749126773,
+   "net": 0.15307645965343628
+  },
+  {
+   "month": "82",
+   "gross": 0.7585286466836448,
+   "net": 0.1996868287056593
+  },
+  {
+   "month": "83",
+   "gross": 0.720252974683941,
+   "net": 0.18465140956487547
+  },
+  {
+   "month": "84",
+   "gross": 0.8195240965614248,
+   "net": 0.20640697879101277
+  },
+  {
+   "month": "85",
+   "gross": 0.792616442946846,
+   "net": 0.19662232563389298
+  },
+  {
+   "month": "86",
+   "gross": 0.9104772748020153,
+   "net": 0.22300739367382022
+  },
+  {
+   "month": "87",
+   "gross": 0.8643000926865924,
+   "net": 0.20729539369057606
+  },
+  {
+   "month": "88",
+   "gross": 0.8921113910289199,
+   "net": 0.20887676572507446
+  },
+  {
+   "month": "89",
+   "gross": 0.8023506235894756,
+   "net": 0.18312170599789762
+  },
+  {
+   "month": "90",
+   "gross": 0.6942476024384163,
+   "net": 0.15515696992124894
+  },
+  {
+   "month": "91",
+   "gross": 0.8529994271148514,
+   "net": 0.18788490395740987
+  },
+  {
+   "month": "92",
+   "gross": 0.8279340349973177,
+   "net": 0.17977706472686977
+  },
+  {
+   "month": "93",
+   "gross": 0.8227567499173166,
+   "net": 0.17463203885879863
+  },
+  {
+   "month": "94",
+   "gross": 0.7241215880583646,
+   "net": 0.15055724271175444
+  },
+  {
+   "month": "95",
+   "gross": 0.6163086680594683,
+   "net": 0.12475271219147345
+  },
+  {
+   "month": "96",
+   "gross": 0.41008554455162366,
+   "net": 0.08174799425939959
+  },
+  {
+   "month": "97",
+   "gross": 0.411135728843979,
+   "net": 0.08118417114774297
+  },
+  {
+   "month": "98",
+   "gross": 0.4669268433492364,
+   "net": 0.09160093644050608
+  },
+  {
+   "month": "99",
+   "gross": 0.43368581834136916,
+   "net": 0.08410331939679336
+  },
+  {
+   "month": "100",
+   "gross": 0.43879716404409014,
+   "net": 0.0830580123158791
+  },
+  {
+   "month": "101",
+   "gross": 0.3502568172690548,
+   "net": 0.06456444550671578
+  },
+  {
+   "month": "102",
+   "gross": 0.38258215962939324,
+   "net": 0.06921117095530194
+  },
+  {
+   "month": "103",
+   "gross": 0.3679899880712639,
+   "net": 0.06527199592673338
+  },
+  {
+   "month": "104",
+   "gross": 0.2666029549831774,
+   "net": 0.046035767388432666
+  },
+  {
+   "month": "105",
+   "gross": 0.2716789729391549,
+   "net": 0.04600250917857754
+  },
+  {
+   "month": "106",
+   "gross": 0.22767398250263915,
+   "net": 0.03735379445840627
+  },
+  {
+   "month": "107",
+   "gross": 0.2157576205566029,
+   "net": 0.0345502703210389
+  },
+  {
+   "month": "108",
+   "gross": 0.23617012587685973,
+   "net": 0.037170369208316595
+  },
+  {
+   "month": "109",
+   "gross": 0.21449271246823962,
+   "net": 0.03307896010635955
+  },
+  {
+   "month": "110",
+   "gross": 0.20335566981881867,
+   "net": 0.030788672404561134
+  },
+  {
+   "month": "111",
+   "gross": 0.22736871832828404,
+   "net": 0.03397118271234303
+  },
+  {
+   "month": "112",
+   "gross": 0.21645082450725725,
+   "net": 0.03186342514556953
+  },
+  {
+   "month": "113",
+   "gross": 0.21523772792737245,
+   "net": 0.03068709494880599
+  },
+  {
+   "month": "114",
+   "gross": 0.1950205677492743,
+   "net": 0.027064497669510315
+  },
+  {
+   "month": "115",
+   "gross": 0.16663671653833928,
+   "net": 0.02250693889629047
+  },
+  {
+   "month": "116",
+   "gross": 0.1455777353531916,
+   "net": 0.019358349293932597
+  },
+  {
+   "month": "117",
+   "gross": 0.11823690551802424,
+   "net": 0.015439222253247951
+  },
+  {
+   "month": "118",
+   "gross": 0.11300249809972268,
+   "net": 0.014498744882448672
+  },
+  {
+   "month": "119",
+   "gross": 0.10978503943970097,
+   "net": 0.013784615847605174
+  },
+  {
+   "month": "120",
+   "gross": 0.09603511892390526,
+   "net": 0.011790248143199577
+  },
+  {
+   "month": "121",
+   "gross": 0.10396512527148996,
+   "net": 0.01250307070581684
+  },
+  {
+   "month": "122",
+   "gross": 0.1143635648856714,
+   "net": 0.013453217845378439
+  },
+  {
+   "month": "123",
+   "gross": 0.11115877666279111,
+   "net": 0.012703797561324476
+  },
+  {
+   "month": "124",
+   "gross": 0.11647851726483473,
+   "net": 0.013080993280651628
+  },
+  {
+   "month": "125",
+   "gross": 0.09380300456820338,
+   "net": 0.010305951929716547
+  },
+  {
+   "month": "126",
+   "gross": 0.09739930117258642,
+   "net": 0.010532555304813847
+  }
+ ],
  "predictions": {
   "data_vintage": "2026-08-10",
   "generated_utc": "2026-08-10T15:59:55.654940+00:00",

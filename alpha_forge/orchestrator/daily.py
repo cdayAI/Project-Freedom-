@@ -669,10 +669,23 @@ def main() -> int:
         _log(f"regsho: unavailable ({exc}) — short features NaN tonight")
     regsho = load_regsho()
 
+    _log("insider: DERA Form 3/4/5 open-market transactions (resumable)")
+    from alpha_forge.data.insider import (
+        attach_insider_features, ingest_insider, load_insider,
+    )
+
+    try:
+        ins_summary = ingest_insider()
+        _log(f"insider: {ins_summary}")
+    except Exception as exc:  # DERA outage: features NaN tonight, loudly
+        _log(f"insider: unavailable ({exc}) — insider features NaN tonight")
+    insider = load_insider()
+
     _log("features: building vectorized panel (1e-9-verified vs fingerprint_at)")
     features = build_features_panel(panel)
     features = attach_catalyst_features(features, catalog)
     features = attach_short_features(features, regsho)
+    features = attach_insider_features(features, insider)
     features.write_parquet(STORE_DIR / "features_panel.parquet")
 
     # holdout boundary on trading days: hits whose LABELS mature inside the
