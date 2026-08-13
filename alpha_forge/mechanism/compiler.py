@@ -123,6 +123,7 @@ def compile_and_gate(
     ledger,
     data_vintage: str,
     seed: int = 7,
+    stats_ledger=None,
 ) -> dict:
     """Compile one mechanism into the shares policy family and run the full
     Section-4 battery on the primary config. Returns the gate payload plus
@@ -209,8 +210,12 @@ def compile_and_gate(
         "purge_months": 1,
     }
 
+    import hashlib
+
+    mech_id = hashlib.sha256(
+        mechanism_key(mech).encode("utf-8")).hexdigest()[:8]
     report = run_gates(
-        strategy_id=f"mech_{abs(hash(mechanism_key(mech))) % 10**8:08d}",
+        strategy_id=f"mech_{mech_id}",
         reg_id=reg_id,
         ledger=ledger,
         net_returns=primary["net"],
@@ -224,6 +229,7 @@ def compile_and_gate(
         extra_checks={"data_vintage": data_vintage,
                       "family": "mechanism_shares_v1",
                       "mechanism": mech.sentence()},
+        stats_ledger=stats_ledger,
     )
     payload = report.to_payload()
     payload.update({"n_signals": len(signals),
