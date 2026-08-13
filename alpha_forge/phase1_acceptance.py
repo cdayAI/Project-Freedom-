@@ -144,13 +144,15 @@ def run_once(genome_path=None, acceptance_ledger_path=None,
 
     stored = None
     for e in acc.entries():
-        if e["kind"] == "PHASE1_EVIDENCE":
+        if (e["kind"] == "RESULT"
+                and e["payload"].get("mode") == "PHASE1_ACCEPTANCE"):
             stored = e["payload"]["evidence_hash"]
     if stored is not None and stored != evidence_hash:
         failures.append(f"A5: evidence hash drifted (stored {stored[:12]}, "
                         f"got {evidence_hash[:12]})")
     verdict = "PASS" if not failures else "FAIL"
-    acc.append("PHASE1_EVIDENCE", {
+    acc.append("RESULT", {
+        "mode": "PHASE1_ACCEPTANCE",
         "verdict": verdict, "evidence_hash": evidence_hash,
         "failures": failures, "first_run": stored is None})
 
