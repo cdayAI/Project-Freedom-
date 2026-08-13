@@ -65,13 +65,19 @@ class Mechanism:
         return out
 
 
-def extract_episodes(genome: pl.DataFrame, mech: Mechanism) -> pl.DataFrame:
-    """One row per completed episode: symbol, stage1_date..stageN_date."""
+def extract_episodes(
+    genome: pl.DataFrame, mech: Mechanism, flags: np.ndarray | None = None
+) -> pl.DataFrame:
+    """One row per completed episode: symbol, stage1_date..stageN_date.
+    `flags` (n_rows x n_stages bool, aligned to the SYMBOL/DATE-SORTED
+    genome) lets callers reuse cached predicate evaluations across many
+    candidate mechanisms."""
     genome = genome.sort(["symbol", "date"])
-    flags = np.column_stack([
-        PREDICATES[name].evaluate(genome, dict(params)).to_numpy()
-        for name, params in mech.stages
-    ])
+    if flags is None:
+        flags = np.column_stack([
+            PREDICATES[name].evaluate(genome, dict(params)).to_numpy()
+            for name, params in mech.stages
+        ])
     sym = genome["symbol"].to_numpy()
     dates = genome["date"].to_list()  # python dates: polars infers pl.Date
     n_stage = flags.shape[1]
