@@ -40,7 +40,7 @@ class FeeSchedule:
         path = fees_dir / f"{name}.json"
         if not path.exists():
             raise UnverifiedFeeError(f"no fee table on disk for {name} ({path})")
-        doc = json.loads(path.read_text())
+        doc = json.loads(path.read_text(encoding="utf-8"))
         return cls(name=doc["fee"], unit=doc["unit"], entries=doc["entries"])
 
     def entry_on(self, trade_date: date | str) -> dict:
@@ -113,7 +113,7 @@ def _orf_table() -> dict:
     path = FEES_DIR / "orf_by_exchange.json"
     if not path.exists():
         raise UnverifiedFeeError("no ORF table on disk")
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def orf_rate_on(exchange: str, trade_date: date | str) -> float:

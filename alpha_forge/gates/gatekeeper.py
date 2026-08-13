@@ -17,6 +17,8 @@ from alpha_forge.config import (
     MIN_INDEPENDENT_TRADES,
     PBO_FLAG,
     PBO_KILL,
+    STATUS_CEILING,
+    SURVIVORSHIP_FREE_DATA_INSTALLED,
 )
 from alpha_forge.gates.dsr import deflated_sharpe_ratio
 from alpha_forge.gates.nullbaseline import null_baseline_verdict
@@ -57,6 +59,7 @@ def run_gates(
     extra_checks: dict | None = None,
     stress_sizing_inputs: dict | None = None,
     net_vs_gross_override: dict | None = None,
+    stats_ledger: Ledger | None = None,
 ) -> GateReport:
     """Evaluate gates 1-9. Writes the full report to the ledger.
 
@@ -65,7 +68,12 @@ def run_gates(
     null_result_inputs: (strategy_net_metric, null_net_metrics) for gate 9.
     extra_checks: caller metadata (e.g. data vintage) that must land in the
     LEDGERED copy of the report, not just the returned object.
+    stats_ledger: where the DSR trial statistics come from, when the report
+    is written elsewhere (the Alpha-v0 acceptance replay writes to an
+    isolated acceptance ledger but deflates by the RESEARCH ledger's audited
+    trial history — replay trials must not shrink the deflation).
     """
+    stats = stats_ledger if stats_ledger is not None else ledger
     report = GateReport(strategy_id=strategy_id, reg_id=reg_id)
     if extra_checks:
         report.checks.update(extra_checks)
@@ -88,9 +96,15 @@ def run_gates(
             "not significant after multiple-testing correction"
         )
 
-    # Gate 3 — Deflated Sharpe with TRUE ledger trial count.
-    n_trials = ledger.trial_count()
-    trial_srs = ledger.trial_sharpes()
+    # Gate 3 — Deflated Sharpe with audited trial semantics. The PRIMARY DSR
+    # uses the Sharpe-bearing trial population — count and variance from the
+    # SAME population, per Bailey & Lopez de Prado (2014). The CONSERVATIVE
+    # sensitivity deflates by the raw cumulative ledger count (which includes
+    # Sharpe-less trials, e.g. confluence cells). The gate BINDS on the
+    # conservative number; the effective independent count is reported as
+    # bounds only (per-trial return series are not retained yet).
+    audit = stats.trial_audit()
+    trial_srs = stats.trial_sharpes()
     if len(trial_srs) >= 2:
         var_trial = float(np.var(trial_srs, ddof=1))
     else:
@@ -98,12 +112,28 @@ def run_gates(
         # degenerates to PSR vs 0. Flag it — this only happens on day one.
         var_trial = 0.0
         flag.append("gate3: <2 ledgered trial Sharpes; deflation benchmark degenerate")
-    dsr = deflated_sharpe_ratio(net_returns, n_trials=max(n_trials, 1), var_trial_sr=var_trial)
-    report.checks["dsr"] = dsr
+    n_raw = max(audit["raw_cumulative_trials"], 1)
+    n_sharpe = max(audit["sharpe_bearing_trials"], 1)
+    dsr_primary = deflated_sharpe_ratio(net_returns, n_trials=n_sharpe, var_trial_sr=var_trial)
+    dsr = (
+        dsr_primary
+        if n_raw == n_sharpe
+        else deflated_sharpe_ratio(net_returns, n_trials=n_raw, var_trial_sr=var_trial)
+    )
+    report.checks["dsr"] = dsr  # the binding (conservative) computation
+    report.checks["dsr_audit"] = {
+        **audit,
+        "dsr_probability_primary_sharpe_bearing_n": dsr_primary["dsr_probability"],
+        "dsr_probability_conservative_raw_n": dsr["dsr_probability"],
+        "method": "preregistered: primary N = Sharpe-bearing trials (count and "
+        "variance from the same population); the gate binds on the conservative "
+        "raw-count sensitivity; effective independent N reported as bounds",
+    }
     if dsr["dsr_probability"] < DSR_MIN_PROBABILITY:
         kill.append(
             f"gate3: DSR probability {dsr['dsr_probability']:.4f} < {DSR_MIN_PROBABILITY} "
-            f"at N={n_trials} ledgered trials"
+            f"at conservative N={n_raw} raw ledgered trials "
+            f"(primary N={n_sharpe} Sharpe-bearing: {dsr_primary['dsr_probability']:.4f})"
         )
 
     # Gate 4 — PBO via CSCV.
@@ -169,6 +199,13 @@ def run_gates(
         report.verdict = "PASS"
     report.reasons = kill + flag
 
+    # Status ceiling: on survivorship-biased data no verdict — including PASS —
+    # can confer VALIDATED/GRADUATED/EXECUTABLE status. Stamped on the report
+    # so every downstream display carries it; enforced by the ledger itself,
+    # which refuses GRADUATION entries while the ceiling holds.
+    if not SURVIVORSHIP_FREE_DATA_INSTALLED:
+        report.checks["status_ceiling"] = STATUS_CEILING
+
     ledger.append("GATE_REPORT", report.to_payload())
     return report
 
@@ -227,15 +264,23 @@ def _gates_10_11(report: GateReport, inputs: dict) -> tuple[list[str], list[str]
             "margin (PDT) accounts at this equity — killed regardless of backtest"
         )
 
-    # ---- gate 11: ruin-constrained sizing must exist under the WORST of the
-    # v2 path generators (stationary blocks / Bayesian bootstrap / regime
+    # ---- gate 11: drawdown-constrained sizing must exist under the WORST of
+    # the v2 path generators (stationary blocks / Bayesian bootstrap / regime
     # chain when labels exist); the iid number rides along as the baseline
-    # it is — measured, never voting
+    # it is — measured, never voting. The binding constraint is
+    # P(maxDD >= 50% over the 20y horizon) <= epsilon; the strategy's own
+    # trade frequency maps the horizon onto path length.
     if r.size >= 30:
+        entry_days = np.asarray(inputs["trade_entry_days"], dtype=float)
+        exit_days = np.asarray(inputs["trade_exit_days"], dtype=float)
+        span_years = max(
+            (float(exit_days.max()) - float(entry_days.min()) + 1.0) / 252.0,
+            1.0 / 252.0,
+        )
         frontier = sizing_frontier_v2(
             r,
             regime_labels=inputs.get("trade_regime_labels"),
-            n_trades_per_path=max(50, r.size),
+            trades_per_year=r.size / span_years,
             seed=11,
         )
         c = frontier["constrained_optimum"]
@@ -245,11 +290,11 @@ def _gates_10_11(report: GateReport, inputs: dict) -> tuple[list[str], list[str]
             "constrained_optimum": c,
             "unconstrained_optimum": frontier["unconstrained_optimum"],
             "constraint": frontier["constraint"],
+            "horizon": frontier["horizon"],
         }
         if c is None:
             kill11.append(
-                "gate11: no bet fraction satisfies P(losing 90%) < 5% under the "
-                f"worst path model ({frontier['generators_used']}) — unsizeable"
+                f"gate11: no bet fraction satisfies {frontier['constraint']} — unsizeable"
             )
         elif c["median_terminal_wealth_bayes"] <= 1.0:
             kill11.append(

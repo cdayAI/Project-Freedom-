@@ -33,7 +33,7 @@ def fetch_symbol_directory(timeout: int = 60) -> dict[str, list[dict]]:
     for name, url in (("nasdaqlisted", NASDAQ_LISTED_URL), ("otherlisted", OTHER_LISTED_URL)):
         resp = requests.get(url, timeout=timeout)
         resp.raise_for_status()
-        (RAW_DIR / f"{name}.txt").write_text(resp.text)
+        (RAW_DIR / f"{name}.txt").write_text(resp.text, encoding="utf-8")
         lines = resp.text.strip().splitlines()
         header = lines[0].split("|")
         rows = []

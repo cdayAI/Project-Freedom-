@@ -114,7 +114,7 @@ def _log(msg: str) -> None:
 def ingest_equities(force: bool = False) -> dict:
     marker = RAW_DIR / f"ingest_{date.today().isoformat()}.json"
     if marker.exists() and not force and (STORE_DIR / "equities_daily.parquet").exists():
-        prior = json.loads(marker.read_text())
+        prior = json.loads(marker.read_text(encoding="utf-8"))
         # the marker must key on WHAT was pulled, not just when: a run after a
         # sample-size increase must not silently reuse the smaller panel
         if prior.get("sample_size", 0) >= SAMPLE_SIZE:
@@ -157,7 +157,7 @@ def ingest_equities(force: bool = False) -> dict:
         },
         survivorship_free=adapter.survivorship_free,
     )
-    marker.write_text(json.dumps({k: v for k, v in summary.items() if k != "validation_reports"}))
+    marker.write_text(json.dumps({k: v for k, v in summary.items() if k != "validation_reports"}), encoding="utf-8")
     _log(f"ingest: {summary['ingested']} series in store, "
          f"{len(summary['quarantined'])} quarantined")
     return summary
@@ -822,7 +822,7 @@ def main() -> int:
         _log(f"memo: wrote {memo}")
 
     rate = rep["trailing_3m_rate"]
-    rate_str = ("N/A (pipeline age < 1 month)" if rate is None
+    rate_str = (rep["health"] if rate is None
                 else "inf (no deaths)" if rate == float("inf") else f"{rate:.2f}")
     graduated = sum(1 for g in gate_reports if g["verdict"] == "PASS")
     killed = sum(1 for g in gate_reports if g["verdict"] == "KILL")
@@ -883,8 +883,10 @@ def main() -> int:
         gate_reports,
         dataset_note=f"Yahoo chart-API daily OHLCV through {data_vintage}, "
         "survivorship-biased current-listing sample (see data/manifest.jsonl)",
-        replacement_rate_note=f"trailing 3m: {rate_str} "
-        f"({graduated} graduated / {killed} killed this cycle)",
+        replacement_rate_note=f"{rate_str} — observed: "
+        f"{rep['observed']['graduations_ever']} graduations ever / "
+        f"{rep['observed']['distinct_strategies_killed']} distinct strategies "
+        f"killed ({graduated} passed / {killed} killed this cycle)",
         extra_sections=extra,
     )
     write_findings(findings)

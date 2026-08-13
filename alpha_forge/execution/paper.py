@@ -75,7 +75,7 @@ def paper_fill_next_open(
         note="stress fill: next open +/- half-spread; sells pay SEC31+TAF at date-aware rates",
     )
     PAPER_DIR.mkdir(parents=True, exist_ok=True)
-    with (PAPER_DIR / f"{strategy_id}.jsonl").open("a") as f:
+    with (PAPER_DIR / f"{strategy_id}.jsonl").open("a", encoding="utf-8") as f:
         f.write(json.dumps({**asdict(pf), "ts_utc": datetime.now(timezone.utc).isoformat()}) + "\n")
     return pf
 
@@ -84,7 +84,7 @@ def paper_trading_days(strategy_id: str) -> int:
     path = PAPER_DIR / f"{strategy_id}.jsonl"
     if not path.exists():
         return 0
-    days = {json.loads(l)["fill_date"] for l in path.read_text().splitlines() if l.strip()}
+    days = {json.loads(l)["fill_date"] for l in path.read_text(encoding="utf-8").splitlines() if l.strip()}
     return len(days)
 
 
@@ -127,5 +127,5 @@ def emit_runbook(
         "ledgered HUMAN_DECISION; see execution/broker.py._",
     ]
     path = STORE_DIR.parent.parent / "reports" / f"runbook-{strategy_id}.md"
-    path.write_text("\n".join(lines) + "\n")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return str(path)

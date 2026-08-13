@@ -25,3 +25,10 @@ include = ["alpha_forge*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+# deprecations raised from our own code fail the suite on EVERY
+# platform/numpy combination instead of scrolling by as warnings
+filterwarnings = [
+    "error::DeprecationWarning:alpha_forge.*",
+    "error::FutureWarning:alpha_forge.*",
+    "error::DeprecationWarning:tests.*",
+]

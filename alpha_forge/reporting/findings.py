@@ -62,6 +62,11 @@ def render_findings(
         f"**Cumulative ledgered trial count: {trials}** (feeds every DSR "
         "computation; persists across sessions and reruns)",
         "",
+        f"**Killed candidate strategies: {len(ledger.killed_strategies())} "
+        "(distinct)** — trials and kills are different populations: a trial "
+        "is one evaluated configuration, a kill is a strategy-level verdict. "
+        "Neither number implies the other.",
+        "",
         f"_Data: {dataset_note}_",
         "",
     ]
@@ -127,8 +132,16 @@ def render_findings(
         "",
         "## Standing disclosures",
         "",
+        "- **Status ceiling: PIPELINE_PROOF_ONLY.** No candidate may hold "
+        "VALIDATED, GRADUATED, or EXECUTABLE status until point-in-time "
+        "survivorship-free data is installed — enforced in code (the ledger "
+        "refuses GRADUATION entries), not by convention.",
         "- Universe is built from CURRENT listings (survivorship-biased); every "
-        "result above carries gate-7 flag until a survivorship-free vendor is wired.",
+        "result above carries gate-7 flag until a survivorship-free vendor is wired. "
+        "The observed anti-selection in event candidates (strategies lose where "
+        "matched random entries profit) is HYPOTHESIZED to be caused by this "
+        "bias — causation is untested until the same research runs on "
+        "point-in-time data that includes delisted securities.",
         "- Path counts from the research sample extrapolate to the full universe "
         "only under the documented uniform-sampling assumption.",
         "- Options/futures agents are in DESIGN mode (no keys present): they emit "
@@ -138,4 +151,4 @@ def render_findings(
 
 
 def write_findings(content: str) -> None:
-    (REPO_ROOT / "FINDINGS.md").write_text(content)
+    (REPO_ROOT / "FINDINGS.md").write_text(content, encoding="utf-8")

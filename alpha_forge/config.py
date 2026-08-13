@@ -18,7 +18,7 @@ def _load_dotenv(path: Path) -> None:
     Existing environment variables always win over the file."""
     if not path.exists():
         return
-    for line in path.read_text().splitlines():
+    for line in path.read_text(encoding="utf-8").splitlines():
         line = line.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue
@@ -62,9 +62,28 @@ NULL_BASELINE_PERCENTILE = 95.0
 MIN_INDEPENDENT_TRADES = 100
 MONTE_CARLO_MIN_PATHS = 20_000
 
-# --- Ruin constraint defaults (human-settable; see ARCHITECTURE.md) ---
+# --- Ruin constraint (human-owned; see BREAKTHROUGH_PHASE1.md §0) ---
+# Binding research constraint: P(maxDD >= RUIN_DRAWDOWN_LEVEL over
+# RUIN_HORIZON_YEARS) <= RUIN_EPSILON. The 90%-loss probability is reported
+# as a secondary measure, never as the binding constraint.
 RUIN_DRAWDOWN_LEVEL = 0.50           # drawdown below 50% of high-water mark
-STARTING_CAPITAL_USD = 2_000.0
+RUIN_EPSILON = 0.05                  # human-set breach probability budget
+RUIN_HORIZON_YEARS = 20.0            # multi-decade horizon (a 5% ANNUAL limit
+                                     # would compound to ~64% over 20y)
+STARTING_CAPITAL_USD = 7_000.0
+MILESTONE_LADDER_USD = (7_000.0, 25_000.0, 85_000.0, 290_000.0, 1_000_000.0)
+
+# --- Status ceiling (standing decision; see BREAKTHROUGH_PHASE1.md §0) ---
+# Until point-in-time survivorship-free equities data is installed, every
+# result is at most pipeline proof. The prohibition is enforced in code
+# (ledger refuses GRADUATION entries), not by convention. Flipping the flag
+# is a human act that must be accompanied by a HUMAN_DECISION ledger entry.
+SURVIVORSHIP_FREE_DATA_INSTALLED = False
+STATUS_CEILING = "PIPELINE_PROOF_ONLY"
+PROHIBITED_STATUSES_UNTIL_PIT_DATA = ("VALIDATED", "GRADUATED", "EXECUTABLE")
+
+# --- Replacement-rate lifecycle (see loop.replacement_rate) ---
+MIN_REPLACEMENT_OBS_MONTHS = 6
 
 for _d in (RAW_DIR, STORE_DIR, FEES_DIR, LEDGER_DIR, REPORTS_DIR, PREDICTIONS_DIR):
     _d.mkdir(parents=True, exist_ok=True)
