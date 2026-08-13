@@ -46,11 +46,14 @@ PUBLICATION_DELAY_DAYS = 35  # DERA quarterly drop: conservative upper bound
 class GenomeField:
     name: str
     group: str  # price_liquidity | volatility | catalysts | insider |
-    #             short_pressure | regime | outcome
+    #             short_pressure | regime | options_state | outcome
     source: str
     lag_sessions: int = 0
     quarterly_published: bool = False
     description: str = ""
+    source_frame: str = "panel"  # panel | regime | options — which input
+    #             frame carries it; the refuse-on-missing check guards the
+    #             panel, joined frames have their own presence semantics
 
 
 FIELDS: tuple[GenomeField, ...] = (
@@ -95,9 +98,23 @@ FIELDS: tuple[GenomeField, ...] = (
     GenomeField("short_ratio_z", "short_pressure", "finra_regsho_daily", 0, False,
                 "short ratio z-score vs trailing base (source lag already applied)"),
     # ---- regime (index closes) -------------------------------------------
-    GenomeField("regime_trend", "regime", "yahoo_spy_vix", 0, False, "SPY trend state"),
-    GenomeField("regime_vol_state", "regime", "yahoo_spy_vix", 0, False, "VIX state"),
-    GenomeField("regime_chop", "regime", "yahoo_spy_vix", 0, False, "chop flag"),
+    GenomeField("regime_trend", "regime", "yahoo_spy_vix", 0, False, "SPY trend state",
+                source_frame="regime"),
+    GenomeField("regime_vol_state", "regime", "yahoo_spy_vix", 0, False, "VIX state",
+                source_frame="regime"),
+    GenomeField("regime_chop", "regime", "yahoo_spy_vix", 0, False, "chop flag",
+                source_frame="regime"),
+    # ---- options state (Cboe delayed chains, REAL_DELAYED watermark;
+    #      intraday capture => public before the close, lag 0; coverage
+    #      begins with the archive 2026-08-10, null before) ---------------
+    GenomeField("iv_atm_near", "options_state", "cboe_delayed", 0, False,
+                "near-expiry ATM vendor IV", source_frame="options"),
+    GenomeField("iv_term_slope", "options_state", "cboe_delayed", 0, False,
+                "far minus near ATM IV", source_frame="options"),
+    GenomeField("iv_skew_asym", "options_state", "cboe_delayed", 0, False,
+                "OTM put IV minus OTM call IV, near expiry", source_frame="options"),
+    GenomeField("oi_conc_top_strike", "options_state", "cboe_delayed", 0, False,
+                "share of chain OI at the most-loaded strike", source_frame="options"),
     # ---- outcome labels (NEVER features) ---------------------------------
     GenomeField("starts_5x_fwd", "outcome", "pathfinder", 0, False,
                 "a >=5x forward path starts this session (label maturation: "

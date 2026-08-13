@@ -63,9 +63,14 @@ def build_genome(
     regime: pl.DataFrame | None,
     out_dir: Path | None = None,
     panel_sha256: str | None = None,
+    options_state: pl.DataFrame | None = None,
 ) -> tuple[pl.DataFrame, dict]:
-    """(genome, meta). Raises GenomeSchemaError when a registered field is
-    missing from the inputs — silence is how leaks are born."""
+    """(genome, meta). Raises GenomeSchemaError when a registered PANEL
+    field is missing from the inputs — silence is how leaks are born.
+    Joined frames differ: regime joins by date; options_state joins by
+    (symbol, date) and an absent archive yields null columns (coverage
+    began 2026-08-10 — null before coverage is the honest value, and the
+    meta records the actual coverage)."""
     out_dir = out_dir or GENOME_DIR
 
     regime_cols: dict[str, str] = {}
@@ -77,9 +82,23 @@ def build_genome(
             regime.select(["date", *rename]).rename(rename), on="date", how="left"
         )
 
+    opt_fields = [f.name for f in FIELD_BY_NAME.values()
+                  if f.source_frame == "options"]
+    opt_coverage: dict = {"rows": 0, "first_date": None, "last_date": None}
+    if options_state is not None and options_state.height:
+        features = features.join(
+            options_state.select(["symbol", "date", *opt_fields]),
+            on=["symbol", "date"], how="left")
+        opt_coverage = {"rows": options_state.height,
+                        "first_date": str(options_state["date"].min()),
+                        "last_date": str(options_state["date"].max())}
+    else:
+        features = features.with_columns(
+            [pl.lit(None, dtype=pl.Float64).alias(c) for c in opt_fields])
+
     missing = [
-        name for name in FIELD_BY_NAME
-        if name not in features.columns
+        name for name, f in FIELD_BY_NAME.items()
+        if f.source_frame == "panel" and name not in features.columns
     ]
     if missing:
         raise GenomeSchemaError(
@@ -158,6 +177,7 @@ def build_genome(
         "knowability": knowability_table(),
         "outcome_fields": [f.name for f in outcome_fields()],
         "regime_join": sorted(regime_cols) if regime_cols else [],
+        "options_state_coverage": opt_coverage,
         "rows": genome.height,
     }
     out_dir.mkdir(parents=True, exist_ok=True)

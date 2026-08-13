@@ -35,8 +35,8 @@ def _features(n_days=260, symbols=("AAA", "BBB")) -> pl.DataFrame:
             v = float(i + 1000 * si)
             row = {"symbol": sym, "date": d, "valid": True}
             for name, f in FIELD_BY_NAME.items():
-                if name.startswith("regime_"):
-                    continue  # joined from the regime frame
+                if f.source_frame != "panel":
+                    continue  # joined from the regime/options frames
                 row[name] = bool(i % 7 == 0) if name == "starts_5x_fwd" else v
             rows.append(row)
     return pl.DataFrame(rows)
