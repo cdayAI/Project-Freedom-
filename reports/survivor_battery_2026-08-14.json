@@ -1,0 +1,141 @@
+[
+ {
+  "mechanism": "((('VOLUME_SURGE_THIN', (('min_spread_pctl', 0.8), ('min_vol_z', 1.5))), ('ACCUMULATION', (('max_short_z', 0.0),))), (3,))",
+  "sentence": "[VOLUME_SURGE_THIN (('min_spread_pctl', 0.8), ('min_vol_z', 1.5))] then within 3 sessions [ACCUMULATION (('max_short_z', 0.0),)]",
+  "discovery_n": 275,
+  "discovery_lift": 2.962558989529389,
+  "battery_verdict": "KILL",
+  "battery_reasons": [
+   "gate2: permutation p=1 not significant after multiple-testing correction",
+   "gate3: DSR probability 0.0000 < 0.95 at conservative N=1992 raw ledgered trials (primary N=710 Sharpe-bearing: 0.0000)",
+   "gate9: net metric -16.2195 does not beat null 95th percentile 12.8368",
+   "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
+  ],
+  "n_signals": 177,
+  "primary": {
+   "target": 3.0,
+   "stop": 0.35,
+   "n_trades": 177,
+   "net_log_growth": -16.219474108773817
+  },
+  "p_matched_null": 1.0,
+  "reason": null
+ },
+ {
+  "mechanism": "((('VOLUME_SURGE_THIN', (('min_spread_pctl', 0.9), ('min_vol_z', 1.5))), ('ACCUMULATION', (('max_short_z', -0.5),))), (5,))",
+  "sentence": "[VOLUME_SURGE_THIN (('min_spread_pctl', 0.9), ('min_vol_z', 1.5))] then within 5 sessions [ACCUMULATION (('max_short_z', -0.5),)]",
+  "discovery_n": 94,
+  "discovery_lift": 4.6156046148743775,
+  "battery_verdict": "KILL",
+  "battery_reasons": [
+   "gate2: permutation p=1 not significant after multiple-testing correction",
+   "gate3: DSR probability 0.0007 < 0.95 at conservative N=1996 raw ledgered trials (primary N=714 Sharpe-bearing: 0.0012)",
+   "gate8: 57 trade events < 100 minimum",
+   "gate9: net metric -6.4123 does not beat null 95th percentile 4.4783",
+   "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
+  ],
+  "n_signals": 57,
+  "primary": {
+   "target": 3.0,
+   "stop": 0.35,
+   "n_trades": 57,
+   "net_log_growth": -6.412254538580158
+  },
+  "p_matched_null": 1.0,
+  "reason": null
+ },
+ {
+  "mechanism": "((('VOLUME_SURGE_THIN', (('min_spread_pctl', 0.9), ('min_vol_z', 1.5))), ('ACCUMULATION', (('max_short_z', -0.5),))), (10,))",
+  "sentence": "[VOLUME_SURGE_THIN (('min_spread_pctl', 0.9), ('min_vol_z', 1.5))] then within 10 sessions [ACCUMULATION (('max_short_z', -0.5),)]",
+  "discovery_n": 107,
+  "discovery_lift": 4.917856911693232,
+  "battery_verdict": "KILL",
+  "battery_reasons": [
+   "gate2: permutation p=0.983 not significant after multiple-testing correction",
+   "gate3: DSR probability 0.0003 < 0.95 at conservative N=2000 raw ledgered trials (primary N=718 Sharpe-bearing: 0.0005)",
+   "gate8: 67 trade events < 100 minimum",
+   "gate9: net metric -7.3221 does not beat null 95th percentile 2.9220",
+   "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
+  ],
+  "n_signals": 67,
+  "primary": {
+   "target": 3.0,
+   "stop": 0.35,
+   "n_trades": 67,
+   "net_log_growth": -7.322139456945439
+  },
+  "p_matched_null": 0.983016983016983,
+  "reason": null
+ },
+ {
+  "mechanism": "((('ACCUMULATION', (('max_short_z', 0.0),)), ('CATALYST_SHOCK', (('k', 1),)), ('VOLUME_SURGE_THIN', (('min_spread_pctl', 0.9), ('min_vol_z', 1.5)))), (10, 10))",
+  "sentence": "[ACCUMULATION (('max_short_z', 0.0),)] then within 10 sessions [CATALYST_SHOCK (('k', 1),)] then within 10 sessions [VOLUME_SURGE_THIN (('min_spread_pctl', 0.9), ('min_vol_z', 1.5))]",
+  "discovery_n": 73,
+  "discovery_lift": 8.885838640634443,
+  "battery_verdict": "KILL",
+  "battery_reasons": [
+   "gate2: permutation p=0.8142 not significant after multiple-testing correction",
+   "gate3: DSR probability 0.0268 < 0.95 at conservative N=2004 raw ledgered trials (primary N=722 Sharpe-bearing: 0.0374)",
+   "gate4: PBO 0.626 > 0.5",
+   "gate8: 44 trade events < 100 minimum",
+   "gate9: net metric -0.6936 does not beat null 95th percentile 4.6407",
+   "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
+  ],
+  "n_signals": 44,
+  "primary": {
+   "target": 5.0,
+   "stop": 0.35,
+   "n_trades": 44,
+   "net_log_growth": -0.6935655959334461
+  },
+  "p_matched_null": 0.8141858141858141,
+  "reason": null
+ },
+ {
+  "mechanism": "((('ACCUMULATION', (('max_short_z', 0.0),)), ('CATALYST_SHOCK', (('k', 5),)), ('VOLUME_SURGE_THIN', (('min_spread_pctl', 0.9), ('min_vol_z', 1.5)))), (10, 10))",
+  "sentence": "[ACCUMULATION (('max_short_z', 0.0),)] then within 10 sessions [CATALYST_SHOCK (('k', 5),)] then within 10 sessions [VOLUME_SURGE_THIN (('min_spread_pctl', 0.9), ('min_vol_z', 1.5))]",
+  "discovery_n": 76,
+  "discovery_lift": 8.819676842210509,
+  "battery_verdict": "KILL",
+  "battery_reasons": [
+   "gate2: permutation p=0.7612 not significant after multiple-testing correction",
+   "gate3: DSR probability 0.0276 < 0.95 at conservative N=2008 raw ledgered trials (primary N=726 Sharpe-bearing: 0.0389)",
+   "gate4: PBO 0.562 > 0.5",
+   "gate8: 46 trade events < 100 minimum",
+   "gate9: net metric -0.2802 does not beat null 95th percentile 4.5759",
+   "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
+  ],
+  "n_signals": 46,
+  "primary": {
+   "target": 5.0,
+   "stop": 0.35,
+   "n_trades": 46,
+   "net_log_growth": -0.2801877451890132
+  },
+  "p_matched_null": 0.7612387612387612,
+  "reason": null
+ },
+ {
+  "mechanism": "((('ACCUMULATION', (('max_short_z', -0.5),)), ('SQUEEZE_FUEL', (('min_z', 1.5),)), ('CATALYST_SHOCK', (('k', 1),))), (5, 5))",
+  "sentence": "[ACCUMULATION (('max_short_z', -0.5),)] then within 5 sessions [SQUEEZE_FUEL (('min_z', 1.5),)] then within 5 sessions [CATALYST_SHOCK (('k', 1),)]",
+  "discovery_n": 117,
+  "discovery_lift": 2.1857399396719623,
+  "battery_verdict": "KILL",
+  "battery_reasons": [
+   "gate2: permutation p=0.04496 not significant after multiple-testing correction",
+   "gate3: DSR probability 0.0160 < 0.95 at conservative N=2012 raw ledgered trials (primary N=730 Sharpe-bearing: 0.0279)",
+   "gate4: PBO 0.567 > 0.5",
+   "gate8: 95 trade events < 100 minimum",
+   "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
+  ],
+  "n_signals": 95,
+  "primary": {
+   "target": 5.0,
+   "stop": 0.5,
+   "n_trades": 95,
+   "net_log_growth": 2.7739399229482435
+  },
+  "p_matched_null": 0.04495504495504495,
+  "reason": null
+ }
+]
