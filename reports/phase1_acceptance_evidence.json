@@ -1,0 +1,164 @@
+{
+ "evidence_hash": "1c9ac41a5b8ff0d2df75f2276c6ab7c6112cd35d06f3946d3ea9bf5ca59da5ee",
+ "verdict": "PASS",
+ "failures": [],
+ "body": {
+  "harness": "phase1_acceptance_v1",
+  "genome_sha256": "b31d411448a54adc8dd8c5084658b19b6e7c16910bc4d8a7873a13470a1a6fbc",
+  "genome_rows": 5146787,
+  "schema_version": 1,
+  "sweep": [
+   {
+    "mechanism": "((('ACCUMULATION', (('max_short_z', 0.0),)), ('CATALYST_SHOCK', (('k', 1),))), (3,))",
+    "n": 41091,
+    "hits": 399,
+    "lift": 0.862503594485,
+    "status": "KILLED",
+    "kill_reason": "lift 0.8625035944851527 < 1.5"
+   },
+   {
+    "mechanism": "((('ACCUMULATION', (('max_short_z', 0.0),)), ('CATALYST_SHOCK', (('k', 1),))), (5,))",
+    "n": 44778,
+    "hits": 438,
+    "lift": 0.868992348895,
+    "status": "KILLED",
+    "kill_reason": "lift 0.8689923488952934 < 1.5"
+   },
+   {
+    "mechanism": "((('ACCUMULATION', (('max_short_z', 0.0),)), ('CATALYST_SHOCK', (('k', 1),))), (10,))",
+    "n": 50127,
+    "hits": 494,
+    "lift": 0.878771880381,
+    "status": "KILLED",
+    "kill_reason": "lift 0.8787718803806794 < 1.5"
+   },
+   {
+    "mechanism": "((('ACCUMULATION', (('max_short_z', 0.0),)), ('CATALYST_SHOCK', (('k', 3),))), (3,))",
+    "n": 43726,
+    "hits": 432,
+    "lift": 0.880216404016,
+    "status": "KILLED",
+    "kill_reason": "lift 0.8802164040164726 < 1.5"
+   },
+   {
+    "mechanism": "((('ACCUMULATION', (('max_short_z', 0.0),)), ('CATALYST_SHOCK', (('k', 3),))), (5,))",
+    "n": 46902,
+    "hits": 467,
+    "lift": 0.887350903863,
+    "status": "KILLED",
+    "kill_reason": "lift 0.8873509038634521 < 1.5"
+   },
+   {
+    "mechanism": "((('ACCUMULATION', (('max_short_z', 0.0),)), ('CATALYST_SHOCK', (('k', 3),))), (10,))",
+    "n": 51620,
+    "hits": 515,
+    "lift": 0.891054821187,
+    "status": "KILLED",
+    "kill_reason": "lift 0.891054821186875 < 1.5"
+   },
+   {
+    "mechanism": "((('ACCUMULATION', (('max_short_z', 0.0),)), ('CATALYST_SHOCK', (('k', 5),))), (3,))",
+    "n": 46439,
+    "hits": 461,
+    "lift": 0.885713372941,
+    "status": "KILLED",
+    "kill_reason": "lift 0.885713372941267 < 1.5"
+   },
+   {
+    "mechanism": "((('ACCUMULATION', (('max_short_z', 0.0),)), ('CATALYST_SHOCK', (('k', 5),))), (5,))",
+    "n": 49101,
+    "hits": 489,
+    "lift": 0.888557046457,
+    "status": "KILLED",
+    "kill_reason": "lift 0.8885570464566083 < 1.5"
+   },
+   {
+    "mechanism": "((('ACCUMULATION', (('max_short_z', 0.0),)), ('CATALYST_SHOCK', (('k', 5),))), (10,))",
+    "n": 53187,
+    "hits": 532,
+    "lift": 0.893298485563,
+    "status": "KILLED",
+    "kill_reason": "lift 0.8932984855633054 < 1.5"
+   },
+   {
+    "mechanism": "((('ACCUMULATION', (('max_short_z', -0.5),)), ('CATALYST_SHOCK', (('k', 1),))), (3,))",
+    "n": 23343,
+    "hits": 220,
+    "lift": 0.831211018535,
+    "status": "KILLED",
+    "kill_reason": "lift 0.8312110185347382 < 1.5"
+   },
+   {
+    "mechanism": "((('ACCUMULATION', (('max_short_z', -0.5),)), ('CATALYST_SHOCK', (('k', 1),))), (5,))",
+    "n": 27080,
+    "hits": 262,
+    "lift": 0.855141435665,
+    "status": "KILLED",
+    "kill_reason": "lift 0.8551414356652163 < 1.5"
+   },
+   {
+    "mechanism": "((('ACCUMULATION', (('max_short_z', -0.5),)), ('CATALYST_SHOCK', (('k', 1),))), (10,))",
+    "n": 33636,
+    "hits": 333,
+    "lift": 0.873850128271,
+    "status": "KILLED",
+    "kill_reason": "lift 0.8738501282714894 < 1.5"
+   }
+  ],
+  "compile": {
+   "verdict": "KILL",
+   "reasons": [
+    "gate2: permutation p=0.8182 not significant after multiple-testing correction",
+    "gate3: DSR probability 0.0000 < 0.95 at conservative N=938 raw ledgered trials (primary N=706 Sharpe-bearing: 0.0000)",
+    "gate4: PBO 0.590 > 0.5",
+    "gate9: net metric -712.8071 does not beat null 95th percentile -553.3963",
+    "gate7: universe includes only surviving listings \u2014 results are biased and marked as such in every display"
+   ],
+   "n_signals": 39156,
+   "p_matched_null": 0.818181818182,
+   "primary": {
+    "target": 3.0,
+    "stop": 0.35,
+    "n_trades": 39143,
+    "net_log_growth": -712.807114121047
+   },
+   "reason": null
+  },
+  "transitions": [
+   {
+    "transition": 1,
+    "window": 5,
+    "n": 36186,
+    "hazard": 0.0015,
+    "base": 0.0013,
+    "lift": 1.133
+   },
+   {
+    "transition": 2,
+    "window": 10,
+    "n": 57,
+    "hazard": 0.1579,
+    "base": 0.3077,
+    "lift": 0.513
+   }
+  ],
+  "transition_significant_fields": [
+   [
+    "volume_z_20v126",
+    "vol_20d_ann"
+   ],
+   [
+    "dist_from_252d_high",
+    "short_ratio_z",
+    "vol_20d_ann",
+    "dollar_vol_med_20d"
+   ]
+  ],
+  "constants": {
+   "sweep_stages": 2,
+   "sweep_max": 12,
+   "compile_slice": "2018-01-01",
+   "transition_slice": "2024-01-01"
+  }
+ }
+}

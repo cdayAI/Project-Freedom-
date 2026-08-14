@@ -688,6 +688,16 @@ def main() -> int:
     features = attach_insider_features(features, insider)
     features.write_parquet(STORE_DIR / "features_panel.parquet")
 
+    _log("genome: building point-in-time surface (schema v1, knowability audited)")
+    from alpha_forge.data.options_state import load_options_state
+    from alpha_forge.genome.builder import audit_no_leak, build_genome
+
+    genome, genome_meta = build_genome(
+        features, load_regime(), options_state=load_options_state())
+    audit_no_leak(features, genome)  # raises on any knowability leak
+    _log(f"genome: {genome_meta['rows']} rows, "
+         f"{len(genome_meta['knowability'])} fields, audit clean")
+
     # holdout boundary on trading days: hits whose LABELS mature inside the
     # holdout era never inform confluence, training, or the scanner — the
     # filter is on window_end (label resolution), not entry (label creation)
