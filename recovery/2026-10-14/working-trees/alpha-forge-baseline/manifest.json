@@ -1,0 +1,406 @@
+{
+  "repository": "https://github.com/cdayAI/Project-Freedom-.git",
+  "label": "alpha-forge-baseline",
+  "base_head": "d57d7299366c92bcabbfd106402179e1945426a0",
+  "original_branch": "refs/heads/claude/alpha-forge-compounding-engine-53xojl",
+  "tracked_source_paths": [
+    "alpha_forge/command_center/server.py",
+    "alpha_forge/config.py",
+    "alpha_forge/costs/build_tables.py",
+    "alpha_forge/costs/fees.py",
+    "alpha_forge/data/equities.py",
+    "alpha_forge/data/manifest.py",
+    "alpha_forge/data/universe.py",
+    "alpha_forge/execution/paper.py",
+    "alpha_forge/gates/gatekeeper.py",
+    "alpha_forge/ledger/ledger.py",
+    "alpha_forge/orchestrator/daily.py",
+    "alpha_forge/reporting/export.py",
+    "alpha_forge/reporting/findings.py",
+    "alpha_forge/research/confluence2.py",
+    "alpha_forge/research/loop.py",
+    "alpha_forge/research/reconciler.py",
+    "alpha_forge/research/scanner.py",
+    "alpha_forge/research/sizing2.py",
+    "pyproject.toml",
+    "tests/test_confluence2.py",
+    "tests/test_gates_stress_sizing.py",
+    "tests/test_reconciler_loop.py",
+    "tests/test_sizing2.py"
+  ],
+  "untracked_source_paths": [
+    "alpha_forge/integrity.py",
+    "tests/test_equities.py"
+  ],
+  "files": [
+    {
+      "path": "alpha_forge/command_center/server.py",
+      "bytes": 11485,
+      "sha256": "b3b18e0dc2828ff48e98bf31120b52a593ac3be702fa3894c29e5271a57cfa01",
+      "normalized_git_blob": "d53bc73dcc8d14037c2d3bc7efb5c81f6e86fdc6",
+      "untracked": false
+    },
+    {
+      "path": "alpha_forge/config.py",
+      "bytes": 3052,
+      "sha256": "9a7917148c5ebe9e4e9381b8ba037879ba8c4057b8198ed41688a7ec87bcd41f",
+      "normalized_git_blob": "a3df92878316b4a219968eab9fe11ec63f428fce",
+      "untracked": false
+    },
+    {
+      "path": "alpha_forge/costs/build_tables.py",
+      "bytes": 2334,
+      "sha256": "42df75eeb612833d461727883e2ab80be98767a37ae17d568316c939d67ec5a3",
+      "normalized_git_blob": "34427136d0dd0eef43f63cee4e9e60b320153c44",
+      "untracked": false
+    },
+    {
+      "path": "alpha_forge/costs/fees.py",
+      "bytes": 7907,
+      "sha256": "b945f9ebb64c387cfe12fdc91573c1ea7634e4aa847b15ba2548cd0f502a6ba9",
+      "normalized_git_blob": "fe738a3a07f2985f4571450ce3fe6f163d52dae3",
+      "untracked": false
+    },
+    {
+      "path": "alpha_forge/data/equities.py",
+      "bytes": 10069,
+      "sha256": "4325512799b02af016bc6098bfadf2a817d10c1cbfb6f531018c373605ae42a5",
+      "normalized_git_blob": "9e269e7112613e87420dab3c175870a928736e9c",
+      "untracked": false
+    },
+    {
+      "path": "alpha_forge/data/manifest.py",
+      "bytes": 1377,
+      "sha256": "200378e055e49ca9c34a1123e87536530264b90868d0e971e9f53f9fd2c28220",
+      "normalized_git_blob": "b438186795ce03fbead984090a7b2d495102c06a",
+      "untracked": false
+    },
+    {
+      "path": "alpha_forge/data/universe.py",
+      "bytes": 3021,
+      "sha256": "bf719998092b90b44839ccfff8e0adf01729ff5c356ac20c8efb1c42968d46a7",
+      "normalized_git_blob": "c2a381fee8c183a6296a3485969a8d123cc8eeea",
+      "untracked": false
+    },
+    {
+      "path": "alpha_forge/execution/paper.py",
+      "bytes": 4598,
+      "sha256": "a1330c95b77d6a4695c540151ad393c35ceb55ee5a34faa77dec135fe79c0658",
+      "normalized_git_blob": "7a8ac85b0b41d1380f9bd12b673863ce22cf3a59",
+      "untracked": false
+    },
+    {
+      "path": "alpha_forge/gates/gatekeeper.py",
+      "bytes": 11883,
+      "sha256": "9eea9aa7efb6d647fa4742b58abf9db8a0310644710ad9afcd01c84cf0772ac7",
+      "normalized_git_blob": "49f5754dff99725ac66e216256af948ed13290f1",
+      "untracked": false
+    },
+    {
+      "path": "alpha_forge/ledger/ledger.py",
+      "bytes": 7376,
+      "sha256": "98885f79e37f9602c7e0a6ca2f80c5969f6d8f295bd12f41d03e81cd27c76096",
+      "normalized_git_blob": "2672a8a2ce18364929a2db26d0b9aa4cc3939a0b",
+      "untracked": false
+    },
+    {
+      "path": "alpha_forge/orchestrator/daily.py",
+      "bytes": 40191,
+      "sha256": "26d12fcfc9ab5aff0fe19d2a653fd7c5a7ea670273ec808d416adadb43eec87e",
+      "normalized_git_blob": "5501b1a257e5d07602cb3f1da182015f27eca305",
+      "untracked": false
+    },
+    {
+      "path": "alpha_forge/reporting/export.py",
+      "bytes": 4773,
+      "sha256": "21157476c992f316ccd233928b016653fb9fffb9078999d92a25b1f42e2b2d4f",
+      "normalized_git_blob": "7dc05c77a0cf64815fbb97a3d87199160aed6641",
+      "untracked": false
+    },
+    {
+      "path": "alpha_forge/reporting/findings.py",
+      "bytes": 6270,
+      "sha256": "52ff84e2d6c1810e5dabbb520112fe46b63d854a89709c34a32d1c56405685c9",
+      "normalized_git_blob": "d8a0a43c4c6c773dbcac796ac7d6b0502de9919f",
+      "untracked": false
+    },
+    {
+      "path": "alpha_forge/research/confluence2.py",
+      "bytes": 14580,
+      "sha256": "5dded0caab943957f2f0ed689742728db9946b19fed4022bdf641cc6dafd2725",
+      "normalized_git_blob": "075305e7a17d895d97762b2d3e8fd51f530ec269",
+      "untracked": false
+    },
+    {
+      "path": "alpha_forge/research/loop.py",
+      "bytes": 11731,
+      "sha256": "838cc147d97c7811341b93ae832b99211d0baafff0482905cb4d01fff6120ad0",
+      "normalized_git_blob": "d4f0b7bf7abaf0f9e128060750ed12984e190020",
+      "untracked": false
+    },
+    {
+      "path": "alpha_forge/research/reconciler.py",
+      "bytes": 6163,
+      "sha256": "a78060bc4085468dcd9f576175c8e5fbfbab9df2b8006a31046a4d682de8aed3",
+      "normalized_git_blob": "1108ecef86dbebf03e8e758eb9204875828afb05",
+      "untracked": false
+    },
+    {
+      "path": "alpha_forge/research/scanner.py",
+      "bytes": 8385,
+      "sha256": "3cccb2c8af93900ab7ea8757e5af056e2af957bf066268a3cfe32e808f3735dc",
+      "normalized_git_blob": "525afb048da5ce103bca138090c55c9203a14fc0",
+      "untracked": false
+    },
+    {
+      "path": "alpha_forge/research/sizing2.py",
+      "bytes": 13525,
+      "sha256": "e96ea7bd90c4e78ed7a070826df5dd8e386d86869ce41fdfba49f9a3b791de42",
+      "normalized_git_blob": "48cbad91b7b11e26a88482990d43cbe38e3d0a11",
+      "untracked": false
+    },
+    {
+      "path": "pyproject.toml",
+      "bytes": 850,
+      "sha256": "86078a3cffd2822392e2a89a390b815a03dee666b48db533e3eb0d5e0d2d2b53",
+      "normalized_git_blob": "f86ac3a571ad2c8c80dd9bd3e5ffc5d36bd3f360",
+      "untracked": false
+    },
+    {
+      "path": "tests/test_confluence2.py",
+      "bytes": 5444,
+      "sha256": "593556ed2f121141fed07082707a102e16d64776f89a7806e98c48d4a69c5ec9",
+      "normalized_git_blob": "67ef34cde3231027b4a352d10bd0e3330a626a51",
+      "untracked": false
+    },
+    {
+      "path": "tests/test_gates_stress_sizing.py",
+      "bytes": 4205,
+      "sha256": "13816431603d79a0aa4ef9a0de99bdf94aff01c9ea64b83ce10bfc05ce1311ec",
+      "normalized_git_blob": "389459465df6281a73f4d60c9cb9a3759091a686",
+      "untracked": false
+    },
+    {
+      "path": "tests/test_reconciler_loop.py",
+      "bytes": 5792,
+      "sha256": "e0c87e306f7ee08f6bd4fdca9cb849175bdf8a436e9cbcaa8ed5c6200dff09aa",
+      "normalized_git_blob": "5185893daed14120c6d794842e8a1eafc41ed0a7",
+      "untracked": false
+    },
+    {
+      "path": "tests/test_sizing2.py",
+      "bytes": 6673,
+      "sha256": "f1ce745a8de85e06df1ef1f23de57bc0327a12c9888aca0e1a4685e12e6fc936",
+      "normalized_git_blob": "f1e6e50d032cba0adc14e6257cf196a51d2d04aa",
+      "untracked": false
+    },
+    {
+      "path": "alpha_forge/integrity.py",
+      "bytes": 651,
+      "sha256": "42e120f64c96c5b5213fc8432445d0e357ee2d912f90272c9138c8c169de815b",
+      "normalized_git_blob": "89bd21733867071237f703e1bf62322d584c4e34",
+      "untracked": true
+    },
+    {
+      "path": "tests/test_equities.py",
+      "bytes": 2758,
+      "sha256": "1c71e148f88eac30fdced037e1b8532cddcb80d65a1e9060611d4e6a2b1a33e6",
+      "normalized_git_blob": "f8abe8afdbb3d4316f92edc3e8572e742a137c88",
+      "untracked": true
+    }
+  ],
+  "patches": [
+    {
+      "path": "staged-source.patch",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "unstaged-source.patch",
+      "bytes": 378365,
+      "sha256": "a02ea244593cff82aea42767fd7d7c06945de8f52dc08104cf8418f3ab8d218f"
+    }
+  ],
+  "retained_local_exclusions": [
+    {
+      "code": " M",
+      "path": "FINDINGS.md",
+      "reason": "Not in reviewed code/manifests allowlist; retained in original checkout for document/data review"
+    },
+    {
+      "code": " M",
+      "path": "data/manifest.jsonl",
+      "reason": "Runtime/research/trading records; retained locally and excluded from publication package"
+    },
+    {
+      "code": " M",
+      "path": "ledger/ledger.jsonl",
+      "reason": "Runtime/research/trading records; retained locally and excluded from publication package"
+    },
+    {
+      "code": "??",
+      "path": "predictions/predictions_2026-08-12.json",
+      "reason": "Runtime/research/trading records; retained locally and excluded from publication package"
+    }
+  ],
+  "ignored_files": "Not included. Originals retained; this is not a complete workspace backup.",
+  "validation": {
+    "pinned_base_checkout": "d57d7299366c92bcabbfd106402179e1945426a0",
+    "staged_then_unstaged_apply_passed": true,
+    "all_selected_normalized_contents_match": true,
+    "files": [
+      {
+        "path": "alpha_forge/command_center/server.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "d53bc73dcc8d14037c2d3bc7efb5c81f6e86fdc6",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "alpha_forge/config.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "a3df92878316b4a219968eab9fe11ec63f428fce",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "alpha_forge/costs/build_tables.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "34427136d0dd0eef43f63cee4e9e60b320153c44",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "alpha_forge/costs/fees.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "fe738a3a07f2985f4571450ce3fe6f163d52dae3",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "alpha_forge/data/equities.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "9e269e7112613e87420dab3c175870a928736e9c",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "alpha_forge/data/manifest.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "b438186795ce03fbead984090a7b2d495102c06a",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "alpha_forge/data/universe.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "c2a381fee8c183a6296a3485969a8d123cc8eeea",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "alpha_forge/execution/paper.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "7a8ac85b0b41d1380f9bd12b673863ce22cf3a59",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "alpha_forge/gates/gatekeeper.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "49f5754dff99725ac66e216256af948ed13290f1",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "alpha_forge/ledger/ledger.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "2672a8a2ce18364929a2db26d0b9aa4cc3939a0b",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "alpha_forge/orchestrator/daily.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "5501b1a257e5d07602cb3f1da182015f27eca305",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "alpha_forge/reporting/export.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "7dc05c77a0cf64815fbb97a3d87199160aed6641",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "alpha_forge/reporting/findings.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "d8a0a43c4c6c773dbcac796ac7d6b0502de9919f",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "alpha_forge/research/confluence2.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "075305e7a17d895d97762b2d3e8fd51f530ec269",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "alpha_forge/research/loop.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "d4f0b7bf7abaf0f9e128060750ed12984e190020",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "alpha_forge/research/reconciler.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "1108ecef86dbebf03e8e758eb9204875828afb05",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "alpha_forge/research/scanner.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "525afb048da5ce103bca138090c55c9203a14fc0",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "alpha_forge/research/sizing2.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "48cbad91b7b11e26a88482990d43cbe38e3d0a11",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "pyproject.toml",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "f86ac3a571ad2c8c80dd9bd3e5ffc5d36bd3f360",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "tests/test_confluence2.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "67ef34cde3231027b4a352d10bd0e3330a626a51",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "tests/test_gates_stress_sizing.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "389459465df6281a73f4d60c9cb9a3759091a686",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "tests/test_reconciler_loop.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "5185893daed14120c6d794842e8a1eafc41ed0a7",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "tests/test_sizing2.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "f1e6e50d032cba0adc14e6257cf196a51d2d04aa",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "alpha_forge/integrity.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "89bd21733867071237f703e1bf62322d584c4e34",
+        "raw_bytes_match": true
+      },
+      {
+        "path": "tests/test_equities.py",
+        "normalized_git_blob_matches": true,
+        "restored_git_blob": "f8abe8afdbb3d4316f92edc3e8572e742a137c88",
+        "raw_bytes_match": true
+      }
+    ],
+    "high_confidence_secret_pattern_flags": []
+  },
+  "scope": "Recovery artifact only. Application behavior and scientific/trading claims have not been newly validated. Never execute trading or broker entry points merely to restore these files."
+}
